@@ -1,14 +1,20 @@
 "use client";
 import React, { useState, useContext } from "react";
 import Navbar from "@/components/navBar";
-import { toast } from "react-toastify";
+import toast, { Toaster } from "react-hot-toast";
 import { ThemeContext } from "../ThemeContext";
+import { AuthContext } from "../context/AuthContext";
+import { useRouter } from "next/navigation";
+
 import axios from "axios";
 import { AiOutlineArrowRight, AiOutlineArrowLeft } from "react-icons/ai"; // استيراد أيقونات السهم
 
 const RegisterPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
   const [currentStep, setCurrentStep] = useState(1);
+  const { login } = useContext(AuthContext);
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -83,8 +89,13 @@ const RegisterPage = () => {
         }
       );
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
+        const userId = response.data.id;
+        const email = response.data.email;
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("email", email);
         toast.success("تم إنشاء الحساب بنجاح!");
+        login(email, userId);
         setFormData({
           fullName: "",
           email: "",
@@ -94,6 +105,10 @@ const RegisterPage = () => {
           phoneNO: "",
           address: "",
         });
+        toast.success("تم انشاء الحساب بنجاح!");
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1500);
       } else {
         toast.error("حدث خطأ أثناء إنشاء الحساب");
       }
@@ -290,6 +305,7 @@ const RegisterPage = () => {
   return (
     <>
       <Navbar />
+      <Toaster />
       <div
         className={`min-h-screen flex items-center justify-center ${
           isDarkMode ? "bg-gray-900" : "bg-gray-100"

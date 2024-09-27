@@ -52,16 +52,14 @@ const LoginForm = () => {
 
       if (response.status === 200) {
         localStorage.setItem("email", email);
-        console.log(response.data.id);
+        //  console.log(response.data.id);
         const userId = response.data.id;
         localStorage.setItem("userId", userId);
         login(email, userId);
-
         toast.success("تم تسجيل الدخول بنجاح!");
-
         setTimeout(() => {
           router.push("/dashboard");
-        }, 2000);
+        }, 1500);
       } else {
         setErrorMessage(
           "خطأ في تسجيل الدخول. يرجى التحقق من البريد الإلكتروني وكلمة المرور."
