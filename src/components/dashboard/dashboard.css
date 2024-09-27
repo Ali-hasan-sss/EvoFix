@@ -1,0 +1,27 @@
+.sidebar-button {
+  transition: background-color 0.3s, color 0.3s; /* تأثير التحويل */
+  padding: 10px; /* إضافة مسافة داخلية */
+  border-radius: 5px; /* إضافة زوايا مستديرة */
+}
+
+.sidebar-button:hover {
+  background-color: rgba(255, 255, 255, 0.2); /* لون خلفية عند التحويم */
+  color: yellow; /* لون نص عند التحويم */
+}
+
+/* تخصيص تأثير التحويم حسب الوضع الداكن */
+.bg-gray-800 .sidebar-button:hover {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ); /* لون خلفية عند التحويم في الوضع الداكن */
+}
+.main {
+  min-height: 100vh;
+}
+.content {
+  margin: 100px;
+  width: 100%;
+}

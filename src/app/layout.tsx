@@ -1,6 +1,11 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { ThemeProvider } from "./ThemeContext";
+import { AuthProvider } from "./context/AuthContext";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -28,7 +33,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <AuthProvider>
+          {" "}
+          {/* تغليف التطبيق بـ AuthProvider */}
+          <Toaster /> {/* Toaster هنا ليكون متاحًا في جميع الصفحات */}
+          <ThemeProvider>{children}</ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
