@@ -1,5 +1,4 @@
-// src/app/profile.tsx
-"use client"; // تأكد من أن هذا المكون يعمل على العميل
+"use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";

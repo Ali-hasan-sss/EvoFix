@@ -1,9 +1,9 @@
 "use client";
 import { NextPage } from "next";
+import React, { useContext } from "react";
 import Navbar from "@/components/navBar";
 import Head from "next/head";
-import ChatLayout from "@/components/ChatLayout";
-import { useState, useContext } from "react";
+import ChatBotButton from "@/components/ChatbotButton";
 import { Toaster } from "react-hot-toast";
 import { ThemeContext } from "./ThemeContext";
 const Home: NextPage = () => {
@@ -31,12 +31,9 @@ const Home: NextPage = () => {
           isDarkMode ? "bg-gray-900 text-light" : "bg-gray-100 text-black"
         }`}
       >
-        {/* Navbar */}
         <Navbar />
         <Toaster />
-
-        <ChatLayout />
-        {/* Hero Section */}
+        <ChatBotButton />
         <section className="bg-blue-500 text-white py-20">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-4xl font-bold">
@@ -54,7 +51,6 @@ const Home: NextPage = () => {
             </a>
           </div>
         </section>
-
         {/* Services Section */}
         <section id="services" className="py-20">
           <div className="container mx-auto px-4">
@@ -101,7 +97,6 @@ const Home: NextPage = () => {
             </div>
           </div>
         </section>
-
         {/* About Us Section */}
         <section id="about" className="py-20 bg-gray-100">
           <div className="container mx-auto px-4 text-center">
@@ -113,7 +108,6 @@ const Home: NextPage = () => {
             </p>
           </div>
         </section>
-
         {/* Contact Section */}
         <section id="contact" className="py-20">
           <div className="container mx-auto px-4">
@@ -148,7 +142,6 @@ const Home: NextPage = () => {
             </form>
           </div>
         </section>
-
         {/* Footer */}
         <footer className="bg-gray-800 text-white py-6">
           <div className="container mx-auto px-4 text-center">

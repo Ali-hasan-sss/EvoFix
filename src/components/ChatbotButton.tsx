@@ -1,31 +1,27 @@
-import { useEffect } from "react";
+"use client";
 
-const ChatbotButton = () => {
-  useEffect(() => {
-    // إضافة كود Tidio للدردشة
-    const script = document.createElement("script");
-    script.src = "//code.tidio.co/your-tidio-code.js";
-    script.async = true;
-    document.body.appendChild(script);
+import React, { useState } from "react";
+import { AiOutlineRobot } from "react-icons/ai";
+import ChatWindow from "./ChatWindow";
 
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+const ChatBotButton: React.FC = () => {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
+  };
 
   return (
-    <button
-      className="fixed bottom-4 right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none"
-      onClick={() => {
-        // فتح شات بوت Tidio
-        if (window.tidioChatApi) {
-          window.tidioChatApi.open();
-        }
-      }}
-    >
-      💬
-    </button>
+    <>
+      <button
+        onClick={toggleChat}
+        className="fixed bottom-5 right-5 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-50"
+      >
+        <AiOutlineRobot size={24} />
+      </button>
+      {isChatOpen && <ChatWindow onClose={toggleChat} />}
+    </>
   );
 };
 
-export default ChatbotButton;
+export default ChatBotButton;
