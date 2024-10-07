@@ -6,6 +6,7 @@ import Head from "next/head";
 import ChatBotButton from "@/components/ChatbotButton";
 import { Toaster } from "react-hot-toast";
 import { ThemeContext } from "./ThemeContext";
+import Hero from "@/components/Hero/Hero";
 const Home: NextPage = () => {
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
 
@@ -52,51 +53,7 @@ const Home: NextPage = () => {
           </div>
         </section>
         {/* Services Section */}
-        <section id="services" className="py-20">
-          <div className="container mx-auto px-4">
-            <h3 className="text-3xl font-semibold text-center mb-8">
-              Our Repair Services
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Service 1 */}
-              <div className="bg-white shadow-lg p-6 rounded-lg text-center">
-                <img
-                  src="/screen-repair.jpg"
-                  alt="Screen Repair"
-                  className="w-full h-48 object-cover rounded-t-lg mb-4"
-                />
-                <h4 className="text-xl font-bold">Screen Repairs</h4>
-                <p className="mt-2 text-gray-600">
-                  Broken screens? We fix it fast.
-                </p>
-              </div>
-              {/* Service 2 */}
-              <div className="bg-white shadow-lg p-6 rounded-lg text-center">
-                <img
-                  src="/battery-replacement.jpg"
-                  alt="Battery Replacement"
-                  className="w-full h-48 object-cover rounded-t-lg mb-4"
-                />
-                <h4 className="text-xl font-bold">Battery Replacement</h4>
-                <p className="mt-2 text-gray-600">
-                  Need a new battery? We’ve got you covered.
-                </p>
-              </div>
-              {/* Service 3 */}
-              <div className="bg-white shadow-lg p-6 rounded-lg text-center">
-                <img
-                  src="/water-damage.jpg"
-                  alt="Water Damage"
-                  className="w-full h-48 object-cover rounded-t-lg mb-4"
-                />
-                <h4 className="text-xl font-bold">Water Damage</h4>
-                <p className="mt-2 text-gray-600">
-                  We repair devices affected by water damage.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+        <Hero />
         {/* About Us Section */}
         <section id="about" className="py-20 bg-gray-100">
           <div className="container mx-auto px-4 text-center">

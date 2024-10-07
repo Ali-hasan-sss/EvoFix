@@ -112,6 +112,11 @@ const Navbar: React.FC = () => {
                   انشاء حساب
                 </Link>
               </li>
+              <li>
+                <Link href="/joinus" className="hover:text-gray-300 text-light">
+                  انضم الينا
+                </Link>
+              </li>
             </>
           )}
         </ul>

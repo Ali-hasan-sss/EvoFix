@@ -1,3 +1,4 @@
+/* dashboard.css */
 .sidebar-button {
   transition: background-color 0.3s, color 0.3s; /* تأثير التحويل */
   padding: 10px; /* إضافة مسافة داخلية */
@@ -5,23 +6,40 @@
 }
 
 .sidebar-button:hover {
-  background-color: rgba(255, 255, 255, 0.2); /* لون خلفية عند التحويم */
-  color: yellow; /* لون نص عند التحويم */
+  background-color: rgba(255, 255, 255, 0.2);
+  color: yellow;
 }
 
-/* تخصيص تأثير التحويم حسب الوضع الداكن */
 .bg-gray-800 .sidebar-button:hover {
-  background-color: rgba(
-    255,
-    255,
-    255,
-    0.2
-  ); /* لون خلفية عند التحويم في الوضع الداكن */
+  background-color: rgba(255, 255, 255, 0.2);
 }
+
 .main {
   min-height: 100vh;
 }
+
 .content {
-  margin: 100px;
   width: 100%;
+}
+
+.bottom-navigation {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .bottom-navigation {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 1px solid #e0e0e0;
+    justify-content: space-around;
+    padding: 10px 0;
+    z-index: 10;
+  }
+
+  .sidebar {
+    display: none;
+  }
 }

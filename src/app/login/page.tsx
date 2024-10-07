@@ -6,6 +6,8 @@ import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
+import Cookies from "js-cookie";
+import { API_BASE_URL } from "../../utils/api";
 
 const LoginForm = () => {
   const { isDarkMode } = useContext(ThemeContext);
@@ -15,6 +17,7 @@ const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -28,20 +31,23 @@ const LoginForm = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage("");
+    setLoading(true);
 
     if (!validateEmail(email)) {
       setErrorMessage("يرجى إدخال بريد إلكتروني صالح.");
+      setLoading(false);
       return;
     }
 
     if (!validatePassword(password)) {
       setErrorMessage("يجب أن تكون كلمة المرور على الأقل 8 أحرف.");
+      setLoading(false);
       return;
     }
 
     try {
       const response = await axios.post(
-        "https://evo-fix-api.vercel.app/api/users/login",
+        `${API_BASE_URL}/users/login`,
         { email, password },
         {
           headers: {
@@ -50,22 +56,36 @@ const LoginForm = () => {
         }
       );
 
-      if (response.status === 200) {
-        localStorage.setItem("email", email);
-        //  console.log(response.data.id);
-        const userId = response.data.id;
+      if (response.status === 200 || response.status === 201) {
+        const userId = response.data.info.id;
+        const userRole = response.data.info.role;
+        const userEmail = response.data.info.email;
+        const token = response.data.token; // استقبل التوكن من الاستجابة
+
+        Cookies.set("token", token, {
+          expires: 7, // حفظ التوكن لمدة 7 أيام
+          secure: process.env.NODE_ENV === "production",
+        });
+
         localStorage.setItem("userId", userId);
-        login(email, userId);
-        toast.success("تم تسجيل الدخول بنجاح!");
-        setTimeout(() => {
+        localStorage.setItem("email", userEmail);
+        localStorage.setItem("userRole", userRole);
+
+        toast.success(response.data.message || "تم تسجيل الدخول بنجاح!");
+        login(userEmail, userId);
+
+        // التوجيه بناءً على صلاحيات المستخدم
+        if (userRole === "ADMIN") {
+          router.push("/admindashboard");
+        } else {
           router.push("/dashboard");
-        }, 1500);
+        }
       } else {
         setErrorMessage(
           "خطأ في تسجيل الدخول. يرجى التحقق من البريد الإلكتروني وكلمة المرور."
         );
       }
-    } catch (error) {
+    } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
         setErrorMessage(
           `حدث خطأ: ${error.response.data.message || "غير معروف"}`
@@ -73,6 +93,8 @@ const LoginForm = () => {
       } else {
         setErrorMessage("تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -129,9 +151,12 @@ const LoginForm = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+            disabled={loading}
+            className={`w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            تسجيل الدخول
+            {loading ? "جارٍ تسجيل الدخول..." : "تسجيل الدخول"}
           </button>
         </form>
       </div>

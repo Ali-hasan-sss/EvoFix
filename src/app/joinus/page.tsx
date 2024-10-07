@@ -1,4 +1,3 @@
-// pages/register.tsx
 "use client";
 import React, { useContext } from "react";
 import Navbar from "@/components/navBar";
@@ -8,14 +7,15 @@ import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import UserForm from "../../components/forms/UserForm";
+import Cookies from "js-cookie"; // استيراد مكتبة js-cookie لحفظ التوكن في الكوكيز
 import { API_BASE_URL } from "../../utils/api"; // استيراد الدومين من الملف الخارجي
 
-const RegisterPage = () => {
+const RegisterTechnicianPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
   const { login } = useContext(AuthContext);
   const router = useRouter();
 
-  const handleRegister = async (data: {
+  const handleRegisterTechnician = async (data: {
     fullName: string;
     email: string;
     governorate: string;
@@ -23,7 +23,8 @@ const RegisterPage = () => {
     confirmPassword: string;
     phoneNO: string;
     address: string;
-    specialization?: string; // إضافة الاختصاص كاختياري
+    specialization: string; // الاختصاص مطلوب في تسجيل التقني
+    services: string; // وصف الخدمات المطلوبة من التقني
   }) => {
     try {
       const response = await axios.post(
@@ -35,7 +36,9 @@ const RegisterPage = () => {
           password: data.password,
           phoneNO: data.phoneNO,
           address: data.address,
-          specialization: data.specialization, // إضافة الاختصاص للطلب
+          specialization: data.specialization, // الاختصاص مطلوب للتقني
+          services: data.services, // إضافة وصف الخدمات المطلوبة للتقني
+          role: "TECHNICAL", // إضافة دور التقني في الطلب
         },
         {
           headers: {
@@ -50,16 +53,23 @@ const RegisterPage = () => {
         const userId = response.data.id;
         const email = response.data.email;
         const userRole = response.data.role;
+        const token = response.data.token; // استقبال التوكن من الاستجابة
+
+        // حفظ التوكن في الكوكيز
+        Cookies.set("token", token, {
+          expires: 7, // حفظ التوكن لمدة 7 أيام
+          secure: process.env.NODE_ENV === "production", // يستخدم secure إذا كان الموقع في الإنتاج (HTTPS)
+        });
 
         // حفظ المعرف والبريد الإلكتروني في localStorage
         localStorage.setItem("userId", userId.toString()); // حفظ المعرف كـ string
         localStorage.setItem("email", email);
-        localStorage.userRole("userRole", userRole);
+        localStorage.setItem("userRole", userRole);
 
-        toast.success("تم إنشاء الحساب بنجاح!");
+        toast.success("تم إنشاء حساب تقني بنجاح!");
 
-        // تمرير token كـ null لأنه غير مستخدم
-        login(email, userId); // تحديث AuthContext بالبريد الإلكتروني ومعرف المستخدم
+        // تمرير التوكن مع البريد الإلكتروني ومعرف المستخدم
+        login(email, userId);
 
         // إعادة توجيه المستخدم بعد التسجيل
         setTimeout(() => {
@@ -86,21 +96,14 @@ const RegisterPage = () => {
           isDarkMode ? "bg-gray-900" : "bg-gray-100"
         }`}
       >
-        <div
-          className={`p-8 rounded shadow-md w-full max-w-sm ${
-            isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
-          }`}
-        >
-          <h2 className="text-xl font-bold mb-4">تسجيل حساب جديد</h2>
-          <UserForm
-            onSubmit={handleRegister}
-            isNew={true} // تمرير القيمة isNew كـ true
-            isUser={true} // تمرير القيمة isUser كـ true، إذا كنت تريد استخدامه كـ مستخدم عادي
-          />
-        </div>
+        <UserForm
+          onSubmit={handleRegisterTechnician} // تمرير دالة handleRegisterTechnician
+          isNew={true} // تمرير القيمة isNew كـ true
+          isUser={false} // تمرير القيمة isUser كـ false، لتحديد أنه حساب تقني
+        />
       </div>
     </>
   );
 };
 
-export default RegisterPage;
+export default RegisterTechnicianPage;

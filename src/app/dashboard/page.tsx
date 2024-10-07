@@ -1,57 +1,61 @@
 "use client";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Navbar from "@/components/navBar";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Profile from "./profile";
 import { AuthContext } from "@/app/context/AuthContext";
 import "../../components/dashboard/dashboard.css";
 import { ThemeContext } from "../ThemeContext";
-import Link from "next/link"; // لاستيراد رابط التسجيل وتسجيل الدخول
+import { useRouter } from "next/navigation";
 
 const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");
   const { isDarkMode } = useContext(ThemeContext);
-  const { isLoggedIn } = useContext(AuthContext);
+  const { isLoggedIn } = useContext(AuthContext); // الحصول على حالة تسجيل الدخول من السياق
+  const [loading, setLoading] = useState(true); // حالة التحميل
+  const router = useRouter();
 
-  // دالة لرسم المحتوى بناءً على الاختيار
+  // دالة لتحديد المحتوى الذي سيتم عرضه بناءً على الخيار المختار
   const renderContent = () => {
     switch (selectedOption) {
-      case "addRepair":
-        return <div>هنا ستظهر صفحة طلب الإصلاح</div>;
       case "viewRequests":
         return <div>هنا ستظهر قائمة طلبات الإصلاح</div>;
-      case "completedRepairs":
-        return <div>هنا ستظهر قائمة الإصلاحات المنفذة</div>;
-      case "pendingRequests":
-        return <div>هنا ستظهر قائمة الطلبات قيد التنفيذ</div>;
       case "notifications":
-        return <div>هنا ستظهر الإشعارات</div>;
-      case "editProfile":
-        return <div>هنا ستظهر صفحة تعديل الملف الشخصي</div>;
-      case "deleteProfile":
-        return <div>هنا ستظهر صفحة حذف الملف الشخصي</div>;
-      case "profile": // إضافة خيار البروفايل
-        return <Profile />; // عرض صفحة البروفايل
+        return <div>الإشعارات</div>;
+      case "profile":
+        return <Profile />;
       default:
         return null;
     }
   };
 
-  // التحقق من تسجيل الدخول
+  // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
+  useEffect(() => {
+    const checkAuth = async () => {
+      // محاكاة التحقق من حالة تسجيل الدخول
+      setTimeout(() => {
+        setLoading(false); // انتهاء التحميل بعد التحقق
+      }, 1000); // يمكنك تعديل المهلة
+    };
+
+    checkAuth();
+  }, []);
+
+  // التحقق من حالة تسجيل الدخول بعد انتهاء التحميل
+  useEffect(() => {
+    if (!loading && !isLoggedIn) {
+      router.push("/"); // إعادة التوجيه لصفحة ليس لديك صلاحية
+    }
+  }, [isLoggedIn, loading, router]);
+
+  // عرض رسالة أثناء التحقق من حالة تسجيل الدخول
+  if (loading) {
+    return <div>جاري التحقق من حالة تسجيل الدخول...</div>;
+  }
+
+  // عدم عرض الداشبورد إذا لم يكن المستخدم مسجلاً للدخول
   if (!isLoggedIn) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-center">
-          <h2>يجب عليك تسجيل الدخول أو إنشاء حساب للولوج إلى لوحة التحكم</h2>
-          <Link href="/login" className="text-blue-500 underline mr-4">
-            تسجيل الدخول
-          </Link>
-          <Link href="/register" className="text-blue-500 underline">
-            إنشاء حساب
-          </Link>
-        </div>
-      </div>
-    );
+    return null; // أو يمكنك إعادة توجيهه يدويًا أو عرض رسالة
   }
 
   // عرض لوحة التحكم إذا كان المستخدم مسجلاً للدخول
@@ -67,7 +71,7 @@ const Dashboard = () => {
         <Sidebar onSelectOption={setSelectedOption} />
         <div
           className={`flex-1 p-6 content ${
-            isDarkMode ? "bg-gray-800" : "bg-white"
+            isDarkMode ? "bg-gray-600" : "bg-white"
           }`}
         >
           {renderContent()}
