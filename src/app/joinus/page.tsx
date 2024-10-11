@@ -47,7 +47,7 @@ const RegisterTechnicianPage = () => {
         }
       );
 
-      console.log("Response Data:", response.data); // للتأكد من البيانات المستلمة
+      //  console.log("Response Data:", response.data); // للتأكد من البيانات المستلمة
 
       if (response.status === 200 || response.status === 201) {
         const userId = response.data.id;

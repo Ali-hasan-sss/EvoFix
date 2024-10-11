@@ -1,12 +1,17 @@
-import React, { useEffect, useState } from "react";
+"use client";
+
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "../../utils/api";
 import UserForm from "../../components/forms/UserForm"; // استيراد الفورم
-import { toast } from "react-toastify"; // استيراد توست
+import { toast, ToastContainer } from "react-toastify"; // استيراد توست و ToastContainer
 import "react-toastify/dist/ReactToastify.css"; // استيراد CSS الخاص بالتوست
 import { FaEdit, FaTrash, FaSpinner } from "react-icons/fa"; // استيراد الأيقونات
+import { confirmAlert } from "react-confirm-alert"; // استيراد مكتبة التأكيد
+import "react-confirm-alert/src/react-confirm-alert.css"; // استيراد CSS الخاص بـ react-confirm-alert
+import { ThemeContext } from "../ThemeContext";
 
 const Profile: React.FC = () => {
   const router = useRouter();
@@ -15,6 +20,7 @@ const Profile: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false); // حالة الحذف
+  const { isDarkMode } = useContext(ThemeContext);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -22,7 +28,8 @@ const Profile: React.FC = () => {
     phoneNO: "",
     governorate: "",
     address: "",
-    specialization: "", // إضافة حقل الاختصاص
+    specialization: "",
+    isActive: false,
   });
 
   // تحديد نوع الحساب بناءً على role
@@ -65,7 +72,8 @@ const Profile: React.FC = () => {
           phoneNO: response.data.phoneNO,
           governorate: response.data.governorate,
           address: response.data.address,
-          specialization: response.data.specialization || "", // إضافة الاختصاص
+          specialization: response.data.specialization || "",
+          isActive: response.data.isActive,
         });
       } catch (error: unknown) {
         toast.error("خطأ في تحميل بيانات المستخدم");
@@ -73,8 +81,18 @@ const Profile: React.FC = () => {
         setIsLoading(false);
       }
     } else {
-      toast.error("User ID or token is missing.");
+      toast.error("User ID أو token مفقود.");
     }
+  };
+  const renderUserStatus = () => {
+    return (
+      <span
+        className={`inline-block w-3 h-3 rounded-full ${
+          userData.isActive ? "bg-green-500" : "bg-red-500"
+        }`}
+        title={userData.isActive ? "مفعل" : "غير مفعل"}
+      ></span>
+    );
   };
 
   useEffect(() => {
@@ -95,7 +113,7 @@ const Profile: React.FC = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setUserData(updatedData);
+        setUserData({ ...userData, ...updatedData });
         setIsEditing(false);
         toast.success("تم تحديث البيانات بنجاح!");
       } catch (error: unknown) {
@@ -104,36 +122,55 @@ const Profile: React.FC = () => {
         setIsUpdating(false);
       }
     } else {
-      toast.error("User ID or token is missing.");
+      toast.error("User ID أو token مفقود.");
     }
   };
 
   const handleDeleteAccount = async () => {
     const userId = localStorage.getItem("userId");
     const token = Cookies.get("token");
+
     if (token && userId) {
-      const confirmDelete = window.confirm("هل أنت متأكد من حذف الحساب؟");
-      if (confirmDelete) {
-        setIsDeleting(true);
-        try {
-          await axios.delete(`${API_BASE_URL}/users/${userId}`, {
-            withCredentials: true,
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
+      confirmAlert({
+        title: "تأكيد الحذف",
+        message: "هل أنت متأكد من أنك تريد حذف حسابك؟",
+        buttons: [
+          {
+            label: "نعم",
+            onClick: async () => {
+              setIsDeleting(true); // إظهار حالة الحذف
+              try {
+                await axios.delete(`${API_BASE_URL}/users/${userId}`, {
+                  withCredentials: true,
+                  headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
+                Cookies.remove("token");
+                localStorage.removeItem("email");
+                localStorage.removeItem("userId");
+                localStorage.removeItem("userRole");
+                toast.success("تم حذف الحساب بنجاح!");
+                router.push("/login"); // إعادة التوجيه لصفحة تسجيل الدخول
+              } catch (error: unknown) {
+                toast.error("حدث خطأ أثناء حذف الحساب.");
+              } finally {
+                setIsDeleting(false); // إخفاء حالة الحذف
+              }
             },
-          });
-          toast.success("تم حذف الحساب بنجاح!");
-          router.push("/login");
-        } catch (error: unknown) {
-          toast.error("حدث خطأ أثناء حذف الحساب.");
-        } finally {
-          setIsDeleting(false);
-        }
-      }
+          },
+          {
+            label: "لا",
+            onClick: () => {},
+          },
+        ],
+        closeOnEscape: true,
+        closeOnClickOutside: true,
+      });
     } else {
-      toast.error("User ID or token is missing.");
+      toast.error("User ID أو token مفقود.");
     }
   };
 
@@ -145,31 +182,40 @@ const Profile: React.FC = () => {
       phoneNO: userData.phoneNO,
       governorate: userData.governorate,
       address: userData.address,
-      specialization: userData.specialization || "", // إعادة ضبط الاختصاص
+      specialization: userData.specialization || "",
+      isActive: true,
     });
   };
 
   if (isLoading)
     return (
       <div className="flex justify-center items-center h-screen">
-        <FaSpinner className="animate-spin" />
+        <FaSpinner className="animate-spin text-4xl text-blue-500" />
       </div>
     );
 
   if (!userData) return <div>No data found</div>;
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold">بروفايل المستخدم</h1>
+    <div
+      className={`container mx-auto p-4 ${
+        isDarkMode ? "bg-gray-900 text-white " : "bg-gray-100 text-black"
+      }`}
+    >
+      <ToastContainer /> {/* إضافة ToastContainer لعرض رسائل التوست */}
+      <h1 className="text-3xl font-bold mb-6 text-center">الملف الشخصي</h1>
       {isEditing ? (
-        <div>
-          <div className="mt-4 flex space-x-4">
+        <div
+          className={`p-6 rounded-lg shadow-md ${
+            isDarkMode ? "bg-gray-500 text-white " : "bg-gray-200 text-black"
+          }`}
+        >
+          <div className="flex justify-end">
             <button
               onClick={handleCancelEdit}
-              className="bg-red-400 text-white p-2 rounded flex items-center"
+              className="bg-red-500 text-white px-4 py-2 rounded flex items-center"
             >
-              <FaTrash className="mr-2" />
-              إلغاء
+              x
             </button>
           </div>
           <UserForm
@@ -182,57 +228,108 @@ const Profile: React.FC = () => {
           />
         </div>
       ) : (
-        <div className="mt-4">
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* عرض بيانات المستخدم */}
-            <div>
-              <p className="font-semibold">الاسم:</p>
-              <p>{userData.fullName}</p>
+        <div
+          className={`p-6 rounded-lg shadow-md ${
+            isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-black"
+          }`}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
+            {/* عرض بيانات المستخدم مع خلفيات وبوردر لكل عنصر */}
+            <div
+              className={`p-4 rounded-lg ${
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600"
+                  : "bg-white border-gray-200"
+              } border shadow-md flex-1`}
+            >
+              <p className="font-semibold">:الاسم</p>
+              <p className="text-lg">{userData.fullName}</p>
             </div>
 
-            <div>
-              <p className="font-semibold">البريد الإلكتروني:</p>
-              <p>{userData.email}</p>
+            <div
+              className={`p-4 rounded-lg ${
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600"
+                  : "bg-white border-gray-200"
+              } border shadow-md flex-1`}
+            >
+              <p className="font-semibold">:البريد الالكتروني</p>
+              <p className="text-lg">{userData.email}</p>
             </div>
 
-            <div>
-              <p className="font-semibold">رقم الهاتف:</p>
-              <p>{userData.phoneNO}</p>
+            <div
+              className={`p-4 rounded-lg ${
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600"
+                  : "bg-white border-gray-200"
+              } border shadow-md flex-1`}
+            >
+              <p className="font-semibold">الموبايل:</p>
+              <p className="text-lg">{userData.phoneNO}</p>
             </div>
 
-            <div>
-              <p className="font-semibold">المحافظة:</p>
-              <p>{userData.governorate}</p>
+            <div
+              className={`p-4 rounded-lg ${
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600"
+                  : "bg-white border-gray-200"
+              } border shadow-md flex-1`}
+            >
+              <p className="font-semibold">:المحافظة</p>
+              <p className="text-lg">{userData.governorate}</p>
             </div>
 
-            <div className="md:col-span-2">
-              <p className="font-semibold">العنوان:</p>
-              <p>{userData.address}</p>
+            <div
+              className={`p-4 rounded-lg ${
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600"
+                  : "bg-white border-gray-200"
+              } border shadow-md flex-1 lg:col-span-2`}
+            >
+              <p className="font-semibold">:العنوان</p>
+              <p className="text-lg">{userData.address}</p>
             </div>
 
-            <div>
-              <p className="font-semibold">نوع الحساب:</p>
-              <p>{getRoleLabel(userData.role)}</p>
+            <div
+              className={`p-4 rounded-lg ${
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600"
+                  : "bg-white border-gray-200"
+              } border shadow-md flex-1`}
+            >
+              <p className="font-semibold">:نوع الحساب</p>
+              <p className="text-lg">{getRoleLabel(userData.role)}</p>
+            </div>
+
+            <div
+              className={`p-4 rounded-lg ${
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600"
+                  : "bg-white border-gray-200"
+              } border shadow-md flex-1`}
+            >
+              <p className="font-semibold">:الحالة</p>
+              <p className="text-lg">{renderUserStatus()}</p>
             </div>
           </div>
 
-          <div className="mt-6 flex justify-center space-x-4">
+          <div className="mt-8 flex justify-between space-x-4">
             <button
               onClick={() => setIsEditing(true)}
-              className="bg-yellow-500 text-white p-3 rounded-md flex items-center"
+              className="bg-blue-500 text-white px-6 py-3 rounded-lg flex items-center hover:bg-blue-600 transition"
             >
-              <FaEdit className="mr-2" />
+              <FaEdit className="ml-2" />
               تعديل
             </button>
             <button
               onClick={handleDeleteAccount}
-              className="bg-red-500 text-white p-3 rounded-md flex items-center"
+              className="bg-red-400 text-white px-6 py-3 rounded-lg flex items-center hover:bg-red-600 transition"
               disabled={isDeleting}
             >
               {isDeleting ? (
-                <FaSpinner className="animate-spin mr-2" />
+                <FaSpinner className="animate-spin ml-2" />
               ) : (
-                <FaTrash className="mr-2" />
+                <FaTrash className="ml-2" />
               )}
               حذف الحساب
             </button>

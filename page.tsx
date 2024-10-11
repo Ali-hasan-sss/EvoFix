@@ -1,5 +1,5 @@
 // src\app\page.tsx
-"use client"
+"use client";
 // import { verifyTokenForPage } from "@/utils/verifyToken";
 import axios from "axios";
 // import { cookies } from "next/headers";
@@ -7,50 +7,48 @@ import Image from "next/image";
 import { browser } from "process";
 
 export default function Home() {
-    const login = async () => { 
+  const login = async () => {
     // const url = 'https://evo-fix-api.vercel.app/api/users/login'
-    const url = 'http://localhost:3000/api/users/login'
+    const url = "http://localhost:3000/api/users/login";
     // const token = cookies().get('jwtToken')?.value as string
 
-   const user = await axios.post(url,{email:"Admin@email.com",password: "123456"})
-    console.log(user.data);
+    const user = await axios.post(url, {
+      email: "Admin@email.com",
+      password: "123456",
+    });
+    // console.log(user.data);
     // console.log(document.cookie.toString());
+  };
 
-    
-    
-  }
-
-  function getCookie(name:string) {
-    const cookies = document.cookie.split('; ');
+  function getCookie(name: string) {
+    const cookies = document.cookie.split("; ");
     for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].split('=');
+      const cookie = cookies[i].split("=");
       if (cookie[0] === name) {
         return decodeURIComponent(cookie[1]);
       }
     }
     return null;
   }
-  
+
   // Usage
-  
-  
+
   const getco = async () => {
-    const token = getCookie('Token');
-    console.log('Token:', token);
+    const token = getCookie("Token");
+    console.log("Token:", token);
     // const response = await axios.get('http://localhost:3000/api/users/3')
-  // console.log(response.status);
-  // console.log(  getCookie('Token'));
-  
-  
+    // console.log(response.status);
+    // console.log(  getCookie('Token'));
+
     // return {
     //   data: response.data,
     //   headers: response.headers
     // }
-  }
-  return ( 
+  };
+  return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <button onClick={login} >login</button>
-      <button onClick={getco} >data</button>
+      <button onClick={login}>login</button>
+      <button onClick={getco}>data</button>
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <Image
           className="dark:invert"

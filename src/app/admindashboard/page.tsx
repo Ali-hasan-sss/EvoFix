@@ -6,6 +6,9 @@ import Navbar from "@/components/navBar";
 import { ThemeContext } from "../ThemeContext"; // تأكد من استيراد ThemeContext
 import Notifications from "./notification";
 import Users from "./users";
+import DashboardHome from "./DashboardHome";
+import RepairRequestsPage from "./RepairRequests";
+import { ClipLoader } from "react-spinners";
 import {
   FaHome,
   FaUsers,
@@ -24,7 +27,7 @@ const AdminDashboard: React.FC = () => {
   // دالة للتحقق من صلاحيات المستخدم
   const checkAdminRole = () => {
     const userRole = localStorage.getItem("userRole"); // يمكنك تعديل هذا بناءً على كيفية تخزين بيانات المستخدم
-    if (userRole !== "ADMIN") {
+    if (userRole !== "ADMIN" && userRole !== "SUBADMIN") {
       router.push("/unauthorized"); // توجيه إلى صفحة عدم الصلاحية
     } else {
       setLoading(false); // إنهاء التحميل إذا كان المستخدم أدمن
@@ -34,12 +37,23 @@ const AdminDashboard: React.FC = () => {
   // تنفيذ التحقق عند تحميل الصفحة
   useEffect(() => {
     checkAdminRole();
-  }, []);
+  }, [checkAdminRole]);
 
   const renderContent = () => {
     switch (activeTab) {
       case "home":
-        return <div>الرئيسية</div>;
+        return (
+          <div>
+            <DashboardHome />
+          </div>
+        );
+      case "users":
+        return (
+          <div>
+            <Users />
+          </div>
+        );
+
       case "users":
         return (
           <div>
@@ -49,7 +63,11 @@ const AdminDashboard: React.FC = () => {
       case "technicians":
         return <div>إدارة التقنيين</div>;
       case "repairRequests":
-        return <div>طلبات الإصلاح</div>;
+        return (
+          <div>
+            <RepairRequestsPage />
+          </div>
+        );
       case "notifications":
         return (
           <div>
@@ -65,7 +83,17 @@ const AdminDashboard: React.FC = () => {
 
   // عرض رسالة تحميل أثناء التحقق من الصلاحيات
   if (loading) {
-    return <div>جاري التحقق من الصلاحيات...</div>;
+    return (
+      <div className="flex contentn-center item-center">
+        <div
+          className={` ${
+            isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
+          }`}
+        >
+          <ClipLoader color="#4A90E2" size={50} />
+        </div>
+      </div>
+    );
   }
 
   // عرض لوحة التحكم إذا تم التحقق من أن المستخدم أدمن
@@ -80,7 +108,7 @@ const AdminDashboard: React.FC = () => {
 
       {/* Sidebar */}
       <div
-        className={`w-1/4 bg-gray-800 text-white p-6 mt-16 ${
+        className={`w-1/5 bg-gray-800 text-white p-6 mt-16 ${
           isDarkMode ? "bg-gray-800 " : "bg-white"
         }`}
       >
@@ -139,7 +167,7 @@ const AdminDashboard: React.FC = () => {
 
       {/* Container */}
       <div
-        className={`w-3/4 p-6 mt-16 ${
+        className={`w-4/5 p-6 mt-16 ${
           isDarkMode ? "bg-gray-900" : "bg-gray-100"
         }`}
       >

@@ -1,0 +1,68 @@
+[
+    {
+        "title": "لعرض جميع طلبات الصيانة لجميع التقنيين قبل ان يستلمها اي تقني",
+        "api" : "/api/maintenance-requests/all/Pending"
+    },
+    {
+        "title": "لعرض جميع الطلبات التي استمها التقني الخاصة به",
+        "api" : "/api/maintenance-requests/all/assign"
+    },
+    {
+        "title": "لعرض جميع الطلبات المعلقة الخاصة بالتقني الذي استم الطلب",
+        "api" : "/api/maintenance-requests/all/quote"
+    },
+    {
+        "title": "لعرض جميع الطلبات القيد التنفيذ الخاصة بالتقني",
+        "api" : "/api/maintenance-requests/all/in-progress"
+    },
+    {
+        "title": "لعرض جميع الطلبات المرفوضة الخاصة بالتقني",
+        "api" : "/api/maintenance-requests/all/reject"
+    },
+    {
+        "title": "لعرض جميع الطلبات المكتملة الخاصة بالتقني",
+        "api" : "/api/maintenance-requests/all/complete"
+    },
+    {
+        "title": "لجلب جميع مهام الخاصة بكل تقني التي تم استملامها",
+        "api" : "/api/maintenance-requests/all/technician"
+    },
+    {
+        "title": "لعرض جميع طلبات الصيانة للآدمن بجميع التفاصيل",
+        "api" : "/api/maintenance-requests/all/admin"
+    },
+    {
+        "title": "لعرض تفاصيل جميع طلبات الصيانة الخاصة بمحافظة مدير المحافظة",
+        "api" : "/api/maintenance-requests/all/sub-admin"
+    },
+    {
+        "title": "لعرض جميع الطلبات التي قدمها المستخدم والخاصة به",
+        "api" : "/api/maintenance-requests/all/user"
+    } 
+]
+
+# ايند بوينت لتعديل وتغيير حالة الطلب
+
+[
+    {
+        "title": "لتعديل حالة الطلب الى استلام ",
+        "api" : "/api/maintenance-requests/:id/assign"
+    },
+    {
+        "title": "لتعديل حالة الطلب الى معلقة مع ارسال التكلفة",
+        "body": "cost",
+        "api" : "/api/maintenance-requests/:id/quote"
+    },
+    {
+        "title": "هذه خاصة بالمستخدم عنما يقبل سعر التكلفة فيتحول الطلب الى قيد الانجاز",
+        "api" : "/api/maintenance-requests/:id/accept"
+    },
+    {
+        "title": "عند الانتهاء من الصيانة تتحول الحالة الى الطلب المنجز",
+        "api" : "/api/maintenance-requests/:id/complete"
+    },
+    {
+        "title": "خاصة بالمستخدم بحيث عندما لا يوافق على الطلب تتحول الى مرفوض",
+        "api" : "/api/maintenance-requests/:id/reject"
+    }
+]

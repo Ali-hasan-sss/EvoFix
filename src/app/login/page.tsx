@@ -25,7 +25,7 @@ const LoginForm = () => {
   };
 
   const validatePassword = (password: string): boolean => {
-    return password.length >= 8;
+    return password.length >= 6;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -77,6 +77,8 @@ const LoginForm = () => {
         // التوجيه بناءً على صلاحيات المستخدم
         if (userRole === "ADMIN") {
           router.push("/admindashboard");
+        } else if (userRole === "TECHNICAL") {
+          router.push("/technicaldashboard");
         } else {
           router.push("/dashboard");
         }

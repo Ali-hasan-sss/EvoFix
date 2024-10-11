@@ -1,19 +1,48 @@
+"use client";
+
 import Link from "next/link";
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "@/app/context/AuthContext";
 import { ThemeContext } from "@/app/ThemeContext";
-import "././assats/navbar.css";
+import { usePathname } from "next/navigation"; // استيراد usePathname
+import { toast } from "react-toastify";
+import "./assets/navbar.css";
 const Navbar: React.FC = () => {
   const { toggleTheme, isDarkMode } = useContext(ThemeContext);
   const { isLoggedIn, logout } = useContext(AuthContext); // استخدام isLoggedIn و logout من AuthContext
   const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("");
-  // هذا الـ useEffect للتأكد من أن activeItem يعيد التعيين عندما يتغير isLoggedIn
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const pathname = usePathname(); // استخدام usePathname بدلاً من useRouter
+
+  // قراءة دور المستخدم من localStorage عند تحميل المكون
   useEffect(() => {
-    if (!isLoggedIn) {
-      setActiveItem(""); // أو أي حالة افتراضية تريدها
+    const role = localStorage.getItem("userRole");
+    setUserRole(role);
+  }, []);
+
+  // تحديث العنصر النشط بناءً على المسار الحالي
+  useEffect(() => {
+    const path = pathname;
+    if (path === "/") {
+      setActiveItem("home");
+    } else if (path === "/about") {
+      setActiveItem("about");
+    } else if (path === "/services") {
+      setActiveItem("services");
+    } else if (path === "/dashboard" || path === "/admin-dashboard") {
+      setActiveItem("dashboard");
+    } else if (path === "/login") {
+      setActiveItem("login");
+    } else if (path === "/register") {
+      setActiveItem("register");
+    } else if (path === "/joinus") {
+      setActiveItem("joinus");
+    } else {
+      setActiveItem("");
     }
-  }, [isLoggedIn]);
+  }, [pathname]);
+
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
@@ -23,6 +52,12 @@ const Navbar: React.FC = () => {
     setIsOpen(false);
   };
 
+  const handleLogout = () => {
+    logout();
+    toast.success("تم تسجيل الخروج بنجاح!");
+    window.location.href = "/";
+  };
+
   return (
     <div>
       <nav
@@ -30,7 +65,7 @@ const Navbar: React.FC = () => {
           isDarkMode ? "bg-gray-800 text-white" : "bg-blue-500 text-black"
         }`}
       >
-        <div className="flex justify-between items-center ">
+        <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">EVOFIX</h1>
           <div className="flex items-center">
             <button onClick={toggleTheme} className="p-2 mr-5">
@@ -59,7 +94,7 @@ const Navbar: React.FC = () => {
         </div>
         <ul className="hidden md:flex space-x-4">
           <li>
-            <a
+            <Link
               href="/"
               className={`hover:text-gray-300 ${
                 activeItem === "home" ? "text-yellow-400" : ""
@@ -67,57 +102,100 @@ const Navbar: React.FC = () => {
               onClick={() => handleItemClick("home")}
             >
               الرئيسية
-            </a>
+            </Link>
           </li>
           <li>
-            <a
-              href="#"
+            <Link
+              href="/about"
               className={`hover:text-gray-300 ${
                 activeItem === "about" ? "text-yellow-400" : ""
               }`}
               onClick={() => handleItemClick("about")}
             >
               عننا
-            </a>
+            </Link>
           </li>
           <li>
-            <a
-              href="#"
+            <Link
+              href="/services"
               className={`hover:text-gray-300 ${
                 activeItem === "services" ? "text-yellow-400" : ""
               }`}
               onClick={() => handleItemClick("services")}
             >
               الخدمات
-            </a>
+            </Link>
           </li>
           {isLoggedIn ? (
             <li>
-              <a href="/dashboard" className="hover:text-gray-300 text-light">
-                لوحة التحكم
-              </a>
+              {userRole === "ADMIN" || userRole === "SUBADMIN" ? (
+                <Link
+                  href="/admindashboard"
+                  className={`hover:text-gray-300 ${
+                    activeItem === "dashboard" ? "text-yellow-400" : ""
+                  }`}
+                  onClick={() => handleItemClick("dashboard")}
+                >
+                  لوحة التحكم
+                </Link>
+              ) : userRole === "USER" || userRole === "TECHNICAL" ? (
+                <Link
+                  href="/dashboard"
+                  className={`hover:text-gray-300 ${
+                    activeItem === "dashboard" ? "text-yellow-400" : ""
+                  }`}
+                  onClick={() => handleItemClick("dashboard")}
+                >
+                  لوحة التحكم
+                </Link>
+              ) : null}
             </li>
           ) : (
             <>
               <li>
-                <Link href="/login" className="hover:text-gray-300 text-light">
+                <Link
+                  href="/login"
+                  className={`hover:text-gray-300 ${
+                    activeItem === "login" ? "text-yellow-400" : ""
+                  }`}
+                  onClick={() => handleItemClick("login")}
+                >
                   تسجيل الدخول
                 </Link>
               </li>
               <li>
                 <Link
                   href="/register"
-                  className="hover:text-gray-300 text-light"
+                  className={`hover:text-gray-300 ${
+                    activeItem === "register" ? "text-yellow-400" : ""
+                  }`}
+                  onClick={() => handleItemClick("register")}
                 >
-                  انشاء حساب
+                  إنشاء حساب
                 </Link>
               </li>
               <li>
-                <Link href="/joinus" className="hover:text-gray-300 text-light">
+                <Link
+                  href="/joinus"
+                  className={`hover:text-gray-300 ${
+                    activeItem === "joinus" ? "text-yellow-400" : ""
+                  }`}
+                  onClick={() => handleItemClick("joinus")}
+                >
                   انضم الينا
                 </Link>
               </li>
             </>
+          )}
+          {isLoggedIn && (
+            <li>
+              <button
+                onClick={handleLogout}
+                className="hover:text-gray-300 text-light"
+              >
+                تسجيل الخروج
+              </button>
+            </li>
           )}
         </ul>
       </nav>
@@ -157,50 +235,71 @@ const Navbar: React.FC = () => {
 
           <ul className="space-y-6">
             <li>
-              <a
-                href="#"
-                className={`block text-white  ${
+              <Link
+                href="/"
+                className={`block text-white ${
                   activeItem === "home" ? "bg-blue-500 text-white" : ""
                 }`}
                 onClick={() => handleItemClick("home")}
               >
                 الرئيسية
-              </a>
+              </Link>
             </li>
             <li>
-              <a
-                href="#"
+              <Link
+                href="/about"
                 className={`block text-light-700 ${
                   activeItem === "about" ? "bg-blue-500 text-white" : ""
                 }`}
                 onClick={() => handleItemClick("about")}
               >
                 عننا
-              </a>
+              </Link>
             </li>
             <li>
-              <a
-                href="#"
+              <Link
+                href="/services"
                 className={`block text-light-700 ${
                   activeItem === "services" ? "bg-blue-500 text-white" : ""
                 }`}
                 onClick={() => handleItemClick("services")}
               >
                 الخدمات
-              </a>
+              </Link>
             </li>
-            {isLoggedIn ? (
+            {isLoggedIn && userRole ? (
               <li>
-                <a href="/dashboard" className="hover:text-gray-300 text-light">
-                  لوحة التحكم
-                </a>
+                {userRole === "ADMIN" || userRole === "SUBADMIN" ? (
+                  <Link
+                    href="/admindashboard"
+                    className={`hover:text-gray-300 ${
+                      activeItem === "dashboard" ? "text-yellow-400" : ""
+                    }`}
+                    onClick={() => handleItemClick("dashboard")}
+                  >
+                    لوحة التحكم
+                  </Link>
+                ) : userRole === "USER" || userRole === "TECHNICAL" ? (
+                  <Link
+                    href="/dashboard"
+                    className={`hover:text-gray-300 ${
+                      activeItem === "dashboard" ? "text-yellow-400" : ""
+                    }`}
+                    onClick={() => handleItemClick("dashboard")}
+                  >
+                    لوحة التحكم
+                  </Link>
+                ) : null}
               </li>
             ) : (
               <>
                 <li>
                   <Link
                     href="/login"
-                    className="hover:text-light text-light p-2"
+                    className={`hover:text-gray-300 ${
+                      activeItem === "login" ? "text-yellow-400" : ""
+                    }`}
+                    onClick={() => handleItemClick("login")}
                   >
                     تسجيل الدخول
                   </Link>
@@ -208,9 +307,23 @@ const Navbar: React.FC = () => {
                 <li>
                   <Link
                     href="/register"
-                    className="hover:text-light-300 text-light p-2"
+                    className={`hover:text-gray-300 ${
+                      activeItem === "register" ? "text-yellow-400" : ""
+                    }`}
+                    onClick={() => handleItemClick("register")}
                   >
-                    انشاء حساب
+                    إنشاء حساب
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/joinus"
+                    className={`hover:text-gray-300 ${
+                      activeItem === "joinus" ? "text-yellow-400" : ""
+                    }`}
+                    onClick={() => handleItemClick("joinus")}
+                  >
+                    انضم الينا
                   </Link>
                 </li>
               </>

@@ -2,7 +2,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import Navbar from "@/components/navBar";
 import Sidebar from "@/components/dashboard/Sidebar";
-import Profile from "./profile";
+import Profile from "../dashboard/profile";
 import { AuthContext } from "@/app/context/AuthContext";
 import "../../components/dashboard/dashboard.css";
 import { ThemeContext } from "../ThemeContext";
@@ -84,17 +84,17 @@ const Dashboard = () => {
 
         {/* الحاوية الرئيسية */}
         <div
-          className={`flex-1  flex justify-center items-center p-6 ${
+          className={`flex-1 flex justify-center items-center p-6 ${
             isDarkMode ? "bg-gray-600" : "bg-white"
           }`}
           style={{
-            minHeight: "100%",
+            minHeight: "100%", // الحاوية تمتد لتتوافق مع طول الشاشة
             width: "100%",
-            overflowY: "auto",
+            overflowY: "auto", // السماح بالتمرير عند وجود محتوى طويل
           }}
         >
           <div
-            className="flex flex-col  justify-center items-center"
+            className="flex flex-col justify-center items-center"
             style={{ width: "100%", maxWidth: "800px", minHeight: "100%" }}
           >
             {renderContent()}

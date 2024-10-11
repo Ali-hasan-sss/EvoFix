@@ -1,8 +1,21 @@
+// components/forms/UserForm.tsx
 "use client";
+
 import React, { useState, useContext } from "react";
 import toast from "react-hot-toast";
 import { ThemeContext } from "@/app/ThemeContext";
 import { AiOutlineArrowRight, AiOutlineArrowLeft } from "react-icons/ai";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+
+// تعريف نوع props
+interface UserFormProps {
+  initialData?: FormData;
+  onSubmit: (data: FormData) => Promise<void>;
+  submitButtonLabel?: string;
+  isNew?: boolean;
+  isUser?: boolean;
+  isTechnical?: boolean;
+}
 
 interface FormData {
   fullName: string;
@@ -13,7 +26,7 @@ interface FormData {
   password: string;
   confirmPassword: string;
   specialization?: string;
-  services?: string; // New field for services description
+  services?: string;
 }
 
 interface FormErrors {
@@ -38,7 +51,7 @@ const UserForm: React.FC<UserFormProps> = ({
     phoneNO: "",
     address: "",
     specialization: "",
-    services: "", // Initialize services field
+    services: "",
   },
   onSubmit,
   submitButtonLabel = "التسجيل",
@@ -48,9 +61,7 @@ const UserForm: React.FC<UserFormProps> = ({
 }) => {
   const { isDarkMode } = useContext(ThemeContext);
   const [currentStep, setCurrentStep] = useState(1);
-
   const [formData, setFormData] = useState<FormData>(initialData);
-
   const [errors, setErrors] = useState<FormErrors>({
     fullName: "",
     email: "",
@@ -60,8 +71,10 @@ const UserForm: React.FC<UserFormProps> = ({
     password: "",
     confirmPassword: "",
     specialization: "",
-    services: "", // Initialize services error
+    services: "",
   });
+  const [showPassword, setShowPassword] = useState(false); // لإظهار كلمة المرور
+  const [showPasswordR, setShowPasswordR] = useState(false); // لإظهار كلمة المرور
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -95,7 +108,7 @@ const UserForm: React.FC<UserFormProps> = ({
       if (isTechnical && !formData.specialization)
         newErrors.specialization = "الاختصاص مطلوب";
       if (isTechnical && !formData.services)
-        newErrors.services = "وصف الخدمة مطلوب"; // Validate services field
+        newErrors.services = "وصف الخدمة مطلوب";
     } else if (currentStep === 3) {
       if (!formData.address) newErrors.address = "العنوان مطلوب";
       if (formData.password.length < 8)
@@ -124,8 +137,16 @@ const UserForm: React.FC<UserFormProps> = ({
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (validateForm()) {
-      await onSubmit(formData);
+      // إزالة الحقول إذا كان المستخدم User وليس Technical
+      const filteredFormData = isTechnical
+        ? formData
+        : { ...formData, specialization: undefined, services: undefined };
+
+      console.log("Form data being submitted:", filteredFormData);
+
+      await onSubmit(filteredFormData);
     }
   };
 
@@ -144,10 +165,10 @@ const UserForm: React.FC<UserFormProps> = ({
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
-                className={`w-full p-2 border rounded ${
+                className={`w-full p-2 border-b focus:outline-none rounded ${
                   isDarkMode
-                    ? "bg-gray-700 text-white"
-                    : "bg-white text-gray-800"
+                    ? "bg-gray-700 text-white border-gray-600"
+                    : "bg-white text-gray-800 border-gray-300"
                 } ${errors.fullName ? "border-red-500" : ""}`}
                 required
               />
@@ -165,10 +186,10 @@ const UserForm: React.FC<UserFormProps> = ({
                 name="phoneNO"
                 value={formData.phoneNO}
                 onChange={handleChange}
-                className={`w-full p-2 border rounded ${
+                className={`w-full p-2 border-b focus:outline-none rounded ${
                   isDarkMode
-                    ? "bg-gray-700 text-white"
-                    : "bg-white text-gray-800"
+                    ? "bg-gray-700 text-white border-gray-600"
+                    : "bg-white text-gray-800 border-gray-300"
                 } ${errors.phoneNO ? "border-red-500" : ""}`}
                 required
               />
@@ -186,10 +207,10 @@ const UserForm: React.FC<UserFormProps> = ({
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full p-2 border rounded ${
+                className={`w-full p-2 border-b focus:outline-none rounded ${
                   isDarkMode
-                    ? "bg-gray-700 text-white"
-                    : "bg-white text-gray-800"
+                    ? "bg-gray-700 text-white border-gray-600"
+                    : "bg-white text-gray-800 border-gray-300"
                 } ${errors.email ? "border-red-500" : ""}`}
                 required
               />
@@ -212,10 +233,10 @@ const UserForm: React.FC<UserFormProps> = ({
                 name="governorate"
                 value={formData.governorate}
                 onChange={handleChange}
-                className={`w-full p-2 border rounded ${
+                className={`w-full p-2 border-b focus:outline-none rounded ${
                   isDarkMode
-                    ? "bg-gray-700 text-white"
-                    : "bg-white text-gray-800"
+                    ? "bg-gray-700 text-white border-gray-600"
+                    : "bg-white text-gray-800 border-gray-300"
                 } ${errors.governorate ? "border-red-500" : ""}`}
                 required
               />
@@ -223,6 +244,28 @@ const UserForm: React.FC<UserFormProps> = ({
                 <p className="text-red-500 text-sm">{errors.governorate}</p>
               )}
             </div>
+            <div className="mb-4">
+              <label htmlFor="address" className="block font-bold mb-2">
+                العنوان
+              </label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className={`w-full p-2 border-b focus:outline-none rounded ${
+                  isDarkMode
+                    ? "bg-gray-700 text-white border-gray-600"
+                    : "bg-white text-gray-800 border-gray-300"
+                } ${errors.address ? "border-red-500" : ""}`}
+                required
+              />
+              {errors.address && (
+                <p className="text-red-500 text-sm">{errors.address}</p>
+              )}
+            </div>
+
             {!isUser && (
               <>
                 <div className="mb-4">
@@ -237,10 +280,10 @@ const UserForm: React.FC<UserFormProps> = ({
                     name="specialization"
                     value={formData.specialization}
                     onChange={handleChange}
-                    className={`w-full p-2 border rounded ${
+                    className={`w-full p-2 border-b focus:outline-none ${
                       isDarkMode
-                        ? "bg-gray-700 text-white"
-                        : "bg-white text-gray-800"
+                        ? "bg-gray-700 text-white border-gray-600"
+                        : "bg-white text-gray-800 border-gray-300"
                     } ${errors.specialization ? "border-red-500" : ""}`}
                     required
                   >
@@ -266,10 +309,10 @@ const UserForm: React.FC<UserFormProps> = ({
                     name="services"
                     value={formData.services}
                     onChange={handleChange}
-                    className={`w-full p-2 border rounded ${
+                    className={`w-full p-2 border-b focus:outline-none ${
                       isDarkMode
-                        ? "bg-gray-700 text-white"
-                        : "bg-white text-gray-800"
+                        ? "bg-gray-700 text-white border-gray-600"
+                        : "bg-white text-gray-800 border-gray-300"
                     } ${errors.services ? "border-red-500" : ""}`}
                     required
                   />
@@ -285,64 +328,70 @@ const UserForm: React.FC<UserFormProps> = ({
         return (
           <>
             <div className="mb-4">
-              <label htmlFor="address" className="block font-bold mb-2">
-                العنوان
-              </label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className={`w-full p-2 border rounded ${
-                  isDarkMode
-                    ? "bg-gray-700 text-white"
-                    : "bg-white text-gray-800"
-                } ${errors.address ? "border-red-500" : ""}`}
-                required
-              />
-              {errors.address && (
-                <p className="text-red-500 text-sm">{errors.address}</p>
-              )}
-            </div>
-            <div className="mb-4">
               <label htmlFor="password" className="block font-bold mb-2">
                 كلمة المرور
               </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className={`w-full p-2 border rounded ${
-                  isDarkMode
-                    ? "bg-gray-700 text-white"
-                    : "bg-white text-gray-800"
-                } ${errors.password ? "border-red-500" : ""}`}
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`w-full p-2 border-b focus:outline-none rounded ${
+                    isDarkMode
+                      ? "bg-gray-700 text-white border-gray-600"
+                      : "bg-white text-gray-800 border-gray-300"
+                  } ${errors.password ? "border-red-500" : ""}`}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-0 mt-2 mr-2"
+                >
+                  {showPassword ? (
+                    <EyeIcon className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                  )}
+                </button>
+              </div>
               {errors.password && (
                 <p className="text-red-500 text-sm">{errors.password}</p>
               )}
             </div>
+
             <div className="mb-4">
               <label htmlFor="confirmPassword" className="block font-bold mb-2">
                 تأكيد كلمة المرور
               </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={`w-full p-2 border rounded ${
-                  isDarkMode
-                    ? "bg-gray-700 text-white"
-                    : "bg-white text-gray-800"
-                } ${errors.confirmPassword ? "border-red-500" : ""}`}
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPasswordR ? "text" : "password"}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={`w-full p-2 border-b focus:outline-none rounded ${
+                    isDarkMode
+                      ? "bg-gray-700 text-white border-gray-600"
+                      : "bg-white text-gray-800 border-gray-300"
+                  } ${errors.confirmPassword ? "border-red-500" : ""}`}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordR(!showPasswordR)}
+                  className="absolute right-0 right-0 mt-2 mr-2"
+                >
+                  {showPasswordR ? (
+                    <EyeIcon className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                  )}
+                </button>
+              </div>
               {errors.confirmPassword && (
                 <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
               )}
@@ -355,18 +404,19 @@ const UserForm: React.FC<UserFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleFormSubmit}>
-      <div className="p-4">{renderStepContent()}</div>
+    <form onSubmit={handleFormSubmit} className="flex flex-col space-y-4">
+      <div>{renderStepContent()}</div>
 
       <div className="flex justify-between mt-4">
         {currentStep > 1 && (
           <button
             type="button"
             onClick={handlePrev}
-            className="px-4 py-2 bg-gray-300 rounded flex items-center"
+            className={`px-4 py-2 bg-gray-300 rounded flex items-center ${
+              isDarkMode ? "text-white bg-gray-500" : "text-black"
+            }`}
           >
             <AiOutlineArrowLeft className="mr-2" />
-            السابق
           </button>
         )}
 
@@ -374,17 +424,20 @@ const UserForm: React.FC<UserFormProps> = ({
           <button
             type="button"
             onClick={handleNext}
-            className="px-4 py-2 bg-blue-500 text-white rounded flex items-center"
+            className={`px-4 py-2 bg-blue-500 text-white rounded flex items-center ${
+              isDarkMode ? "hover:bg-blue-600" : "hover:bg-blue-600"
+            }`}
           >
-            التالي
             <AiOutlineArrowRight className="ml-2" />
           </button>
         ) : (
           <button
             type="submit"
-            className="px-4 py-2 bg-green-500 text-white rounded"
+            className={`px-4 py-2 bg-green-500 text-white rounded ${
+              isDarkMode ? "hover:bg-green-600" : "hover:bg-green-600"
+            }`}
           >
-            {isNew ? "إنشاء" : "حفظ"}
+            {submitButtonLabel}
           </button>
         )}
       </div>

@@ -1,13 +1,12 @@
-// components/ServicesSlider.tsx
 "use client";
 
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
-import "swiper/css/pagination"; // تأكد من استيراد CSS الخاص بالوحدات
-import { Navigation, Pagination, A11y } from "swiper/modules"; // تعديل الاستيراد هنا
-
+import "swiper/css/pagination";
+import { Navigation, Pagination, A11y } from "swiper/modules";
+import "./assets/images/laptop_repair.webp";
 interface Service {
   title: string;
   description: string;
@@ -18,17 +17,17 @@ const services: Service[] = [
   {
     title: "خدمة 1",
     description: "وصف الخدمة الأولى.",
-    image: "/services/service1.jpg",
+    image: "./assets/images/laptop_repair.webp",
   },
   {
     title: "خدمة 2",
     description: "وصف الخدمة الثانية.",
-    image: "/services/service2.jpg",
+    image: "./assets/images/laptop_repair.webp",
   },
   {
     title: "خدمة 3",
     description: "وصف الخدمة الثالثة.",
-    image: "/services/service3.jpg",
+    image: "./assets/images/laptop_repair.webp",
   },
   // أضف المزيد من الخدمات حسب الحاجة
 ];

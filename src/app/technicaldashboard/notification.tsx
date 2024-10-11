@@ -66,7 +66,7 @@ const Notifications: React.FC = () => {
 
       setNotifications(notificationsWithReadStatus);
     } catch (err) {
-      setError(`${err}"فشل في جلب الإشعارات"`);
+      setError("فشل في جلب الإشعارات");
     } finally {
       setLoading(false);
     }

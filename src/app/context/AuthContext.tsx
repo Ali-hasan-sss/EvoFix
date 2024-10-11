@@ -59,12 +59,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     localStorage.removeItem("email");
     localStorage.removeItem("userId");
     localStorage.removeItem("userRole");
+
     setEmail(null);
     setUserId(null);
     setIsLoggedIn(false);
-    toast.success("تم تسجيل الخروج بنجاح!");
 
-    router.push("/");
+    toast.success("تم تسجيل الخروج بنجاح!");
+    setTimeout(() => {
+      router.push("/");
+    }, 1000);
   };
 
   return (

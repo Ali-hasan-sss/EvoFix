@@ -1,11 +1,13 @@
 // app/layout.tsx
+
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { ThemeProvider } from "./ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
-import { Toaster } from "react-hot-toast";
+import { ToastContainer } from "react-toastify";
+import RepairRequestButton from "@/components/requestbutton";
+import ChatBotButton from "@/components/ChatbotButton";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,8 +38,20 @@ export default function RootLayout({
         <AuthProvider>
           {" "}
           {/* تغليف التطبيق بـ AuthProvider */}
-          <Toaster /> {/* Toaster هنا ليكون متاحًا في جميع الصفحات */}
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
           <ThemeProvider>{children}</ThemeProvider>
+          <RepairRequestButton />
+          <ChatBotButton />
         </AuthProvider>
       </body>
     </html>

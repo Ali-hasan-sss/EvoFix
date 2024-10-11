@@ -25,7 +25,9 @@
 .bottom-navigation {
   display: none;
 }
-
+.active {
+  background-color: blue;
+}
 @media (max-width: 768px) {
   .bottom-navigation {
     display: flex;

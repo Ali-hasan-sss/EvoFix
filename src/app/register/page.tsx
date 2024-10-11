@@ -1,4 +1,3 @@
-// pages/register.tsx
 "use client";
 import React, { useContext } from "react";
 import Navbar from "@/components/navBar";
@@ -8,7 +7,8 @@ import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import UserForm from "../../components/forms/UserForm";
-import { API_BASE_URL } from "../../utils/api"; // استيراد الدومين من الملف الخارجي
+import Cookies from "js-cookie";
+import { API_BASE_URL } from "../../utils/api";
 
 const RegisterPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
@@ -23,11 +23,10 @@ const RegisterPage = () => {
     confirmPassword: string;
     phoneNO: string;
     address: string;
-    specialization?: string; // إضافة الاختصاص كاختياري
   }) => {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/users`, // استخدام الدومين من الملف الخارجي
+        `${API_BASE_URL}/users`,
         {
           email: data.email,
           fullName: data.fullName,
@@ -35,7 +34,6 @@ const RegisterPage = () => {
           password: data.password,
           phoneNO: data.phoneNO,
           address: data.address,
-          specialization: data.specialization, // إضافة الاختصاص للطلب
         },
         {
           headers: {
@@ -44,35 +42,42 @@ const RegisterPage = () => {
         }
       );
 
-      console.log("Response Data:", response.data); // للتأكد من البيانات المستلمة
-
       if (response.status === 200 || response.status === 201) {
         const userId = response.data.id;
         const email = response.data.email;
         const userRole = response.data.role;
+        const token = response.data.token; // استقبال التوكن من الاستجابة
+
+        // حفظ التوكن في الكوكيز
+        Cookies.set("token", token, {
+          expires: 7, // حفظ التوكن لمدة 7 أيام
+          secure: process.env.NODE_ENV === "production", // يستخدم secure إذا كان الموقع في الإنتاج (HTTPS)
+        });
 
         // حفظ المعرف والبريد الإلكتروني في localStorage
-        localStorage.setItem("userId", userId.toString()); // حفظ المعرف كـ string
+        localStorage.setItem("userId", userId.toString());
         localStorage.setItem("email", email);
-        localStorage.userRole("userRole", userRole);
+        localStorage.setItem("userRole", userRole);
 
         toast.success("تم إنشاء الحساب بنجاح!");
 
-        // تمرير token كـ null لأنه غير مستخدم
-        login(email, userId); // تحديث AuthContext بالبريد الإلكتروني ومعرف المستخدم
+        // تسجيل الدخول تلقائيًا
+        login(email, userId);
 
         // إعادة توجيه المستخدم بعد التسجيل
         setTimeout(() => {
           router.push("/dashboard");
         }, 1500);
       } else {
-        toast.error("حدث خطأ أثناء إنشاء الحساب");
+        toast.error("حدث خطأ أثناء إنشاء الحساب.");
       }
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
-        toast.error(`حدث خطأ: ${error.response.data.message || "غير معروف"}`);
+        toast.error(
+          `خطأ من الخادم: ${error.response.data.message || "غير معروف"}`
+        );
       } else {
-        toast.error("تعذر الاتصال بالخادم");
+        toast.error("تعذر الاتصال بالخادم. حاول مرة أخرى لاحقاً.");
       }
     }
   };
@@ -88,15 +93,11 @@ const RegisterPage = () => {
       >
         <div
           className={`p-8 rounded shadow-md w-full max-w-sm ${
-            isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+            isDarkMode ? "bg-gray-800 text-white" : "bg-gray-500 text-gray-800"
           }`}
         >
           <h2 className="text-xl font-bold mb-4">تسجيل حساب جديد</h2>
-          <UserForm
-            onSubmit={handleRegister}
-            isNew={true} // تمرير القيمة isNew كـ true
-            isUser={true} // تمرير القيمة isUser كـ true، إذا كنت تريد استخدامه كـ مستخدم عادي
-          />
+          <UserForm onSubmit={handleRegister} isNew={true} isUser={true} />
         </div>
       </div>
     </>
