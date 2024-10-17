@@ -1,34 +1,46 @@
-// components/dashboard/GenericTable.tsx
-
 "use client";
 
 import React, { useContext } from "react";
 import { ThemeContext } from "@/app/ThemeContext";
 
-// تعريف أنواع الأعمدة
 interface ColumnWithAccessor {
   title: string;
   accessor: string;
 }
 
-interface ColumnWithRender {
+interface ColumnWithRender<T> {
   title: string;
-  render: (item: any) => React.ReactNode;
+  render: (item: T) => React.ReactNode;
 }
 
-type Column = ColumnWithAccessor | ColumnWithRender;
+type Column<T> = ColumnWithAccessor | ColumnWithRender<T>;
 
-interface GenericTableProps {
-  data: any[]; // بيانات الجدول
-  columns: Column[]; // معلومات الأعمدة
+interface GenericTableProps<T> {
+  data: T[]; // بيانات الجدول
+  columns: Column<T>[]; // معلومات الأعمدة
 }
 
-const GenericTable: React.FC<GenericTableProps> = ({ data, columns }) => {
-  const { isDarkMode } = useContext(ThemeContext); // استدعاء حالة الوضع الداكن
+const GenericTable = <T extends Record<string, unknown>>({
+  data,
+  columns,
+}: GenericTableProps<T>) => {
+  const { isDarkMode } = useContext(ThemeContext);
 
-  // دالة للوصول إلى القيم المتداخلة
-  const getValueByAccessor = (item: any, accessor: string) => {
-    return accessor.split(".").reduce((obj, key) => obj?.[key], item) || "N/A";
+  const getValueByAccessor = (item: T, accessor: string): string => {
+    const result = accessor
+      .split(".")
+      .reduce((prev: Record<string, unknown> | undefined, key: string) => {
+        if (prev && typeof prev === "object" && key in prev) {
+          return prev[key] as Record<string, unknown> | undefined;
+        }
+        return undefined;
+      }, item);
+
+    if (typeof result === "string") {
+      return result;
+    }
+
+    return "N/A";
   };
 
   return (
@@ -36,11 +48,9 @@ const GenericTable: React.FC<GenericTableProps> = ({ data, columns }) => {
       {/* تصميم الجدول التقليدي */}
       <div className="hidden md:block">
         <table
-          className={`min-w-full border ${
-            isDarkMode
-              ? "bg-gray-800 border-gray-600"
-              : "bg-white border-gray-300"
-          }`}
+          className={`min-w-full border border-gray-300 ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } rounded-lg shadow-lg overflow-hidden`}
         >
           <thead>
             <tr
@@ -49,7 +59,10 @@ const GenericTable: React.FC<GenericTableProps> = ({ data, columns }) => {
               }`}
             >
               {columns.map((column, index) => (
-                <th key={index} className="py-2 px-4 border-b text-center">
+                <th
+                  key={index}
+                  className="py-3 px-6 border-b border-gray-300 text-center text-sm font-medium uppercase tracking-wider"
+                >
                   {column.title}
                 </th>
               ))}
@@ -60,17 +73,21 @@ const GenericTable: React.FC<GenericTableProps> = ({ data, columns }) => {
               data.map((item, rowIndex) => (
                 <tr
                   key={rowIndex}
-                  className={`hover:${
-                    isDarkMode ? "bg-gray-700" : "bg-gray-100"
-                  }`}
+                  className={`${
+                    rowIndex % 2 === 0
+                      ? isDarkMode
+                        ? "bg-gray-700"
+                        : "bg-gray-50"
+                      : isDarkMode
+                      ? "bg-gray-600"
+                      : "bg-white"
+                  } hover:bg-gray-300 transition-colors`}
                 >
                   {columns.map((column, colIndex) => (
                     <td
                       key={colIndex}
-                      className={`py-2 px-4 border-b text-center ${
-                        isDarkMode
-                          ? "text-white border-gray-600"
-                          : "text-black border-gray-300"
+                      className={`py-4 px-6 border-b border-gray-300 text-center text-sm ${
+                        isDarkMode ? "text-white" : "text-gray-800"
                       }`}
                     >
                       {"accessor" in column
@@ -82,7 +99,10 @@ const GenericTable: React.FC<GenericTableProps> = ({ data, columns }) => {
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} className="py-2 text-center">
+                <td
+                  colSpan={columns.length}
+                  className="py-4 text-center text-sm text-gray-500"
+                >
                   لا توجد بيانات لعرضها
                 </td>
               </tr>
@@ -97,15 +117,13 @@ const GenericTable: React.FC<GenericTableProps> = ({ data, columns }) => {
           data.map((item, rowIndex) => (
             <div
               key={rowIndex}
-              className={`border p-4 mb-4 rounded-lg shadow-md ${
-                isDarkMode
-                  ? "bg-gray-800 border-gray-600 text-white"
-                  : "bg-white border-gray-300 text-black"
-              }`}
+              className={`border border-gray-300 rounded-lg shadow-md p-4 mb-4 ${
+                isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-800"
+              } transition-transform transform hover:scale-105`}
             >
               {columns.map((column, colIndex) => (
                 <div key={colIndex} className="mb-2">
-                  <strong>{column.title}:</strong>{" "}
+                  <span className="font-semibold">{column.title}:</span>{" "}
                   <span>
                     {"accessor" in column
                       ? getValueByAccessor(item, column.accessor)
@@ -116,7 +134,9 @@ const GenericTable: React.FC<GenericTableProps> = ({ data, columns }) => {
             </div>
           ))
         ) : (
-          <div className="text-center py-2">لا توجد بيانات لعرضها</div>
+          <div className="text-center py-4 text-sm text-gray-500">
+            لا توجد بيانات لعرضها
+          </div>
         )}
       </div>
     </div>

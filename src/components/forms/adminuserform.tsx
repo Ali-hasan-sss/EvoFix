@@ -52,7 +52,6 @@ const UserForm: React.FC<UserFormProps> = ({
   onSubmit,
   submitButtonLabel = "التسجيل",
   isNew = true,
-  isUser = true,
   isTechnical = false,
 }) => {
   const { isDarkMode } = useContext(ThemeContext);

@@ -8,11 +8,13 @@ import { ThemeContext } from "@/app/ThemeContext"; // لاستدعاء حالة 
 import AvailableRequests from "./AvailableRequests"; // استيراد الطلبات المتاحة
 import PendingRequests from "./PendingRequests"; // استيراد الطلبات المتاحة
 import Tasks from "./Tasks";
+import { RepairRequest } from "../../../utils/types"; // تأكد من المسار الصحيح
 import Completed from "./completed";
 import Quoted from "./quoted";
+
 const RepairRequests = () => {
   const [activeTab, setActiveTab] = useState("available"); // تبويب النشط
-  const [repairRequests, setRepairRequests] = useState<any[]>([]);
+  const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { isDarkMode } = useContext(ThemeContext); // التحقق من حالة الوضع الداكن
 
@@ -48,7 +50,7 @@ const RepairRequests = () => {
   }, []);
 
   // دالة لتعيين الطلب
-  const handleAssignRequest = async (requestId: string) => {
+  const handleAssignRequest = async (requestId: number) => {
     try {
       const token = Cookies.get("token");
       const response = await axios.put(

@@ -1,4 +1,6 @@
 /* dashboard.css */
+
+/* إزالة أو تعديل فئات sidebar-button لتجنب تعارض الألوان */
 .sidebar-button {
   transition: background-color 0.3s, color 0.3s; /* تأثير التحويل */
   padding: 10px; /* إضافة مسافة داخلية */
@@ -7,9 +9,10 @@
 
 .sidebar-button:hover {
   background-color: rgba(255, 255, 255, 0.2);
-  color: yellow;
+  /* إزالة color: yellow; لتجنب تعارض الألوان */
 }
 
+/* إزالة القاعدة التي قد تتسبب في تعارض الألوان */
 .bg-gray-800 .sidebar-button:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
@@ -22,13 +25,14 @@
   width: 100%;
 }
 
+/* إزالة قواعد bottom-navigation لأننا سنستخدم Tailwind للتحكم في العرض */
 .bottom-navigation {
-  display: none;
+  /* display: none; */ /* سنستخدم Tailwind لإخفاء العرض */
 }
-.active {
-  background-color: blue;
-}
+
 @media (max-width: 768px) {
+  /* إزالة قواعد العرض المخصص وإدارة العرض باستخدام Tailwind */
+  /* 
   .bottom-navigation {
     display: flex;
     position: fixed;
@@ -44,4 +48,5 @@
   .sidebar {
     display: none;
   }
+  */
 }

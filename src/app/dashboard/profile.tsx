@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, useContext } from "react";
-import axios from "axios";
+import React, { useEffect, useState, useContext, useCallback } from "react";
+import axios, { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "../../utils/api";
@@ -12,29 +12,34 @@ import { FaEdit, FaTrash, FaSpinner } from "react-icons/fa"; // استيراد �
 import { confirmAlert } from "react-confirm-alert"; // استيراد مكتبة التأكيد
 import "react-confirm-alert/src/react-confirm-alert.css"; // استيراد CSS الخاص بـ react-confirm-alert
 import { ThemeContext } from "../ThemeContext";
+import { EditProfileData } from "@/utils/types";
+import { AuthContext } from "@/app/context/AuthContext";
 
 const Profile: React.FC = () => {
   const router = useRouter();
-  const [userData, setUserData] = useState<any>(null);
+  const { logout } = useContext(AuthContext);
+  const [userData, setUserData] = useState<EditProfileData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false); // حالة الحذف
   const { isDarkMode } = useContext(ThemeContext);
 
-  const [formData, setFormData] = useState({
-    name: "",
+  const [formData, setFormData] = useState<EditProfileData>({
+    fullName: "",
     email: "",
     phoneNO: "",
+    password: "",
+    confirmPassword: "",
     governorate: "",
     address: "",
     specialization: "",
+    role: "",
     isActive: false,
   });
 
   // تحديد نوع الحساب بناءً على role
   const isUser = userData?.role === "USER";
-  const isTechnical = userData?.role === "TECHNICAL";
 
   const getRoleLabel = (role: string) => {
     switch (role) {
@@ -51,55 +56,75 @@ const Profile: React.FC = () => {
     }
   };
 
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     const userId = localStorage.getItem("userId");
     const token = Cookies.get("token");
     if (userId && token) {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${API_BASE_URL}/users/${userId}`, {
-          withCredentials: true,
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response: AxiosResponse<EditProfileData> = await axios.get(
+          `${API_BASE_URL}/users/${userId}`,
+          {
+            withCredentials: true,
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         setUserData(response.data);
         setFormData({
-          name: response.data.fullName,
+          fullName: response.data.fullName,
           email: response.data.email,
           phoneNO: response.data.phoneNO,
           governorate: response.data.governorate,
           address: response.data.address,
+          password: "",
+          confirmPassword: "",
           specialization: response.data.specialization || "",
           isActive: response.data.isActive,
+          role: response.data.role || "",
         });
       } catch (error: unknown) {
         toast.error("خطأ في تحميل بيانات المستخدم");
+        console.log(error);
+        if (axios.isAxiosError(error) && error.response) {
+          if (error.response.status === 401) {
+            logout();
+            router.push("/login");
+          } else {
+            toast.error(
+              `حدث خطأ: ${error.response.data.message || "غير معروف"}`
+            );
+          }
+        } else {
+          toast.error("تعذر الاتصال بالخادم.");
+        }
       } finally {
         setIsLoading(false);
       }
     } else {
       toast.error("User ID أو token مفقود.");
     }
-  };
+  }, [setIsLoading, setUserData, setFormData, logout, router]); // ضع هنا التبعيات الفعلية التي يمكن أن تتغير
+
   const renderUserStatus = () => {
     return (
       <span
         className={`inline-block w-3 h-3 rounded-full ${
-          userData.isActive ? "bg-green-500" : "bg-red-500"
+          userData?.isActive ? "bg-green-500" : "bg-red-500"
         }`}
-        title={userData.isActive ? "مفعل" : "غير مفعل"}
+        title={userData?.isActive ? "مفعل" : "غير مفعل"}
       ></span>
     );
   };
 
   useEffect(() => {
     fetchUserData();
-  }, []);
+  }, [fetchUserData]);
 
-  const handleUpdate = async (updatedData: any) => {
+  const handleUpdate = async (updatedData: EditProfileData) => {
     const userId = localStorage.getItem("userId");
     const token = Cookies.get("token");
     if (token && userId) {
@@ -116,8 +141,17 @@ const Profile: React.FC = () => {
         setUserData({ ...userData, ...updatedData });
         setIsEditing(false);
         toast.success("تم تحديث البيانات بنجاح!");
+        // إعادة جلب بيانات المستخدم لتحديث الحالة
+        fetchUserData();
       } catch (error: unknown) {
         toast.error("حدث خطأ أثناء تحديث البيانات.");
+        if (axios.isAxiosError(error) && error.response) {
+          toast.error(`حدث خطأ: ${error.response.data.message || "غير معروف"}`);
+          console.log(error);
+          console.log(isUpdating);
+        } else {
+          toast.error("تعذر الاتصال بالخادم.");
+        }
       } finally {
         setIsUpdating(false);
       }
@@ -156,6 +190,7 @@ const Profile: React.FC = () => {
                 router.push("/login"); // إعادة التوجيه لصفحة تسجيل الدخول
               } catch (error: unknown) {
                 toast.error("حدث خطأ أثناء حذف الحساب.");
+                console.log(error);
               } finally {
                 setIsDeleting(false); // إخفاء حالة الحذف
               }
@@ -176,15 +211,20 @@ const Profile: React.FC = () => {
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    setFormData({
-      name: userData.fullName,
-      email: userData.email,
-      phoneNO: userData.phoneNO,
-      governorate: userData.governorate,
-      address: userData.address,
-      specialization: userData.specialization || "",
-      isActive: true,
-    });
+    if (userData) {
+      setFormData({
+        fullName: userData.fullName,
+        email: userData.email,
+        phoneNO: userData.phoneNO,
+        governorate: userData.governorate,
+        address: userData.address,
+        password: "",
+        confirmPassword: "",
+        specialization: userData.specialization || "",
+        isActive: userData.isActive,
+        role: userData.role || "",
+      });
+    }
   };
 
   if (isLoading)
@@ -220,11 +260,9 @@ const Profile: React.FC = () => {
           </div>
           <UserForm
             isNew={false}
-            isUser={isUser} // تمرير isUser بناءً على نوع المستخدم
-            isTechnical={isTechnical} // تمرير isTechnical بناءً على نوع المستخدم
+            isUser={isUser}
             initialData={formData}
             onSubmit={handleUpdate}
-            isLoading={isUpdating}
           />
         </div>
       ) : (
@@ -298,7 +336,7 @@ const Profile: React.FC = () => {
               } border shadow-md flex-1`}
             >
               <p className="font-semibold">:نوع الحساب</p>
-              <p className="text-lg">{getRoleLabel(userData.role)}</p>
+              <p className="text-lg">{getRoleLabel(userData.role || "")}</p>
             </div>
 
             <div

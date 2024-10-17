@@ -1,8 +1,6 @@
 // في صفحة UnauthorizedPage
 import Navbar from "@/components/navBar";
 import Link from "next/link";
-import { useContext } from "react";
-import { ThemeContext } from "../ThemeContext";
 
 const UnauthorizedPage = () => {
   return (

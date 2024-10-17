@@ -4,24 +4,110 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../../utils/api";
 import { ThemeContext } from "../ThemeContext";
-import { FaEdit, FaTrash } from "react-icons/fa";
-import GenericTable from "@/components/dashboard/GenericTable"; // استيراد مكون الجدول العام
+import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import GenericTable from "@/components/dashboard/GenericTable";
 import { toast, ToastContainer } from "react-toastify";
-import { confirmAlert } from "react-confirm-alert"; // استيراد مكتبة التأكيد
+import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
-import { ClipLoader } from "react-spinners"; // استيراد مؤشر التحميل
-import Switch from "react-switch"; // استيراد مكتبة Switch
-import "react-toastify/dist/ReactToastify.css"; // استيراد تنسيقات التوست
+import { ClipLoader } from "react-spinners";
+import Switch from "react-switch";
+import "react-toastify/dist/ReactToastify.css";
 
 interface User {
   id: number;
   fullName: string;
   email: string;
   phoneNO: string;
+  address: string;
   governorate: string;
   role: string;
   isActive: boolean;
 }
+
+interface UserDetailsProps {
+  user: User | null;
+  onClose: () => void;
+}
+
+const UserDetails: React.FC<UserDetailsProps> = ({ user, onClose }) => {
+  const { isDarkMode } = useContext(ThemeContext);
+  const getUserRoleLabel = (role: string) => {
+    switch (role) {
+      case "ADMIN":
+        return "مسؤول";
+      case "SUB_ADMIN":
+        return "مسؤول فرعي";
+      case "TECHNICAL":
+        return "تقني";
+      default:
+        return "مستخدم";
+    }
+  };
+  if (!user) return null; // إذا لم يتم تحديد مستخدم، لا تعرض شيئًا.
+
+  return (
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-75 z-50 flex items-center justify-center">
+      <div
+        className={`p-6 rounded shadow-lg w-10/12 md:w-1/2 max-h-full overflow-auto ${
+          isDarkMode
+            ? "bg-gray-800 text-white border border-gray-700"
+            : "bg-blue-300 text-black border border-black-900"
+        }`}
+      >
+        <h2 className="text-2xl font-bold mb-6 text-center">تفاصيل المستخدم</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* الاسم الكامل */}
+          <div className="border p-4 rounded">
+            <strong>الاسم الكامل:</strong>
+            <p>{user.fullName}</p>
+          </div>
+          {/* البريد الإلكتروني */}
+          <div className="border p-4 rounded break-words">
+            <strong>البريد الإلكتروني:</strong>
+            <p className="break-all">{user.email}</p>
+          </div>
+          {/* رقم الهاتف */}
+          <div className="border p-4 rounded">
+            <strong>رقم الهاتف:</strong>
+            <p>{user.phoneNO}</p>
+          </div>
+          {/* المحافظة */}
+          <div className="border p-4 rounded">
+            <strong>المحافظة:</strong>
+            <p>{user.governorate}</p>
+          </div>
+          {/* العنوان */}
+          <div className="border p-4 rounded sm:col-span-2">
+            <strong>العنوان:</strong>
+            <p>{user.address}</p>
+          </div>
+          {/* نوع المستخدم */}
+          <div className="border p-4 rounded">
+            <strong>نوع المستخدم:</strong>
+            <p>{getUserRoleLabel(user.role)}</p>
+          </div>
+          {/* الحالة */}
+          <div className="border p-4 rounded flex items-center">
+            <strong className="mr-2">الحالة:</strong>
+            <span
+              className={`inline-block w-3 h-3 rounded-full mr-2 ${
+                user.isActive ? "bg-green-500" : "bg-red-500"
+              }`}
+            ></span>
+          </div>
+        </div>
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={onClose}
+            className="py-2 px-6 bg-red-500 text-white rounded hover:bg-red-700"
+          >
+            إغلاق
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Users: React.FC = () => {
   const { isDarkMode } = useContext(ThemeContext);
@@ -30,6 +116,7 @@ const Users: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false); // حالة الحذف
   const [togglingUserId, setTogglingUserId] = useState<number | null>(null); // حالة التفعيل/التعطيل
+  const [selectedUser, setSelectedUser] = useState<User | null>(null); // المستخدم المحدد لعرض التفاصيل
 
   const fetchUsers = async () => {
     try {
@@ -164,6 +251,14 @@ const Users: React.FC = () => {
     });
   };
 
+  const handleViewUser = (user: User) => {
+    setSelectedUser(user); // تعيين المستخدم المحدد لعرض التفاصيل
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedUser(null); // إلغاء تحديد المستخدم وإغلاق نافذة التفاصيل
+  };
+
   const getUserRoleLabel = (role: string) => {
     switch (role) {
       case "ADMIN":
@@ -233,6 +328,9 @@ const Users: React.FC = () => {
             />
           )}
         </button>
+        <button onClick={() => handleViewUser(user)}>
+          <FaEye className="text-green-500 hover:text-green-700" />
+        </button>
       </div>
     ),
   }));
@@ -257,6 +355,11 @@ const Users: React.FC = () => {
       <h2 className="text-2xl font-bold mb-4 text-center">قائمة المستخدمين</h2>
       <GenericTable data={tableData} columns={tableColumns} />
       <ToastContainer position="top-right" autoClose={2000} />
+
+      {/* عرض نافذة التفاصيل إذا كان هناك مستخدم محدد */}
+      {selectedUser && (
+        <UserDetails user={selectedUser} onClose={handleCloseDetails} />
+      )}
     </div>
   );
 };

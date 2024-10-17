@@ -15,7 +15,7 @@ const ChatBotButton: React.FC = () => {
     <>
       <button
         onClick={toggleChat}
-        className="fixed bottom-20 right-5 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-50"
+        className="fixed bottom-20 right-5 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-20"
       >
         <AiOutlineRobot size={24} />
       </button>

@@ -1,31 +1,48 @@
+// src/app/dashboard/notification.tsx
+
 "use client";
 
-import React, { useEffect, useState, useContext } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../../utils/api";
-import { ThemeContext } from "../ThemeContext";
 import { ClipLoader } from "react-spinners";
-import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ThemeContext } from "@/app/ThemeContext";
 
-interface Notification {
+// تعريف الواجهة الأصلية للإشعار كما تستلمه من الخادم
+interface APINotification {
   id: number;
   title: string;
   content: string;
-  createdAt: string;
+  createdAt: string; // أو Date حسب الحاجة
   senderId: number;
   isRead: boolean;
-  requestId: string; // أضف requestId هنا
+  metadata: {
+    requestId: number;
+  };
 }
 
-const Notifications: React.FC = () => {
-  const { isDarkMode } = useContext(ThemeContext);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [loadingAction, setLoadingAction] = useState<number | null>(null);
+// تعريف الواجهة بعد إضافة requestId كخاصية على المستوى الأعلى
+interface MappedNotification {
+  id: number;
+  title: string;
+  content: string;
+  createdAt: string; // أو Date حسب الحاجة
+  senderId: number;
+  isRead: boolean;
+  requestId: number;
+}
 
-  const fetchNotifications = async () => {
+const NotificationComponent: React.FC = () => {
+  const [notifications, setNotifications] = useState<MappedNotification[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingAction, setLoadingAction] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const { isDarkMode } = useContext(ThemeContext);
+
+  const fetchNotifications = useCallback(async () => {
     try {
       const token = document.cookie
         .split("; ")
@@ -41,8 +58,8 @@ const Notifications: React.FC = () => {
       // طباعة الاستجابة
       console.log("Response:", response);
 
-      const notificationsWithReadStatus = response.data
-        .map((notification: any) => ({
+      const notificationsWithReadStatus: MappedNotification[] = response.data
+        .map((notification: APINotification) => ({
           id: notification.id,
           title: notification.title,
           content: notification.content,
@@ -52,168 +69,121 @@ const Notifications: React.FC = () => {
           requestId: notification.metadata.requestId, // استخراج requestId من metadata
         }))
         .sort(
-          (a: Notification, b: Notification) =>
+          (a: MappedNotification, b: MappedNotification) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 
       setNotifications(notificationsWithReadStatus);
     } catch (err) {
       setError("فشل في جلب الإشعارات");
+      console.log(err);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleAcceptRequest = async (
-    notificationId: number,
-    requestId: string
-  ) => {
-    setLoadingAction(notificationId);
-    try {
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="));
-      const authToken = token ? token.split("=")[1] : "";
-
-      await axios.put(
-        `${API_BASE_URL}/maintenance-requests/${requestId}/accept`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-
-      // تحديث الإشعارات بعد قبول الطلب
-      setNotifications((prevNotifications) =>
-        prevNotifications.map((notif) =>
-          notif.id === notificationId ? { ...notif, isRead: true } : notif
-        )
-      );
-
-      toast.success("تم قبول الطلب بنجاح.");
-    } catch (error) {
-      console.error("فشل في قبول الطلب:", error);
-      toast.error("فشل في قبول الطلب. يرجى المحاولة مرة أخرى.");
-    } finally {
-      setLoadingAction(null);
-    }
-  };
-
-  const handleRejectRequest = async (
-    notificationId: number,
-    requestId: string
-  ) => {
-    // تحقق من أن requestId ليس undefined
-    if (!requestId) {
-      console.error("requestId is undefined");
-      toast.error("المعرف غير صالح.");
-      return;
-    }
-
-    setLoadingAction(notificationId);
-    try {
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="));
-      const authToken = token ? token.split("=")[1] : "";
-
-      await axios.put(
-        `${API_BASE_URL}/maintenance-requests/${requestId}/reorder`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-
-      // تحديث الإشعارات بعد رفض الطلب
-      setNotifications((prevNotifications) =>
-        prevNotifications.map((notif) =>
-          notif.id === notificationId ? { ...notif, isRead: true } : notif
-        )
-      );
-
-      toast.success("تم رفض الطلب بنجاح.");
-    } catch (error) {
-      console.error("فشل في رفض الطلب:", error);
-      toast.error("فشل في رفض الطلب. يرجى المحاولة مرة أخرى.");
-    } finally {
-      setLoadingAction(null);
-    }
-  };
+  }, []);
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [fetchNotifications]);
+
+  const handleAcceptRequest = async (id: number, requestId: number) => {
+    setLoadingAction(id);
+    // تنفيذ عملية القبول هنا
+    // على سبيل المثال:
+    try {
+      await axios.post(`${API_BASE_URL}/accept-request/${requestId}`);
+      toast.success("تم قبول الطلب بنجاح.");
+      // تحديث حالة الإشعارات أو إعادة جلبها
+      fetchNotifications();
+    } catch (error) {
+      console.error("حدث خطأ أثناء قبول الطلب:", error);
+      toast.error("حدث خطأ أثناء قبول الطلب. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const handleRejectRequest = async (id: number, requestId: number) => {
+    setLoadingAction(id);
+    // تنفيذ عملية الرفض هنا
+    // على سبيل المثال:
+    try {
+      await axios.post(`${API_BASE_URL}/reject-request/${requestId}`);
+      toast.success("تم رفض الطلب بنجاح.");
+      // تحديث حالة الإشعارات أو إعادة جلبها
+      fetchNotifications();
+    } catch (error) {
+      console.error("حدث خطأ أثناء رفض الطلب:", error);
+      toast.error("حدث خطأ أثناء رفض الطلب. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setLoadingAction(null);
+    }
+  };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-96">
+      <div className="flex justify-center items-center h-screen">
         <ClipLoader color="#4A90E2" size={50} />
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-red-500">{error}</div>;
+    return <div className="text-red-500 text-center">{error}</div>;
   }
 
   return (
     <div
-      className={`relative p-6 ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
+      className={`p-6 ${
+        isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
       }`}
     >
-      <h2 className="text-2xl font-bold mb-4 text-center">الإشعارات</h2>
+      <h1 className="text-2xl font-bold mb-6">الإشعارات</h1>
+      {notifications.length === 0 ? (
+        <div className="text-center">لا توجد إشعارات.</div>
+      ) : (
+        <ul>
+          {notifications.map((notification) => (
+            <li key={notification.id} className="mb-4 p-4 border rounded-md">
+              <h2 className="text-xl font-semibold">{notification.title}</h2>
+              <p>{notification.content}</p>
+              <p className="text-sm text-gray-500">
+                {new Date(notification.createdAt).toLocaleString()}
+              </p>
+              <div className="mt-2 flex">
+                <button
+                  className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
+                  onClick={() =>
+                    handleAcceptRequest(notification.id, notification.requestId)
+                  } // تمرير requestId
+                  disabled={loadingAction === notification.id}
+                >
+                  {loadingAction === notification.id ? (
+                    <ClipLoader color="#ffffff" size={20} />
+                  ) : (
+                    "قبول"
+                  )}
+                </button>
+                <button
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  onClick={() =>
+                    handleRejectRequest(notification.id, notification.requestId)
+                  } // تمرير requestId
+                  disabled={loadingAction === notification.id}
+                >
+                  {loadingAction === notification.id ? (
+                    <ClipLoader color="#ffffff" size={20} />
+                  ) : (
+                    "رفض"
+                  )}
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
-      <ul className="space-y-4">
-        {notifications.map((notification) => (
-          <li key={notification.id} className="border p-4 rounded-md shadow">
-            <div className="flex items-center justify-between">
-              {!notification.isRead && (
-                <div className="h-2 w-2 bg-red-500 rounded-full ml-2"></div>
-              )}
-              <h3 className="font-semibold">{notification.title}</h3>
-            </div>
-            <p>{notification.content}</p>
-            <span className="text-gray-500 text-sm">
-              {new Date(notification.createdAt).toLocaleString()}
-            </span>
-            <div className="flex justify-end mt-2">
-              <button
-                className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
-                onClick={() =>
-                  handleAcceptRequest(notification.id, notification.requestId)
-                } // تمرير requestId
-                disabled={loadingAction === notification.id}
-              >
-                {loadingAction === notification.id ? (
-                  <ClipLoader color="#ffffff" size={20} />
-                ) : (
-                  "قبول"
-                )}
-              </button>
-              <button
-                className="bg-red-500 text-white px-4 py-2 rounded-md"
-                onClick={() =>
-                  handleRejectRequest(notification.id, notification.requestId)
-                } // تمرير requestId
-                disabled={loadingAction === notification.id}
-              >
-                {loadingAction === notification.id ? (
-                  <ClipLoader color="#ffffff" size={20} />
-                ) : (
-                  "رفض"
-                )}
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-
+      {/* إضافة ToastContainer لعرض الإشعارات */}
       <ToastContainer
         position="top-right"
         autoClose={5000}
@@ -230,4 +200,4 @@ const Notifications: React.FC = () => {
   );
 };
 
-export default Notifications;
+export default NotificationComponent;

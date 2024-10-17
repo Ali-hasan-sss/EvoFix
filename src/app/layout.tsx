@@ -6,8 +6,6 @@ import "./globals.css";
 import { ThemeProvider } from "./ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
-import RepairRequestButton from "@/components/requestbutton";
-import ChatBotButton from "@/components/ChatbotButton";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,7 +34,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          {" "}
           {/* تغليف التطبيق بـ AuthProvider */}
           <ToastContainer
             position="top-right"
@@ -50,8 +47,6 @@ export default function RootLayout({
             pauseOnHover
           />
           <ThemeProvider>{children}</ThemeProvider>
-          <RepairRequestButton />
-          <ChatBotButton />
         </AuthProvider>
       </body>
     </html>

@@ -1,11 +1,9 @@
 "use client";
 
 import React, { createContext, useState, useEffect, ReactNode } from "react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
-import { API_BASE_URL } from "../../utils/api";
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -35,10 +33,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     // جلب بيانات المستخدم المخزنة عند التحميل الأول
     const savedEmail = localStorage.getItem("email");
     const savedUserId = localStorage.getItem("userId");
-    const tokenInCookies = Cookies.get("token"); // جلب التوكن من الكوكيز
+    const token = Cookies.get("token"); // جلب التوكن من الكوكيز
 
-    if (tokenInCookies && savedEmail && savedUserId) {
-      // التأكد من أن المستخدم مسجل الدخول بناءً على وجود التوكن في الكوكيز
+    if (token && savedEmail && savedUserId) {
       setEmail(savedEmail);
       setUserId(savedUserId);
       setIsLoggedIn(true);

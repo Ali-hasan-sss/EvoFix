@@ -1,19 +1,28 @@
-import React, { useEffect, useState } from "react";
+// components/RepairRequests.tsx
+
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "../../../utils/api";
-import { useContext } from "react";
 import { ThemeContext } from "@/app/ThemeContext"; // لاستدعاء حالة الوضع الداكن
-import AvailableRequests from "./AvailableRequests"; // استيراد الطلبات المتاحة
-import PendingRequests from "./PendingRequests"; // استيراد الطلبات المتاحة
-import Completed from "./completed";
+import Tabs from "@/components/Tabs";
+import RepairRequestCard from "@/components/RepairRequestCard"; // استيراد مكون البطاقة
+import { RepairRequest } from "@/utils/types";
 
-const RepairRequests = () => {
-  const [activeTab, setActiveTab] = useState("available"); // تبويب النشط
-  const [repairRequests, setRepairRequests] = useState<any[]>([]);
+const RepairRequests: React.FC = () => {
+  const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { isDarkMode } = useContext(ThemeContext); // التحقق من حالة الوضع الداكن
+  const [activeTab, setActiveTab] = useState<string>("available"); // تبويب النشط
+
+  // تعريف statusMap
+  const statusMap: { [key: string]: string } = {
+    PENDING: "قيد الانتظار",
+    IN_PROGRESS: "جارٍ التنفيذ",
+    COMPLETED: "مكتمل",
+    REJECTED: "مرفوض",
+  };
 
   useEffect(() => {
     const fetchRepairRequests = async () => {
@@ -28,6 +37,8 @@ const RepairRequests = () => {
             },
           }
         );
+
+        //  console.log("البيانات المستلمة:", response.data);
 
         if (response.status === 200 && Array.isArray(response.data)) {
           setRepairRequests(response.data);
@@ -47,7 +58,7 @@ const RepairRequests = () => {
   }, []);
 
   // دالة لإلغاء الطلب
-  const handleCancelRequest = async (requestId: string) => {
+  const handleCancelRequest = async (requestId: number) => {
     try {
       const token = Cookies.get("token");
       const response = await axios.delete(
@@ -60,7 +71,7 @@ const RepairRequests = () => {
       );
       if (response.status === 200) {
         toast.success("تم إلغاء الطلب بنجاح.");
-        setRepairRequests(repairRequests.filter((req) => req.id !== requestId)); // تحديث القائمة
+        setRepairRequests(repairRequests.filter((req) => req.id !== requestId));
       } else {
         toast.warn("لم يتم العثور على الطلب.");
       }
@@ -70,45 +81,51 @@ const RepairRequests = () => {
     }
   };
 
+  // تعريف التبويبات
+  const tabs = [
+    { label: "جميع الطلبات", key: "available" },
+    { label: "قيد التسعير", key: "pending" },
+    { label: "قيد الاصلاح", key: "in_progress" },
+    { label: "الطلبات المنجزة", key: "completed" },
+    { label: "الطلبات المرفوضة", key: "rejected" },
+  ];
+
+  // دالة لتصفية الطلبات حسب التبويب
+  const getFilteredRequests = (): RepairRequest[] => {
+    switch (activeTab) {
+      case "pending":
+        return repairRequests.filter(
+          (req: RepairRequest) => req.status === "PENDING"
+        );
+      case "in_progress":
+        return repairRequests.filter(
+          (req: RepairRequest) => req.status === "IN_PROGRESS"
+        );
+      case "completed":
+        return repairRequests.filter(
+          (req: RepairRequest) => req.status === "COMPLETED"
+        );
+      case "rejected":
+        return repairRequests.filter(
+          (req: RepairRequest) => req.status === "REJECTED"
+        );
+      case "available":
+      default:
+        return repairRequests;
+    }
+  };
+
+  const filteredRequests = getFilteredRequests();
+
+  // إضافة طباعة للتحقق من التبويب النشط والطلبات المفلترة
+  useEffect(() => {
+    console.log("التبويب النشط:", activeTab);
+    console.log("الطلبات المفلترة:", filteredRequests);
+  }, [activeTab, filteredRequests]);
+
   return (
     <div className="p-4 flex flex-col w-full">
       <h1 className="text-2xl font-bold mb-4">طلبات الإصلاح</h1>
-
-      {/* تبويبات */}
-      <div className="flex space-x-4 mb-4">
-        <button
-          className={`py-2 px-4 rounded ${
-            activeTab === "available" ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
-          onClick={() => setActiveTab("available")}
-        >
-          الطلبات المرسلة
-        </button>
-        <button
-          className={`py-2 px-4 rounded ${
-            activeTab === "pending" ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
-          onClick={() => setActiveTab("pending")}
-        >
-          الطلبات المعلقة
-        </button>
-        <button
-          className={`py-2 px-4 rounded ${
-            activeTab === "Quoted" ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
-          onClick={() => setActiveTab("Quoted")}
-        >
-          قيد الاصلاح
-        </button>
-        <button
-          className={`py-2 px-4 rounded ${
-            activeTab === "completed" ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
-          onClick={() => setActiveTab("completed")}
-        >
-          الطلبات المنجزة
-        </button>
-      </div>
 
       {loading ? (
         <p>جارٍ تحميل البيانات...</p>
@@ -118,23 +135,24 @@ const RepairRequests = () => {
             isDarkMode ? "bg-gray-800" : "bg-white"
           } overflow-y-auto`}
         >
-          {/* محتوى التبويب النشط */}
-          {activeTab === "available" && (
-            <AvailableRequests
-              repairRequests={repairRequests}
-              handleAssignRequest={handleCancelRequest}
-            />
-          )}
-          {activeTab === "pending" && (
-            <div>
-              <PendingRequests />
-            </div>
-          )}
-          {activeTab === "completed" && (
-            <div>
-              <Completed />
-            </div>
-          )}
+          <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+
+          {/* عرض الطلبات المفلترة على شكل بطاقات */}
+          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filteredRequests.length === 0 ? (
+              <p>لا توجد طلبات في هذا التبويب.</p>
+            ) : (
+              filteredRequests.map((request) => (
+                <RepairRequestCard
+                  key={request.id}
+                  request={request as RepairRequest}
+                  onDelete={handleCancelRequest} // تمرير الدالة هنا
+                  statusMap={statusMap}
+                  isDeleting={loading} // افترض أنك تريد تمرير حالة الحذف
+                />
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>

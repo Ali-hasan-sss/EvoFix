@@ -35,6 +35,7 @@ const UserDetail: React.FC<UserDetailProps> = ({ userId }) => {
         setUser(response.data);
       } catch (err) {
         setError("فشل في جلب بيانات المستخدم");
+        console.log(err);
       } finally {
         setLoading(false);
       }

@@ -6,27 +6,16 @@ import toast from "react-hot-toast";
 import { ThemeContext } from "@/app/ThemeContext";
 import { AiOutlineArrowRight, AiOutlineArrowLeft } from "react-icons/ai";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { UserFormInput } from "../../utils/types"; // تأكد من مسار الاستيراد الصحيح
 
 // تعريف نوع props
+
 interface UserFormProps {
-  initialData?: FormData;
-  onSubmit: (data: FormData) => Promise<void>;
+  initialData?: UserFormInput;
+  onSubmit: (data: UserFormInput) => Promise<void>;
   submitButtonLabel?: string;
   isNew?: boolean;
   isUser?: boolean;
-  isTechnical?: boolean;
-}
-
-interface FormData {
-  fullName: string;
-  email: string;
-  phoneNO: string;
-  governorate: string;
-  address: string;
-  password: string;
-  confirmPassword: string;
-  specialization?: string;
-  services?: string;
 }
 
 interface FormErrors {
@@ -55,13 +44,11 @@ const UserForm: React.FC<UserFormProps> = ({
   },
   onSubmit,
   submitButtonLabel = "التسجيل",
-  isNew = true,
   isUser = true,
-  isTechnical = false,
 }) => {
   const { isDarkMode } = useContext(ThemeContext);
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<FormData>(initialData);
+  const [formData, setFormData] = useState<UserFormInput>(initialData);
   const [errors, setErrors] = useState<FormErrors>({
     fullName: "",
     email: "",
@@ -74,7 +61,7 @@ const UserForm: React.FC<UserFormProps> = ({
     services: "",
   });
   const [showPassword, setShowPassword] = useState(false); // لإظهار كلمة المرور
-  const [showPasswordR, setShowPasswordR] = useState(false); // لإظهار كلمة المرور
+  const [showPasswordR, setShowPasswordR] = useState(false); // لإظهار تأكيد كلمة المرور
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -97,7 +84,6 @@ const UserForm: React.FC<UserFormProps> = ({
       specialization: "",
       services: "",
     };
-
     if (currentStep === 1) {
       if (!formData.fullName) newErrors.fullName = "الاسم الكامل مطلوب";
       if (!formData.email.includes("@"))
@@ -105,10 +91,13 @@ const UserForm: React.FC<UserFormProps> = ({
       if (!formData.phoneNO) newErrors.phoneNO = "رقم الهاتف مطلوب";
     } else if (currentStep === 2) {
       if (!formData.governorate) newErrors.governorate = "المحافظة مطلوبة";
-      if (isTechnical && !formData.specialization)
-        newErrors.specialization = "الاختصاص مطلوب";
-      if (isTechnical && !formData.services)
-        newErrors.services = "وصف الخدمة مطلوب";
+      if (!formData.address) newErrors.address = "العنوان  مطلوب";
+      if (!isUser) {
+        // إذا كان المستخدم تقنيًا
+        if (!formData.specialization)
+          newErrors.specialization = "الاختصاص مطلوب";
+        if (!formData.services) newErrors.services = "وصف الخدمة مطلوب";
+      }
     } else if (currentStep === 3) {
       if (!formData.address) newErrors.address = "العنوان مطلوب";
       if (formData.password.length < 8)
@@ -140,9 +129,9 @@ const UserForm: React.FC<UserFormProps> = ({
 
     if (validateForm()) {
       // إزالة الحقول إذا كان المستخدم User وليس Technical
-      const filteredFormData = isTechnical
-        ? formData
-        : { ...formData, specialization: undefined, services: undefined };
+      const filteredFormData: UserFormInput = isUser
+        ? { ...formData, specialization: undefined, services: undefined }
+        : formData;
 
       console.log("Form data being submitted:", filteredFormData);
 
@@ -218,6 +207,11 @@ const UserForm: React.FC<UserFormProps> = ({
                 <p className="text-red-500 text-sm">{errors.email}</p>
               )}
             </div>
+            <p className="m-2">
+              <a className="text-blue-200 p-1" href="login">
+                لدي حساب بالفعل
+              </a>
+            </p>
           </>
         );
       case 2:
@@ -227,19 +221,33 @@ const UserForm: React.FC<UserFormProps> = ({
               <label htmlFor="governorate" className="block font-bold mb-2">
                 المحافظة
               </label>
-              <input
-                type="text"
+              <select
                 id="governorate"
                 name="governorate"
                 value={formData.governorate}
                 onChange={handleChange}
-                className={`w-full p-2 border-b focus:outline-none rounded ${
+                className={`w-full p-2 border-b focus:outline-none ${
                   isDarkMode
                     ? "bg-gray-700 text-white border-gray-600"
                     : "bg-white text-gray-800 border-gray-300"
                 } ${errors.governorate ? "border-red-500" : ""}`}
                 required
-              />
+              >
+                <option value="">اختر المحافظة</option>
+                <option value="دمشق">دمشق</option>
+                <option value="ريف دمشق">ريف دمشق</option>
+                <option value="حمص">حمص</option>
+                <option value="حماه">حماه</option>
+                <option value="طرطوس">طرطوس</option>
+                <option value="اللاذقية">اللاذقية</option>
+                <option value="السويداء">السويداء</option>
+                <option value="القنيطرة">القنيطرة</option>
+                <option value="حلب">حلب</option>
+                <option value="الرقة">الرقة</option>
+                <option value="الحسكة">الحسكة</option>
+                <option value="دير الزور">دير الزور</option>
+                <option value="ادلب">ادلب</option>
+              </select>
               {errors.governorate && (
                 <p className="text-red-500 text-sm">{errors.governorate}</p>
               )}
@@ -258,14 +266,13 @@ const UserForm: React.FC<UserFormProps> = ({
                   isDarkMode
                     ? "bg-gray-700 text-white border-gray-600"
                     : "bg-white text-gray-800 border-gray-300"
-                } ${errors.address ? "border-red-500" : ""}`}
+                } ${errors.fullName ? "border-red-500" : ""}`}
                 required
               />
               {errors.address && (
                 <p className="text-red-500 text-sm">{errors.address}</p>
               )}
             </div>
-
             {!isUser && (
               <>
                 <div className="mb-4">
@@ -348,7 +355,7 @@ const UserForm: React.FC<UserFormProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-0 top-0 mt-2 mr-2"
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2"
                 >
                   {showPassword ? (
                     <EyeIcon className="h-5 w-5 text-gray-500" />
@@ -383,7 +390,7 @@ const UserForm: React.FC<UserFormProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowPasswordR(!showPasswordR)}
-                  className="absolute right-0 right-0 mt-2 mr-2"
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2"
                 >
                   {showPasswordR ? (
                     <EyeIcon className="h-5 w-5 text-gray-500" />
@@ -408,7 +415,7 @@ const UserForm: React.FC<UserFormProps> = ({
       <div>{renderStepContent()}</div>
 
       <div className="flex justify-between mt-4">
-        {currentStep > 1 && (
+        {currentStep > 0 && (
           <button
             type="button"
             onClick={handlePrev}
@@ -416,7 +423,7 @@ const UserForm: React.FC<UserFormProps> = ({
               isDarkMode ? "text-white bg-gray-500" : "text-black"
             }`}
           >
-            <AiOutlineArrowLeft className="mr-2" />
+            <AiOutlineArrowRight className="ml-2" />
           </button>
         )}
 
@@ -428,7 +435,7 @@ const UserForm: React.FC<UserFormProps> = ({
               isDarkMode ? "hover:bg-blue-600" : "hover:bg-blue-600"
             }`}
           >
-            <AiOutlineArrowRight className="ml-2" />
+            <AiOutlineArrowLeft className="mr-2" />
           </button>
         ) : (
           <button

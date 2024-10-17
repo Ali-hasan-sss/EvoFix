@@ -23,16 +23,12 @@ body {
   direction: rtl; /* تغيير الاتجاه إلى اليمين */
   text-align: right;
 }
+.tabs {
+  border-bottom: 1px solid #ffc803d4;
+}
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
-  }
-}
-@media (max-width: 768px) {
-  /* يمكنك تغيير القيمة حسب حاجتك */
-  body {
-    direction: ltr; /* الاتجاه من اليمين إلى اليسار */
-    text-align: right; /* محاذاة النص إلى اليمين */
   }
 }

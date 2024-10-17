@@ -1,16 +1,9 @@
 import React from "react";
-
-interface Request {
-  id: string;
-  deviceName: string;
-  deviceType: string;
-  issueDescription: string;
-  status: string;
-}
+import { RepairRequest } from "../../../utils/types"; // تأكد من مسار الاستيراد
 
 interface AvailableRequestsProps {
-  repairRequests: Request[];
-  handleAssignRequest: (id: string) => void;
+  repairRequests: RepairRequest[]; // استخدم RepairRequest هنا
+  handleAssignRequest: (id: number) => void; // إذا كان id نوعه number في RepairRequest
 }
 
 const AvailableRequests: React.FC<AvailableRequestsProps> = ({
@@ -26,12 +19,13 @@ const AvailableRequests: React.FC<AvailableRequestsProps> = ({
     >
       {repairRequests.map((request) => (
         <div key={request.id} className="border rounded-lg p-4 shadow-md">
-          <h2 className="text-lg font-semibold mb-2">{request.deviceName}</h2>
+          <h2 className="text-lg font-semibold mb-2">{request.deviceType}</h2>
           <p>
             <strong>نوع الجهاز:</strong> {request.deviceType}
           </p>
           <p>
-            <strong>وصف العطل:</strong> {request.issueDescription}
+            <strong>وصف العطل:</strong> {request.problemDescription}{" "}
+            {/* استخدم خاصية problemDescription */}
           </p>
           <p>
             <strong>الحالة:</strong> {request.status}

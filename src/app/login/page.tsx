@@ -8,11 +8,13 @@ import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "../../utils/api";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 const LoginForm = () => {
   const { isDarkMode } = useContext(ThemeContext);
   const { login } = useContext(AuthContext);
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false); // لإظهار كلمة المرور
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -87,7 +89,7 @@ const LoginForm = () => {
           "خطأ في تسجيل الدخول. يرجى التحقق من البريد الإلكتروني وكلمة المرور."
         );
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
         setErrorMessage(
           `حدث خطأ: ${error.response.data.message || "غير معروف"}`
@@ -112,7 +114,7 @@ const LoginForm = () => {
         <form
           onSubmit={handleSubmit}
           className={`p-8 rounded shadow-md w-full max-w-sm ${
-            isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+            isDarkMode ? "bg-gray-800 text-white" : "bg-gray-500 text-gray-800"
           }`}
         >
           <h2 className="text-2xl font-bold mb-4">تسجيل الدخول</h2>
@@ -129,7 +131,9 @@ const LoginForm = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={`w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500 ${
-                isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-800"
+                isDarkMode
+                  ? "bg-gray-700 text-white border-gray-600"
+                  : "bg-white text-gray-800 border-gray-300"
               }`}
               required
             />
@@ -139,18 +143,38 @@ const LoginForm = () => {
             <label htmlFor="password" className="block font-bold mb-2">
               كلمة المرور
             </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={`w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500 ${
-                isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-800"
-              }`}
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={`w-full p-2 border-b focus:outline-none rounded ${
+                  isDarkMode
+                    ? "bg-gray-700 text-white border-gray-600"
+                    : "bg-white text-gray-800 border-gray-300"
+                } `}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute left-0 top-0 mt-2 ml-2"
+              >
+                {showPassword ? (
+                  <EyeIcon className="h-5 w-5 text-gray-500" />
+                ) : (
+                  <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                )}
+              </button>
+            </div>
           </div>
-
+          <p className="m-2">
+            <a className="text-blue-200 p-1" href="register">
+              ليس لدي حساب
+            </a>
+          </p>
           <button
             type="submit"
             disabled={loading}

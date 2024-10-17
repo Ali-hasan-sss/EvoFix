@@ -21,12 +21,12 @@ const RepairRequestButton: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { isDarkMode: themeMode } = useContext(ThemeContext);
   if (themeMode) {
-    // console.log("Dark mode is enabled");
+    console.log("Dark mode is enabled");
   } else {
-    //   console.log("Light mode is enabled");
+    console.log("Light mode is enabled");
   }
   useEffect(() => {
-    // console.log("Dark Mode Status:", isDarkMode); // تحقق من تحديث القيمة
+    console.log("Dark Mode Status:", isDarkMode); // تحقق من تحديث القيمة
   }, [isDarkMode]);
 
   const openModal = () => {
@@ -80,7 +80,7 @@ const RepairRequestButton: React.FC = () => {
       {/* Repair Request Button */}
       <button
         onClick={openModal}
-        className="fixed bottom-20 left-5 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-50"
+        className="fixed bottom-20 left-5 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-20"
       >
         طلب إصلاح
       </button>
@@ -88,24 +88,30 @@ const RepairRequestButton: React.FC = () => {
       {!isLoggedIn && isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div
-            className={`bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96 ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-blue-500 text-black"
+            className={` p-6 rounded-lg shadow-lg w-96 ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-gray-400 text-black"
             }`}
           >
             <button
               type="button"
               onClick={closeModal}
-              className="text-light bg-red-500 p-2 block rounded hover:bg-red-400"
+              className="text-light bg-red-500 px-2 block rounded hover:bg-red-400"
             >
               X
             </button>
             <div className="mt-2">
               يجب عليك
-              <a href="/login" className="text-yellow-600 mr-1">
+              <a
+                href="/login"
+                className="text-blue-600 hover:text-yellow-500 mr-1"
+              >
                 تسجيل الدخول
               </a>
               او
-              <a href="/register" className="text-yellow-600 mr-1">
+              <a
+                href="/register"
+                className="text-blue-600 hover:text-yellow-500 mr-1"
+              >
                 انشاء حساب
               </a>
             </div>
@@ -115,70 +121,90 @@ const RepairRequestButton: React.FC = () => {
 
       {/* Request Modal */}
       {isLoggedIn && isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center  bg-opacity-50">
           <div
-            className={`bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96 ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-blue-500 text-black"
+            className={` p-6 rounded-lg shadow-lg w-96 ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-gray-500 text-black"
             }`}
           >
-            <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
-              طلب إصلاح
-            </h2>
+            <h2 className="text-lg font-semibold mb-4 ">طلب إصلاح</h2>
 
             {/* Form Contents */}
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-300">
-                  المحافظة
-                </label>
-                <input
-                  type="text"
-                  name="governorate"
-                  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                <label className="block ">المحافظة</label>
+                <select
+                  id="specialization"
+                  name="specialization"
                   value={governorate}
                   onChange={(e) => setGovernorate(e.target.value)}
-                />
+                  className={`w-full p-2 border-b focus:outline-none ${
+                    isDarkMode
+                      ? "bg-gray-700 text-white border-gray-600"
+                      : "bg-white text-gray-800 border-gray-300"
+                  }`}
+                  required
+                >
+                  <option value="">اختر المحافظة</option>
+                  <option value="دمشق">دمشق</option>
+                  <option value="ريف دمشق">ريف دمشق</option>
+                  <option value="حمص">حمص</option>
+                  <option value="حماه">حماه</option>
+                  <option value="طرطوس">طرطوس</option>
+                  <option value="اللاذقية">اللاذقية</option>
+                  <option value="السويداء">السويداء</option>
+                  <option value="القنيطرة">القنيطرة</option>
+                  <option value="حلب">حلب</option>
+                  <option value="الرقة">الرقة</option>
+                  <option value="الحسكة">الحسكة</option>
+                  <option value="دير الزور">دير الزور</option>
+                  <option value="ادلب">ادلب</option>
+                </select>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-300">
-                  رقم الهاتف
-                </label>
+                <label className="block">رقم الهاتف</label>
                 <input
                   type="text"
                   name="phoneNO"
-                  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                  className="w-full px-4 py-2 border rounded-lg "
                   value={phoneNO}
                   onChange={(e) => setPhoneNO(e.target.value)}
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-300">
-                  العنوان
-                </label>
+                <label className="block ">العنوان</label>
                 <input
                   type="text"
                   name="address"
-                  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                  className="w-full px-4 py-2 border rounded-lg "
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-300">
-                  نوع الجهاز
-                </label>
-                <input
-                  type="text"
-                  name="deviceType"
-                  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                <label className="block ">نوع الجهاز</label>
+                <select
+                  id="specialization"
+                  name="specialization"
                   value={deviceType}
                   onChange={(e) => setDeviceType(e.target.value)}
-                />
+                  className={`w-full p-2 border-b focus:outline-none ${
+                    isDarkMode
+                      ? "bg-gray-700 text-white border-gray-600"
+                      : "bg-white text-gray-800 border-gray-300"
+                  } `}
+                  required
+                >
+                  <option value="">اختر نوع الجهاز</option>
+                  <option value="شاشة تلفاز">شاشة تلفاز</option>
+                  <option value="شاشة كمبيوتر">شاشة كمبيوتر</option>
+                  <option value="موبايل">موبايل</option>
+                  <option value="لابتوب">لابتوب</option>
+                  <option value="اجهزة منزلية">اجهزة منزلية</option>
+                </select>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-300">
-                  وصف المشكلة
-                </label>
+                <label className="block ">وصف المشكلة</label>
                 <textarea
                   name="problemDescription"
                   className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
