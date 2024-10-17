@@ -42,6 +42,7 @@ const RepairRequests: React.FC = () => {
 
         if (response.status === 200 && Array.isArray(response.data)) {
           setRepairRequests(response.data);
+          console.log(response.data);
         } else {
           console.warn("البيانات المستلمة ليست مصفوفة.");
           toast.warn("البيانات المستلمة غير صحيحة.");

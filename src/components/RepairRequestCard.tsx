@@ -1,11 +1,9 @@
-// components/RepairRequestCard.tsx
-
 import React, { useContext } from "react";
 import { ThemeContext } from "@/app/ThemeContext";
 import { FaTrash } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
 import { RepairRequest } from "../utils/types";
-import Image from "next/image"; // تأكد من استيراد Image
+import Image from "next/image";
 
 interface RepairRequestCardProps {
   request: RepairRequest;
@@ -22,53 +20,57 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
 }) => {
   const { isDarkMode } = useContext(ThemeContext);
 
-  // دالة لتحديد صورة الجهاز بناءً على نوعه
-  const getDeviceImage = (deviceType: string): string => {
-    switch (deviceType.toLowerCase()) {
-      case "غسالة":
-        return "/assets/images/washing-machine.png";
-      case "ثلاجة":
-        return "/assets/images/fridge.png";
-      case "جهاز تكييف":
-        return "/assets/images/ac.png";
-      default:
-        return "/assets/images/default-device.png"; // صورة افتراضية
-    }
-  };
-
   return (
     <div
       className={`max-w-sm rounded-lg shadow-md overflow-hidden mb-4 ${
         isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
       }`}
     >
+      {/* عرض الصورة الواردة من الاستجابة */}
       <Image
-        src={getDeviceImage(request.deviceType)}
-        alt={request.deviceType}
-        width={500} // اضبط العرض حسب الحاجة
-        height={300} // اضبط الارتفاع حسب الحاجة
+        src={
+          typeof request.deviceImage === "string"
+            ? request.deviceImage
+            : "/assets/images/default-device.png"
+        }
+        alt={String(request.deviceType) || "Unknown device"}
+        width={500}
+        height={300}
         className="w-full h-48 object-cover"
       />
       <div className="p-4">
-        <h2 className="text-xl font-bold mb-2">{request.user.fullName}</h2>
+        <h2 className="text-xl font-bold mb-2">
+          {String(request.user.fullName) || "اسم غير معروف"}
+        </h2>
         <p className="mb-2">
-          <strong>المحافظة:</strong> {request.governorate}
+          <strong>المحافظة:</strong> {String(request.governorate) || "غير محدد"}
         </p>
         <p className="mb-2">
-          <strong>رقم الهاتف:</strong> {request.user.phoneNO}
+          <strong>رقم الهاتف:</strong>{" "}
+          {String(request.user.phoneNO) || "غير متوفر"}
         </p>
         <p className="mb-2">
-          <strong>العنوان:</strong> {request.user.address}
+          <strong>العنوان:</strong>{" "}
+          {String(request.user.address) || "غير معروف"}
         </p>
         <p className="mb-2">
-          <strong>نوع الجهاز:</strong> {request.deviceType}
+          <strong>نوع الجهاز:</strong>{" "}
+          {String(request.deviceType) || "غير محدد"}
+        </p>
+        {/* عرض موديل الجهاز */}
+        <p className="mb-2">
+          <strong>موديل الجهاز:</strong>{" "}
+          {String(request.deviceModel) || "غير معروف"}
         </p>
         <p className="mb-2">
-          <strong>وصف المشكلة:</strong> {request.problemDescription}
+          <strong>وصف المشكلة:</strong>{" "}
+          {String(request.problemDescription) || "غير متوفر"}
         </p>
         <p className="mb-2">
           <strong>التقني المخصص:</strong>{" "}
-          {request.technician?.user.fullName || "غير محدد"}
+          {request.technician?.user.fullName
+            ? String(request.technician.user.fullName)
+            : "غير محدد"}
         </p>
         <p
           className={`text-sm font-semibold mb-2 ${
@@ -78,10 +80,10 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
               ? "text-yellow-500"
               : request.status === "REJECTED"
               ? "text-red-500"
-              : "text-blue-500" // هنا يجب التأكد من وضع الألوان المناسبة
+              : "text-blue-500"
           }`}
         >
-          الحالة: {statusMap[request.status] || "حالة غير معروفة"}
+          الحالة: {String(statusMap[request.status]) || "حالة غير معروفة"}
         </p>
         <button
           onClick={() => onDelete(request.id)}

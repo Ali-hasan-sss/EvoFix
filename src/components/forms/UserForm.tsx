@@ -16,6 +16,7 @@ interface UserFormProps {
   submitButtonLabel?: string;
   isNew?: boolean;
   isUser?: boolean;
+  onClose?: () => void;
 }
 
 interface FormErrors {

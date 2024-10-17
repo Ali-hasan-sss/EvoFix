@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { ThemeContext } from "@/app/ThemeContext";
 
-interface ColumnWithAccessor {
+// Define columns based on having an accessor or render
+interface ColumnWithAccessor<T> {
   title: string;
-  accessor: string;
+  accessor: keyof T; // Use keyof T to ensure it's a valid key of T
 }
 
 interface ColumnWithRender<T> {
@@ -13,132 +14,160 @@ interface ColumnWithRender<T> {
   render: (item: T) => React.ReactNode;
 }
 
-type Column<T> = ColumnWithAccessor | ColumnWithRender<T>;
+export type Column<T> = ColumnWithAccessor<T> | ColumnWithRender<T>;
 
 interface GenericTableProps<T> {
-  data: T[]; // بيانات الجدول
-  columns: Column<T>[]; // معلومات الأعمدة
+  data: T[]; // Data for the table
+  columns: Column<T>[]; // Column information
+  isLoading?: boolean; // Option to show loading state
 }
 
+// Generic Table component
 const GenericTable = <T extends Record<string, unknown>>({
   data,
   columns,
+  isLoading = false, // Default loading state
 }: GenericTableProps<T>) => {
   const { isDarkMode } = useContext(ThemeContext);
+  const [sortedData, setSortedData] = useState<T[]>(data);
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof T; // Use keyof T here
+    direction: "asc" | "desc";
+  } | null>(null);
 
-  const getValueByAccessor = (item: T, accessor: string): string => {
-    const result = accessor
-      .split(".")
-      .reduce((prev: Record<string, unknown> | undefined, key: string) => {
-        if (prev && typeof prev === "object" && key in prev) {
-          return prev[key] as Record<string, unknown> | undefined;
-        }
-        return undefined;
-      }, item);
-
-    if (typeof result === "string") {
-      return result;
+  // Function to get values based on accessor or render
+  const getValueByAccessorOrRender = (
+    column: Column<T>,
+    item: T
+  ): React.ReactNode => {
+    // If the column has a render function
+    if ("render" in column && typeof column.render === "function") {
+      return column.render(item); // Call the function and return the result
     }
 
-    return "N/A";
+    // If the column has an accessor
+    if ("accessor" in column && typeof column.accessor === "string") {
+      const keys = column.accessor.split(".");
+      let result: unknown = item;
+
+      for (const key of keys) {
+        if (
+          result &&
+          typeof result === "object" &&
+          key in (result as Record<string, unknown>)
+        ) {
+          result = (result as Record<string, unknown>)[key];
+        } else {
+          return "N/A"; // If key is not found, return N/A
+        }
+      }
+
+      if (
+        result !== undefined &&
+        (typeof result === "string" || typeof result === "number")
+      ) {
+        return result.toString();
+      }
+    }
+
+    return "N/A"; // If no valid value is found
+  };
+
+  // Sorting function
+  const handleSort = (accessor: keyof T) => {
+    let direction: "asc" | "desc" = "asc";
+    if (
+      sortConfig &&
+      sortConfig.key === accessor &&
+      sortConfig.direction === "asc"
+    ) {
+      direction = "desc";
+    }
+    const sorted = [...sortedData].sort((a, b) => {
+      const aValue = a[accessor]; // Use keyof T
+      const bValue = b[accessor]; // Use keyof T
+      if (aValue < bValue) return direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+    setSortedData(sorted);
+    setSortConfig({ key: accessor, direction });
   };
 
   return (
     <div className="overflow-x-auto">
-      {/* تصميم الجدول التقليدي */}
-      <div className="hidden md:block">
-        <table
-          className={`min-w-full border border-gray-300 ${
-            isDarkMode ? "bg-gray-800" : "bg-white"
-          } rounded-lg shadow-lg overflow-hidden`}
-        >
-          <thead>
-            <tr
-              className={`${
-                isDarkMode ? "bg-gray-700 text-white" : "bg-gray-200 text-black"
-              }`}
-            >
-              {columns.map((column, index) => (
-                <th
-                  key={index}
-                  className="py-3 px-6 border-b border-gray-300 text-center text-sm font-medium uppercase tracking-wider"
-                >
-                  {column.title}
-                </th>
-              ))}
+      <table
+        className={`min-w-full border border-gray-300 ${
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+        } rounded-lg shadow-lg`}
+      >
+        <thead>
+          <tr
+            className={`${
+              isDarkMode ? "bg-gray-700 text-white" : "bg-gray-200 text-black"
+            }`}
+          >
+            {columns.map((column, index) => (
+              <th
+                key={index}
+                onClick={() =>
+                  "accessor" in column && handleSort(column.accessor)
+                }
+                className="py-3 px-6 border-b border-gray-300 text-center text-sm font-medium uppercase tracking-wider cursor-pointer"
+              >
+                {column.title}
+                {"accessor" in column &&
+                  sortConfig?.key === column.accessor &&
+                  (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {isLoading ? (
+            <tr>
+              <td colSpan={columns.length} className="py-4 text-center">
+                جارٍ التحميل...
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {Array.isArray(data) && data.length > 0 ? (
-              data.map((item, rowIndex) => (
-                <tr
-                  key={rowIndex}
-                  className={`${
-                    rowIndex % 2 === 0
-                      ? isDarkMode
-                        ? "bg-gray-700"
-                        : "bg-gray-50"
-                      : isDarkMode
-                      ? "bg-gray-600"
-                      : "bg-white"
-                  } hover:bg-gray-300 transition-colors`}
-                >
-                  {columns.map((column, colIndex) => (
-                    <td
-                      key={colIndex}
-                      className={`py-4 px-6 border-b border-gray-300 text-center text-sm ${
-                        isDarkMode ? "text-white" : "text-gray-800"
-                      }`}
-                    >
-                      {"accessor" in column
-                        ? getValueByAccessor(item, column.accessor)
-                        : column.render(item)}
-                    </td>
-                  ))}
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="py-4 text-center text-sm text-gray-500"
-                >
-                  لا توجد بيانات لعرضها
-                </td>
+          ) : Array.isArray(sortedData) && sortedData.length > 0 ? (
+            sortedData.map((item, rowIndex) => (
+              <tr
+                key={rowIndex}
+                className={`${
+                  rowIndex % 2 === 0
+                    ? isDarkMode
+                      ? "bg-gray-700"
+                      : "bg-gray-50"
+                    : isDarkMode
+                    ? "bg-gray-600"
+                    : "bg-white"
+                } hover:bg-gray-300 transition-colors`}
+              >
+                {columns.map((column, colIndex) => (
+                  <td
+                    key={colIndex}
+                    className={`py-4 px-6 border-b border-gray-300 text-center text-sm ${
+                      isDarkMode ? "text-white" : "text-gray-800"
+                    }`}
+                  >
+                    {getValueByAccessorOrRender(column, item)}
+                  </td>
+                ))}
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* تصميم البطاقات عند الشاشات الصغيرة */}
-      <div className="block md:hidden">
-        {Array.isArray(data) && data.length > 0 ? (
-          data.map((item, rowIndex) => (
-            <div
-              key={rowIndex}
-              className={`border border-gray-300 rounded-lg shadow-md p-4 mb-4 ${
-                isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-800"
-              } transition-transform transform hover:scale-105`}
-            >
-              {columns.map((column, colIndex) => (
-                <div key={colIndex} className="mb-2">
-                  <span className="font-semibold">{column.title}:</span>{" "}
-                  <span>
-                    {"accessor" in column
-                      ? getValueByAccessor(item, column.accessor)
-                      : column.render(item)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ))
-        ) : (
-          <div className="text-center py-4 text-sm text-gray-500">
-            لا توجد بيانات لعرضها
-          </div>
-        )}
-      </div>
+            ))
+          ) : (
+            <tr>
+              <td
+                colSpan={columns.length}
+                className="py-4 text-center text-sm text-gray-500"
+              >
+                لا توجد بيانات لعرضها
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };

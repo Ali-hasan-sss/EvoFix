@@ -56,7 +56,12 @@ const NotificationComponent: React.FC = () => {
       });
 
       // طباعة الاستجابة
-      console.log("Response:", response);
+      console.log("Response:", response.data);
+
+      // تحقق من هيكل البيانات
+      if (!Array.isArray(response.data)) {
+        throw new Error("البيانات المستلمة ليست مصفوفة");
+      }
 
       const notificationsWithReadStatus: MappedNotification[] = response.data
         .map((notification: APINotification) => ({
@@ -66,7 +71,7 @@ const NotificationComponent: React.FC = () => {
           createdAt: notification.createdAt,
           senderId: notification.senderId,
           isRead: notification.isRead,
-          requestId: notification.metadata.requestId, // استخراج requestId من metadata
+          requestId: notification.metadata?.requestId || 0, // استخدام 0 كقيمة افتراضية
         }))
         .sort(
           (a: MappedNotification, b: MappedNotification) =>
@@ -76,7 +81,7 @@ const NotificationComponent: React.FC = () => {
       setNotifications(notificationsWithReadStatus);
     } catch (err) {
       setError("فشل في جلب الإشعارات");
-      console.log(err);
+      console.error("Error fetching notifications:", err); // طباعة الخطأ بشكل أوضح
     } finally {
       setLoading(false);
     }

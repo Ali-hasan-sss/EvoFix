@@ -12,6 +12,8 @@ export interface UserFormInput {
   fullName: string;
   email: string;
   phoneNO: string;
+  role?: string;
+  isActive?: boolean;
   governorate: string;
   address: string;
   password: string;

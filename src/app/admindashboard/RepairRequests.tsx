@@ -1,7 +1,3 @@
-// src/pages/RepairRequestsPage.tsx
-
-"use client";
-
 import React, {
   useState,
   useEffect,
@@ -40,7 +36,6 @@ const RepairRequestsPage: React.FC = () => {
 
   const { isDarkMode } = useContext(ThemeContext);
 
-  // تهيئة handleDelete باستخدام useCallback
   const handleDelete = useCallback(async (id: number) => {
     confirmAlert({
       title: "تأكيد الحذف",
@@ -76,9 +71,8 @@ const RepairRequestsPage: React.FC = () => {
         },
       ],
     });
-  }, []); // مصفوفة التبعيات فارغة لأن جميع المتغيرات داخل الدالة ثابتة
+  }, []);
 
-  // تعريف أعمدة الجدول مع إضافة عمود العمليات
   const columns = useMemo(
     () => [
       {
@@ -128,7 +122,7 @@ const RepairRequestsPage: React.FC = () => {
         ),
       },
     ],
-    [handleDelete, isDeleting] // تضمين handleDelete في التبعيات
+    [handleDelete, isDeleting]
   );
 
   useEffect(() => {
@@ -146,7 +140,12 @@ const RepairRequestsPage: React.FC = () => {
         );
 
         if (response.status === 200) {
-          setRepairRequests(response.data);
+          if (Array.isArray(response.data)) {
+            setRepairRequests(response.data);
+          } else {
+            console.warn("Expected an array but got:", response.data);
+            setRepairRequests([]);
+          }
         } else {
           console.warn("لا توجد بيانات في الاستجابة.");
           toast.warn("لا توجد بيانات متاحة.");
@@ -175,24 +174,25 @@ const RepairRequestsPage: React.FC = () => {
           <ClipLoader color="#4A90E2" size={50} />
         </div>
       ) : isMobile ? (
-        // عرض البطاقات عند كون العرض على جهاز موبايل
         <div>
-          {repairRequests.map((request) => (
-            <RepairRequestCard
-              key={request.id}
-              request={request}
-              onDelete={handleDelete}
-              statusMap={statusMap}
-              isDeleting={isDeleting}
-            />
-          ))}
+          {repairRequests.length > 0 ? (
+            repairRequests.map((request) => (
+              <RepairRequestCard
+                key={request.id}
+                request={request}
+                onDelete={handleDelete}
+                statusMap={statusMap}
+                isDeleting={isDeleting}
+              />
+            ))
+          ) : (
+            <div>لا توجد طلبات إصلاح متاحة.</div>
+          )}
         </div>
       ) : (
-        // عرض الجدول عند عدم كون العرض على جهاز موبايل
         <GenericTable<RepairRequest> data={repairRequests} columns={columns} />
       )}
 
-      {/* إضافة ToastContainer لعرض الإشعارات */}
       <ToastContainer
         position="top-right"
         autoClose={5000}

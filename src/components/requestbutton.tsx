@@ -1,39 +1,42 @@
 "use client";
 
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { API_BASE_URL } from "../utils/api";
 import { AuthContext } from "@/app/context/AuthContext";
 import { ThemeContext } from "@/app/ThemeContext";
+import Image from "next/image";
+import toast from "react-hot-toast"; // تأكد من تثبيت react-hot-toast
 
 const RepairRequestButton: React.FC = () => {
   const { isLoggedIn } = useContext(AuthContext);
-  const { isDarkMode } = useContext(ThemeContext); // تأكد من استخدام نفس السياق
+  const { isDarkMode } = useContext(ThemeContext);
   const [governorate, setGovernorate] = useState("دمشق");
   const [phoneNO, setPhoneNO] = useState("0991742941");
   const [address, setAddress] = useState("مزة اوتستراد");
   const [deviceType, setDeviceType] = useState("غسالة");
+  const [deviceModel, setDeviceModel] = useState("");
   const [problemDescription, setProblemDescription] = useState(
     "هناك ارتجاج بالمحرك مع صوت"
   );
+  const [deviceImage, setDeviceImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { isDarkMode: themeMode } = useContext(ThemeContext);
-  if (themeMode) {
-    console.log("Dark mode is enabled");
-  } else {
-    console.log("Light mode is enabled");
-  }
-  useEffect(() => {
-    console.log("Dark Mode Status:", isDarkMode); // تحقق من تحديث القيمة
-  }, [isDarkMode]);
 
-  const openModal = () => {
-    setIsModalOpen(true);
-    // console.log("Current Dark Mode:", isDarkMode);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    setDeviceImage(file);
+    setImagePreview(file ? URL.createObjectURL(file) : null);
   };
 
+  const removeImage = () => {
+    setDeviceImage(null);
+    setImagePreview(null);
+  };
+
+  const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,34 +45,47 @@ const RepairRequestButton: React.FC = () => {
 
     const token = Cookies.get("token");
 
-    const requestData = {
-      governorate,
-      phoneNO,
-      address,
-      deviceType,
-      problemDescription,
-    };
+    const formData = new FormData();
+    formData.append("governorate", governorate);
+    formData.append("phoneNO", phoneNO);
+    formData.append("address", address);
+    formData.append("deviceType", deviceType);
+    formData.append("deviceModel", deviceModel);
+    formData.append("problemDescription", problemDescription);
+
+    if (deviceImage) {
+      formData.append("deviceImage", deviceImage);
+    }
 
     try {
       const response = await axios.post(
         `${API_BASE_URL}/maintenance-requests`,
-        requestData,
+        formData,
         {
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
           },
         }
       );
 
       if (response.status === 201) {
-        //  console.log("تم إرسال الطلب بنجاح");
-        closeModal();
+        toast.success("تم إرسال الطلب بنجاح!"); // رسالة توست عند الإرسال الناجح
+        // إعادة تعيين النموذج
+        setGovernorate("دمشق");
+        setPhoneNO("0991742941");
+        setAddress("مزة اوتستراد");
+        setDeviceType("غسالة");
+        setDeviceModel("");
+        setProblemDescription("هناك ارتجاج بالمحرك مع صوت");
+        removeImage(); // إزالة الصورة
+        closeModal(); // إغلاق النافذة
       } else {
         console.log("فشل في إرسال الطلب");
       }
     } catch (error) {
       console.error("حدث خطأ:", error);
+      toast.error("حدث خطأ أثناء إرسال الطلب"); // رسالة توست عند حدوث خطأ
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +93,6 @@ const RepairRequestButton: React.FC = () => {
 
   return (
     <>
-      {/* Repair Request Button */}
       <button
         onClick={openModal}
         className="fixed bottom-20 left-5 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-20"
@@ -85,57 +100,20 @@ const RepairRequestButton: React.FC = () => {
         طلب إصلاح
       </button>
 
-      {!isLoggedIn && isModalOpen && (
+      {isLoggedIn && isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div
-            className={` p-6 rounded-lg shadow-lg w-96 ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-gray-400 text-black"
+            className={`p-6 rounded-lg shadow-lg w-11/12 sm:w-96 ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-black"
             }`}
+            style={{ maxHeight: "80%", overflowY: "auto" }}
           >
-            <button
-              type="button"
-              onClick={closeModal}
-              className="text-light bg-red-500 px-2 block rounded hover:bg-red-400"
-            >
-              X
-            </button>
-            <div className="mt-2">
-              يجب عليك
-              <a
-                href="/login"
-                className="text-blue-600 hover:text-yellow-500 mr-1"
-              >
-                تسجيل الدخول
-              </a>
-              او
-              <a
-                href="/register"
-                className="text-blue-600 hover:text-yellow-500 mr-1"
-              >
-                انشاء حساب
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
+            <h2 className="text-lg font-semibold mb-4">طلب إصلاح</h2>
 
-      {/* Request Modal */}
-      {isLoggedIn && isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center  bg-opacity-50">
-          <div
-            className={` p-6 rounded-lg shadow-lg w-96 ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-gray-500 text-black"
-            }`}
-          >
-            <h2 className="text-lg font-semibold mb-4 ">طلب إصلاح</h2>
-
-            {/* Form Contents */}
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block ">المحافظة</label>
+                <label className="block">المحافظة</label>
                 <select
-                  id="specialization"
-                  name="specialization"
                   value={governorate}
                   onChange={(e) => setGovernorate(e.target.value)}
                   className={`w-full p-2 border-b focus:outline-none ${
@@ -148,51 +126,41 @@ const RepairRequestButton: React.FC = () => {
                   <option value="">اختر المحافظة</option>
                   <option value="دمشق">دمشق</option>
                   <option value="ريف دمشق">ريف دمشق</option>
-                  <option value="حمص">حمص</option>
-                  <option value="حماه">حماه</option>
-                  <option value="طرطوس">طرطوس</option>
-                  <option value="اللاذقية">اللاذقية</option>
-                  <option value="السويداء">السويداء</option>
-                  <option value="القنيطرة">القنيطرة</option>
-                  <option value="حلب">حلب</option>
-                  <option value="الرقة">الرقة</option>
-                  <option value="الحسكة">الحسكة</option>
-                  <option value="دير الزور">دير الزور</option>
-                  <option value="ادلب">ادلب</option>
                 </select>
               </div>
+
               <div className="mb-4">
                 <label className="block">رقم الهاتف</label>
                 <input
                   type="text"
-                  name="phoneNO"
-                  className="w-full px-4 py-2 border rounded-lg "
                   value={phoneNO}
                   onChange={(e) => setPhoneNO(e.target.value)}
+                  className="w-full px-4 py-2 border rounded-lg"
+                  required
                 />
               </div>
+
               <div className="mb-4">
-                <label className="block ">العنوان</label>
+                <label className="block">العنوان</label>
                 <input
                   type="text"
-                  name="address"
-                  className="w-full px-4 py-2 border rounded-lg "
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
+                  className="w-full px-4 py-2 border rounded-lg"
+                  required
                 />
               </div>
+
               <div className="mb-4">
-                <label className="block ">نوع الجهاز</label>
+                <label className="block">نوع الجهاز</label>
                 <select
-                  id="specialization"
-                  name="specialization"
                   value={deviceType}
                   onChange={(e) => setDeviceType(e.target.value)}
                   className={`w-full p-2 border-b focus:outline-none ${
                     isDarkMode
                       ? "bg-gray-700 text-white border-gray-600"
                       : "bg-white text-gray-800 border-gray-300"
-                  } `}
+                  }`}
                   required
                 >
                   <option value="">اختر نوع الجهاز</option>
@@ -200,60 +168,82 @@ const RepairRequestButton: React.FC = () => {
                   <option value="شاشة كمبيوتر">شاشة كمبيوتر</option>
                   <option value="موبايل">موبايل</option>
                   <option value="لابتوب">لابتوب</option>
-                  <option value="اجهزة منزلية">اجهزة منزلية</option>
                 </select>
               </div>
+
               <div className="mb-4">
-                <label className="block ">وصف المشكلة</label>
+                <label className="block">موديل الجهاز</label>
+                <select
+                  value={deviceModel}
+                  onChange={(e) => setDeviceModel(e.target.value)}
+                  className={`w-full p-2 border-b focus:outline-none ${
+                    isDarkMode
+                      ? "bg-gray-700 text-white border-gray-600"
+                      : "bg-white text-gray-800 border-gray-300"
+                  }`}
+                  required
+                >
+                  <option value="">اختر موديل الجهاز</option>
+                  <option value="LG">LG</option>
+                  <option value="Samsung">Samsung</option>
+                  <option value="Haier">Haier</option>
+                </select>
+              </div>
+
+              <div className="mb-4">
+                <label className="block">صورة الجهاز</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full px-4 py-2 border rounded-lg"
+                />
+                {imagePreview && (
+                  <div className="mt-2">
+                    <Image
+                      src={imagePreview}
+                      alt="معاينة صورة الجهاز"
+                      width={500}
+                      height={128}
+                      className="object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="mt-2 text-red-500 hover:underline"
+                    >
+                      إزالة الصورة
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="mb-4">
+                <label className="block">وصف المشكلة</label>
                 <textarea
-                  name="problemDescription"
-                  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                   value={problemDescription}
                   onChange={(e) => setProblemDescription(e.target.value)}
+                  className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
 
-              {/* Buttons */}
               <div className="flex justify-end">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg mr-2 dark:bg-gray-600 dark:text-gray-200"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg mr-2"
                 >
                   تراجع
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center"
                   disabled={isLoading}
                 >
-                  {isLoading ? (
-                    <div className="flex items-center">
-                      <svg
-                        className="animate-spin h-5 w-5 mr-2 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 0014.244 5.713l-1.444-1.444A6 6 0 116 12h-2z"
-                        ></path>
-                      </svg>
-                      إرسال
-                    </div>
-                  ) : (
-                    "إرسال"
+                  {isLoading && (
+                    <span className="mr-2 spinner-border animate-spin"></span>
                   )}
+                  {isLoading ? "إرسال..." : "إرسال"}
                 </button>
               </div>
             </form>
