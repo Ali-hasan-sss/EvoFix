@@ -18,12 +18,12 @@ const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabChange }) => {
   return (
     <div>
       {/* Select Dropdown for Mobile */}
-      <div className="sm:hidden mb-4">
+      <div className="sm:hidden mb-2 p-2 w-full">
         <select
           value={activeTab}
           onChange={(e) => onTabChange(e.target.value)}
           className={`w-full py-2 px-4 rounded focus:outline-none transition-colors duration-300 ${
-            isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-black"
+            isDarkMode ? "bg-gray-800 text-white" : "bg-gray-400 text-black"
           }`}
         >
           {tabs.map((tab) => (
@@ -35,7 +35,7 @@ const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabChange }) => {
       </div>
 
       {/* Tabs for Desktop */}
-      <div className="hidden sm:flex space-x-4 mb-4">
+      <div className="hidden sm:flex  mb-4 w-full">
         {tabs.map((tab) => (
           <button
             key={tab.key}

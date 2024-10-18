@@ -12,14 +12,12 @@ import toast from "react-hot-toast"; // تأكد من تثبيت react-hot-toast
 const RepairRequestButton: React.FC = () => {
   const { isLoggedIn } = useContext(AuthContext);
   const { isDarkMode } = useContext(ThemeContext);
-  const [governorate, setGovernorate] = useState("دمشق");
-  const [phoneNO, setPhoneNO] = useState("0991742941");
-  const [address, setAddress] = useState("مزة اوتستراد");
-  const [deviceType, setDeviceType] = useState("غسالة");
+  const [governorate, setGovernorate] = useState("");
+  const [phoneNO, setPhoneNO] = useState("");
+  const [address, setAddress] = useState("");
+  const [deviceType, setDeviceType] = useState("");
   const [deviceModel, setDeviceModel] = useState("");
-  const [problemDescription, setProblemDescription] = useState(
-    "هناك ارتجاج بالمحرك مع صوت"
-  );
+  const [problemDescription, setProblemDescription] = useState("");
   const [deviceImage, setDeviceImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -95,7 +93,7 @@ const RepairRequestButton: React.FC = () => {
     <>
       <button
         onClick={openModal}
-        className="fixed bottom-20 left-5 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-20"
+        className="fixed bottom-20 left-5 bg-blue-400 text-white p-2 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-20"
       >
         طلب إصلاح
       </button>
@@ -135,7 +133,11 @@ const RepairRequestButton: React.FC = () => {
                   type="text"
                   value={phoneNO}
                   onChange={(e) => setPhoneNO(e.target.value)}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className={`w-full px-4 py-2 border rounded-lg text-black${
+                    isDarkMode
+                      ? "bg-gray-800 text-black"
+                      : "bg-gray-200 text-black"
+                  }`}
                   required
                 />
               </div>
@@ -146,7 +148,7 @@ const RepairRequestButton: React.FC = () => {
                   type="text"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="w-full text-black px-4 py-2 border rounded-lg"
                   required
                 />
               </div>
@@ -164,8 +166,8 @@ const RepairRequestButton: React.FC = () => {
                   required
                 >
                   <option value="">اختر نوع الجهاز</option>
-                  <option value="شاشة تلفاز">شاشة تلفاز</option>
-                  <option value="شاشة كمبيوتر">شاشة كمبيوتر</option>
+                  <option value="شاشات">شاشات الكترونية</option>
+                  <option value="كمبيوتر">جهاز كمبيوتر</option>
                   <option value="موبايل">موبايل</option>
                   <option value="لابتوب">لابتوب</option>
                 </select>
@@ -223,7 +225,7 @@ const RepairRequestButton: React.FC = () => {
                 <textarea
                   value={problemDescription}
                   onChange={(e) => setProblemDescription(e.target.value)}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="w-full text-black px-4 py-2 border rounded-lg"
                 />
               </div>
 

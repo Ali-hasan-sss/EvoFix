@@ -178,11 +178,10 @@ const RepairRequestsPage: React.FC = () => {
           {repairRequests.length > 0 ? (
             repairRequests.map((request) => (
               <RepairRequestCard
+                userRole={"ADMIN"}
                 key={request.id}
                 request={request}
-                onDelete={handleDelete}
                 statusMap={statusMap}
-                isDeleting={isDeleting}
               />
             ))
           ) : (

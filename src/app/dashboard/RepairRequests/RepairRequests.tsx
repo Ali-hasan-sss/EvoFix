@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { API_BASE_URL } from "../../../utils/api";
 import { ThemeContext } from "@/app/ThemeContext"; // لاستدعاء حالة الوضع الداكن
 import Tabs from "@/components/Tabs";
+import { ClipLoader } from "react-spinners";
 import RepairRequestCard from "@/components/RepairRequestCard"; // استيراد مكون البطاقة
 import { RepairRequest } from "@/utils/types";
 
@@ -58,30 +59,6 @@ const RepairRequests: React.FC = () => {
     fetchRepairRequests();
   }, []);
 
-  // دالة لإلغاء الطلب
-  const handleCancelRequest = async (requestId: number) => {
-    try {
-      const token = Cookies.get("token");
-      const response = await axios.delete(
-        `${API_BASE_URL}/maintenance-requests/${requestId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        toast.success("تم إلغاء الطلب بنجاح.");
-        setRepairRequests(repairRequests.filter((req) => req.id !== requestId));
-      } else {
-        toast.warn("لم يتم العثور على الطلب.");
-      }
-    } catch (error) {
-      console.error("حدث خطأ أثناء إلغاء الطلب:", error);
-      toast.error("حدث خطأ أثناء إلغاء الطلب.");
-    }
-  };
-
   // تعريف التبويبات
   const tabs = [
     { label: "جميع الطلبات", key: "available" },
@@ -120,36 +97,37 @@ const RepairRequests: React.FC = () => {
 
   // إضافة طباعة للتحقق من التبويب النشط والطلبات المفلترة
   useEffect(() => {
-    console.log("التبويب النشط:", activeTab);
-    console.log("الطلبات المفلترة:", filteredRequests);
+    // console.log("التبويب النشط:", activeTab);
+    // console.log("الطلبات المفلترة:", filteredRequests);
   }, [activeTab, filteredRequests]);
 
   return (
     <div className="p-4 flex flex-col w-full">
-      <h1 className="text-2xl font-bold mb-4">طلبات الإصلاح</h1>
+      <h1 className="text-2xl text-center font-bold mb-4">طلبات الإصلاح</h1>
 
       {loading ? (
-        <p>جارٍ تحميل البيانات...</p>
+        <div className="flex justify-center items-center h-screen">
+          <ClipLoader color="#4A90E2" size={50} />
+        </div>
       ) : (
         <div
-          className={`w-full flex-grow ${
-            isDarkMode ? "bg-gray-800" : "bg-white"
-          } overflow-y-auto`}
+          className={`w-full flex-grow  p-2 rounded ${
+            isDarkMode ? "bg-gray-700" : "bg-gray-500"
+          } `}
         >
           <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
           {/* عرض الطلبات المفلترة على شكل بطاقات */}
-          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="p-2 grid  sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {filteredRequests.length === 0 ? (
               <p>لا توجد طلبات في هذا التبويب.</p>
             ) : (
               filteredRequests.map((request) => (
                 <RepairRequestCard
+                  userRole={"USER"}
                   key={request.id}
                   request={request as RepairRequest}
-                  onDelete={handleCancelRequest} // تمرير الدالة هنا
                   statusMap={statusMap}
-                  isDeleting={loading} // افترض أنك تريد تمرير حالة الحذف
                 />
               ))
             )}

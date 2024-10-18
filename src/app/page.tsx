@@ -6,6 +6,8 @@ import Head from "next/head";
 import ChatBotButton from "@/components/ChatbotButton";
 import { Toaster } from "react-hot-toast";
 import { ThemeContext } from "./ThemeContext";
+import RepairRequestButton from "@/components/requestbutton";
+
 const Home: NextPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
 
@@ -32,6 +34,7 @@ const Home: NextPage = () => {
         }`}
       >
         <Navbar />
+        <RepairRequestButton />
         <Toaster />
         <ChatBotButton />
         <section className="bg-blue-500 text-white py-20">

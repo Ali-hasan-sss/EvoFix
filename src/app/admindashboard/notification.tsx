@@ -14,11 +14,12 @@ import { toast, ToastContainer } from "react-toastify";
 interface Notification {
   id: number;
   title: string;
-  message: string;
-  createdAt: string;
-  senderId: number; // تم تغيير userId إلى senderId
-  isRead: boolean;
   content: string;
+  createdAt: string;
+  senderId: number;
+  isRead: boolean;
+  requestId: number;
+  recipientId: number;
 }
 
 interface User {

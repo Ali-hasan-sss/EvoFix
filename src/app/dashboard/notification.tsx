@@ -1,7 +1,5 @@
 // src/app/dashboard/notification.tsx
 
-"use client";
-
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../../utils/api";
@@ -9,26 +7,25 @@ import { ClipLoader } from "react-spinners";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ThemeContext } from "@/app/ThemeContext";
+import Modal from "react-modal";
 
-// تعريف الواجهة الأصلية للإشعار كما تستلمه من الخادم
+// الواجهات كما هي
 interface APINotification {
   id: number;
   title: string;
   content: string;
-  createdAt: string; // أو Date حسب الحاجة
+  createdAt: string;
   senderId: number;
   isRead: boolean;
-  metadata: {
-    requestId: number;
-  };
+  requestId: number;
+  recipientId: number;
 }
 
-// تعريف الواجهة بعد إضافة requestId كخاصية على المستوى الأعلى
 interface MappedNotification {
   id: number;
   title: string;
   content: string;
-  createdAt: string; // أو Date حسب الحاجة
+  createdAt: string;
   senderId: number;
   isRead: boolean;
   requestId: number;
@@ -39,8 +36,13 @@ const NotificationComponent: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [loadingAction, setLoadingAction] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-
   const { isDarkMode } = useContext(ThemeContext);
+
+  // حالة فتح/إغلاق المودال
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
+    null
+  );
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -55,33 +57,30 @@ const NotificationComponent: React.FC = () => {
         },
       });
 
-      // طباعة الاستجابة
       console.log("Response:", response.data);
 
-      // تحقق من هيكل البيانات
       if (!Array.isArray(response.data)) {
         throw new Error("البيانات المستلمة ليست مصفوفة");
       }
 
-      const notificationsWithReadStatus: MappedNotification[] = response.data
-        .map((notification: APINotification) => ({
+      // قم بتحويل الإشعارات المستلمة إلى الشكل المطلوب
+      const notificationsWithReadStatus = response.data.map(
+        (notification: APINotification) => ({
           id: notification.id,
           title: notification.title,
           content: notification.content,
           createdAt: notification.createdAt,
           senderId: notification.senderId,
           isRead: notification.isRead,
-          requestId: notification.metadata?.requestId || 0, // استخدام 0 كقيمة افتراضية
-        }))
-        .sort(
-          (a: MappedNotification, b: MappedNotification) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+          requestId: notification.requestId,
+        })
+      );
 
+      // تحديث حالة الإشعارات
       setNotifications(notificationsWithReadStatus);
     } catch (err) {
       setError("فشل في جلب الإشعارات");
-      console.error("Error fetching notifications:", err); // طباعة الخطأ بشكل أوضح
+      console.error("Error fetching notifications:", err);
     } finally {
       setLoading(false);
     }
@@ -91,31 +90,16 @@ const NotificationComponent: React.FC = () => {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  const handleAcceptRequest = async (id: number, requestId: number) => {
-    setLoadingAction(id);
-    // تنفيذ عملية القبول هنا
-    // على سبيل المثال:
-    try {
-      await axios.post(`${API_BASE_URL}/accept-request/${requestId}`);
-      toast.success("تم قبول الطلب بنجاح.");
-      // تحديث حالة الإشعارات أو إعادة جلبها
-      fetchNotifications();
-    } catch (error) {
-      console.error("حدث خطأ أثناء قبول الطلب:", error);
-      toast.error("حدث خطأ أثناء قبول الطلب. يرجى المحاولة مرة أخرى.");
-    } finally {
-      setLoadingAction(null);
-    }
+  const handleAcceptRequest = (requestId: number) => {
+    setSelectedRequestId(requestId);
+    setIsModalOpen(true); // فتح المودال عند النقر على القبول
   };
 
   const handleRejectRequest = async (id: number, requestId: number) => {
     setLoadingAction(id);
-    // تنفيذ عملية الرفض هنا
-    // على سبيل المثال:
     try {
       await axios.post(`${API_BASE_URL}/reject-request/${requestId}`);
       toast.success("تم رفض الطلب بنجاح.");
-      // تحديث حالة الإشعارات أو إعادة جلبها
       fetchNotifications();
     } catch (error) {
       console.error("حدث خطأ أثناء رفض الطلب:", error);
@@ -123,6 +107,11 @@ const NotificationComponent: React.FC = () => {
     } finally {
       setLoadingAction(null);
     }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedRequestId(null);
   };
 
   if (loading) {
@@ -140,55 +129,83 @@ const NotificationComponent: React.FC = () => {
   return (
     <div
       className={`p-6 ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
+        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-300 text-black"
       }`}
     >
-      <h1 className="text-2xl font-bold mb-6">الإشعارات</h1>
+      <h1 className="text-2xl text-center font-bold mb-6">الإشعارات</h1>
       {notifications.length === 0 ? (
         <div className="text-center">لا توجد إشعارات.</div>
       ) : (
         <ul>
           {notifications.map((notification) => (
-            <li key={notification.id} className="mb-4 p-4 border rounded-md">
-              <h2 className="text-xl font-semibold">{notification.title}</h2>
+            <li
+              key={notification.id}
+              className={`mb-4  p-4 border rounded-md  ${
+                isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-black"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <h2 className="font-bold text-yellow-500">
+                  {notification.title}
+                </h2>
+                {!notification.isRead && (
+                  <div className="h-2 w-2 bg-red-500 rounded-full ml-2"></div>
+                )}
+              </div>
               <p>{notification.content}</p>
               <p className="text-sm text-gray-500">
                 {new Date(notification.createdAt).toLocaleString()}
               </p>
-              <div className="mt-2 flex">
-                <button
-                  className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
-                  onClick={() =>
-                    handleAcceptRequest(notification.id, notification.requestId)
-                  } // تمرير requestId
-                  disabled={loadingAction === notification.id}
-                >
-                  {loadingAction === notification.id ? (
-                    <ClipLoader color="#ffffff" size={20} />
-                  ) : (
-                    "قبول"
-                  )}
-                </button>
-                <button
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                  onClick={() =>
-                    handleRejectRequest(notification.id, notification.requestId)
-                  } // تمرير requestId
-                  disabled={loadingAction === notification.id}
-                >
-                  {loadingAction === notification.id ? (
-                    <ClipLoader color="#ffffff" size={20} />
-                  ) : (
-                    "رفض"
-                  )}
-                </button>
-              </div>
+              {notification.title === "استلام الطلب" && ( // عرض الأزرار فقط إذا كان العنوان "استلام الطلب"
+                <div className="mt-2 flex">
+                  <button
+                    className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
+                    onClick={() => handleAcceptRequest(notification.requestId)} // تمرير requestId
+                    disabled={loadingAction === notification.id}
+                  >
+                    {loadingAction === notification.id ? (
+                      <ClipLoader color="#ffffff" size={20} />
+                    ) : (
+                      "قبول"
+                    )}
+                  </button>
+                  <button
+                    className="bg-red-500 text-white px-4 py-2 rounded-md"
+                    onClick={() =>
+                      handleRejectRequest(
+                        notification.id,
+                        notification.requestId
+                      )
+                    }
+                    disabled={loadingAction === notification.id}
+                  >
+                    {loadingAction === notification.id ? (
+                      <ClipLoader color="#ffffff" size={20} />
+                    ) : (
+                      "رفض"
+                    )}
+                  </button>
+                </div>
+              )}
             </li>
           ))}
         </ul>
       )}
 
-      {/* إضافة ToastContainer لعرض الإشعارات */}
+      {/* مودال الدفع */}
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        contentLabel="Modal"
+        className="modal-class"
+        overlayClassName="modal-overlay"
+      >
+        <h2>إتمام عملية الدفع</h2>
+        <p>طلب الدفع لـ ID: {selectedRequestId}</p>
+        {/* هنا سيتم وضع مكون فورم الدفع لاحقاً */}
+        <button onClick={closeModal}>إغلاق</button>
+      </Modal>
+
       <ToastContainer
         position="top-right"
         autoClose={5000}
