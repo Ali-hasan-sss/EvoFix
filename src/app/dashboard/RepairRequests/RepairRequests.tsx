@@ -23,6 +23,7 @@ const RepairRequests: React.FC = () => {
     IN_PROGRESS: "جارٍ التنفيذ",
     COMPLETED: "مكتمل",
     REJECTED: "مرفوض",
+    ASSIGNED: "قيد التسعير",
   };
 
   useEffect(() => {

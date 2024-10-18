@@ -22,6 +22,7 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
   const { isDarkMode } = useContext(ThemeContext);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // حالة المودال
+  const [isExpanded, setIsExpanded] = useState(false); // حالة التحكم في توسع الكارد
 
   const getButtonLabel = () => {
     if (userRole === "TECHNICIAN") {
@@ -153,135 +154,107 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
         className="w-full h-48 object-cover"
       />
       <div className="p-4">
-        <h2 className="text-xl font-bold">
+        <h2 className="text-xl font-bold mb-2 border-b">
           {String(request.user.fullName) || "اسم غير معروف"}
         </h2>
         <p className="mb-2 border-b pb-2">
-          <strong>المحافظة:</strong> {String(request.governorate) || "غير محدد"}
+          <strong>المحافظة:</strong>
+          <strong className="mr-2">
+            {String(request.governorate) || "غير محدد"}
+          </strong>
         </p>
-        <p className="mb-2 border-b pb-2">
-          <strong>رقم الهاتف:</strong>{" "}
-          {String(request.user.phoneNO) || "غير متوفر"}
-        </p>
-        <p className="mb-2 border-b pb-2">
-          <strong>العنوان:</strong>{" "}
-          {String(request.user.address) || "غير معروف"}
-        </p>
-
-        {/* نوع الجهاز وموديل الجهاز */}
         <div className="flex justify-between mb-2 border-b pb-2">
-          <p>
-            <small>نوع الجهاز:</small>{" "}
+          <p className="border-l pl-2">
+            <strong>نوع الجهاز:</strong>{" "}
             {String(request.deviceType) || "غير محدد"}
           </p>
           <p>
-            <small>موديل الجهاز:</small>{" "}
+            <strong>موديل الجهاز:</strong>{" "}
             {String(request.deviceModel) || "غير معروف"}
           </p>
         </div>
 
         <p className="mb-2 border-b pb-2">
-          <strong>وصف المشكلة:</strong>{" "}
-          {String(request.problemDescription) || "غير متوفر"}
-        </p>
-        <p className="mb-2 border-b pb-2">
-          <strong>التقني المخصص:</strong>{" "}
-          {request.technician?.user.fullName
-            ? String(request.technician.user.fullName)
-            : "غير محدد"}
+          <strong> الحالة:</strong>
+          <span
+            className={`text-sm font-semibold ${
+              request.status === "COMPLETED"
+                ? "text-green-500"
+                : request.status === "IN_PROGRESS"
+                ? "text-yellow-500"
+                : request.status === "REJECTED"
+                ? "text-red-500"
+                : request.status === "QUOTED"
+                ? "text-purple-500"
+                : request.status === "ASSIGNED"
+                ? "text-orange-500"
+                : request.status === "PENDING"
+                ? "text-gray-500"
+                : "text-blue-500"
+            }`}
+          >
+            {statusMap[request.status] || "حالة غير معروفة"}
+          </span>
         </p>
 
-        {/* التكلفة وحالة الدفع */}
-        <div className="flex justify-between mb-2 border-b pb-2">
-          <p>
-            <strong>التكلفة:</strong>
-            <span className="text-green-500 mr-2">
+        {/* عرض التفاصيل عند التوسع */}
+        {isExpanded && (
+          <div>
+            <p className="border-b pb-2">
+              <strong>رقم الهاتف:</strong>{" "}
+              {String(request.user.phoneNO) || "غير متوفر"}
+            </p>
+            <p className="border-b pb-2">
+              <strong>العنوان:</strong>{" "}
+              {String(request.user.address) || "غير معروف"}
+            </p>
+            <p className="border-b pb-2">
+              <strong>وصف المشكلة:</strong>{" "}
+              {String(request.problemDescription) || "غير متوفر"}
+            </p>
+            <p className="border-b pb-2">
+              <strong>التقني المخصص:</strong>
+              {request.technician?.user.fullName || "غير محدد"}
+            </p>
+            <p className="border-b pb-2">
+              <strong>التكلفة:</strong>
               {request.cost === 0
                 ? "غير مسعر بعد"
                 : String(request.cost) || "غير متوفر"}
-            </span>
-          </p>
-          <p>
-            <strong>حالة الدفع:</strong>
-            <span
-              className={`mr-2 ${
-                request.isPaid ? "text-green-500" : "text-red-500"
-              }`}
-            >
+            </p>
+            <p className="border-b pb-2">
+              <strong>حالة الدفع:</strong>{" "}
               {request.isPaid ? "تم الدفع" : "لم يتم الدفع"}
-            </span>
-          </p>
+            </p>
+          </div>
+        )}
+
+        {/* الأزرار: عرض المزيد وزر الأكشن */}
+        <div className="flex justify-between items-center mt-4">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          >
+            {isExpanded ? "عرض أقل" : "عرض المزيد"}
+          </button>
+          <button
+            onClick={handleButtonClick}
+            className={`px-4 py-2 ${
+              userRole === "TECHNICIAN" ? "bg-blue-500" : "bg-red-500"
+            } text-white rounded hover:${
+              userRole === "TECHNICIAN" ? "bg-blue-600" : "bg-red-600"
+            } flex items-center justify-center`}
+            disabled={isDeleting}
+          >
+            {getButtonLabel()}
+            {isDeleting && (
+              <ClipLoader color="#ffffff" size={15} className="ml-2" />
+            )}
+          </button>
         </div>
-        <div className="flex justify-between mb-2 border-b pb-2">
-          <p>
-            <strong> الحالة:</strong>
-            <span
-              className={`text-sm font-semibold ${
-                request.status === "COMPLETED"
-                  ? "text-green-500"
-                  : request.status === "IN_PROGRESS"
-                  ? "text-yellow-500"
-                  : request.status === "REJECTED"
-                  ? "text-red-500"
-                  : request.status === "QUOTED"
-                  ? "text-purple-500"
-                  : request.status === "ASSIGNED"
-                  ? "text-orange-500"
-                  : request.status === "PENDING"
-                  ? "text-gray-500"
-                  : "text-blue-500"
-              }`}
-            >
-              {statusMap[request.status]
-                ? statusMap[request.status]
-                : request.status === "COMPLETED"
-                ? "مكتمل"
-                : request.status === "IN_PROGRESS"
-                ? "قيد التنفيذ"
-                : request.status === "REJECTED"
-                ? "مرفوض"
-                : request.status === "QUOTED"
-                ? "تم ارسال التكلفة"
-                : request.status === "ASSIGNED"
-                ? "تم الاستلام"
-                : request.status === "PENDING"
-                ? "معلق"
-                : "حالة غير معروفة"}
-            </span>
-          </p>
-          <p>
-            {" "}
-            <strong>اجور الكشف :</strong>{" "}
-            <span
-              className={`mr-2 ${
-                request.isPaidCheckFee ? "text-green-500" : "text-red-500"
-              }`}
-            >
-              {request.isPaidCheckFee ? "تم الدفع" : "لم يتم الدفع"}{" "}
-            </span>{" "}
-          </p>
-        </div>
-        <p className=" mb-2 border-b pb-2">
-          <small className="mr-5">
-            {String(request.createdAt) || "غير محدد"}
-          </small>
-        </p>
-        <button
-          onClick={handleButtonClick}
-          className={`mt-3 px-4 py-2 ${
-            userRole === "TECHNICIAN" ? "bg-blue-500" : "bg-red-500"
-          } text-white rounded hover:${
-            userRole === "TECHNICIAN" ? "bg-blue-600" : "bg-red-600"
-          } flex items-center justify-center`}
-          disabled={isDeleting}
-        >
-          {getButtonLabel()}
-          {isDeleting && (
-            <ClipLoader color="#ffffff" size={15} className="ml-2" />
-          )}
-        </button>
       </div>
-      {/* المودال */}
+
+      {/* المودال الخاص بتسعير الطلب */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={() => setIsModalOpen(false)}
