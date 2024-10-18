@@ -5,9 +5,14 @@ import { API_BASE_URL } from "@/utils/api";
 interface PricingFormProps {
   requestId: string; // معرف الطلب ليتم إرساله مع التسعير
   onClose: () => void; // دالة لإغلاق المودال
+  onRequestUpdated: () => void;
 }
 
-const PricingForm: React.FC<PricingFormProps> = ({ requestId, onClose }) => {
+const PricingForm: React.FC<PricingFormProps> = ({
+  requestId,
+  onClose,
+  onRequestUpdated,
+}) => {
   const [cost, setCost] = useState<number | "">("");
   const [error, setError] = useState<string>("");
 
@@ -30,6 +35,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ requestId, onClose }) => {
           },
         }
       );
+      onRequestUpdated();
       onClose(); // إغلاق المودال عند نجاح الإرسال
     } catch (err) {
       console.error("خطأ أثناء تسعير الطلب:", err);

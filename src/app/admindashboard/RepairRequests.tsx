@@ -160,7 +160,10 @@ const RepairRequestsPage: React.FC = () => {
 
     fetchRepairRequests();
   }, []);
-
+  const handleRequestUpdated = () => {
+    // يمكنك إعادة جلب الطلبات هنا أو تحديث الحالة
+    console.log("done"); // تأكد من أن لديك هذه الدالة متاحة
+  };
   return (
     <div
       className={`p-6 ${
@@ -178,6 +181,7 @@ const RepairRequestsPage: React.FC = () => {
           {repairRequests.length > 0 ? (
             repairRequests.map((request) => (
               <RepairRequestCard
+                onRequestUpdated={handleRequestUpdated}
                 userRole={"ADMIN"}
                 key={request.id}
                 request={request}

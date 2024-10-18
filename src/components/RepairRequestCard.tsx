@@ -7,22 +7,25 @@ import PricingForm from "./forms/costform";
 import Modal from "react-modal";
 import axios from "axios";
 import { API_BASE_URL } from "@/utils/api";
+import { toast } from "react-toastify"; // استيراد toast
 
 interface RepairRequestCardProps {
   request: RepairRequest;
   statusMap: { [key: string]: string };
   userRole: "ADMIN" | "SUB_ADMIN" | "USER" | "TECHNICIAN";
+  onRequestUpdated: () => void; // دالة لتحديث الطلبات
 }
 
 const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
   request,
   statusMap,
   userRole,
+  onRequestUpdated, // استخدم الدالة هنا
 }) => {
   const { isDarkMode } = useContext(ThemeContext);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); // حالة المودال
-  const [isExpanded, setIsExpanded] = useState(false); // حالة التحكم في توسع الكارد
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const getButtonLabel = () => {
     if (userRole === "TECHNICIAN") {
@@ -53,27 +56,28 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
       const token = document.cookie.replace(
         /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
         "$1"
-      ); // جلب التوكن من الكوكيز
+      );
 
       const response = await axios.put(
-        `${API_BASE_URL}/api/maintenance-requests/${request.id}/assign`, // استخدام الـ baseURL هنا
-        {}, // جسم الطلب فارغ
+        `${API_BASE_URL}/api/maintenance-requests/${request.id}/assign`,
+        {},
         {
           headers: {
-            Authorization: `Bearer ${token}`, // إرسال التوكن في الهيدر
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         }
       );
 
       if (response.status === 200) {
-        console.log("تم تسليم المهمة بنجاح");
-        // إضافة منطق إضافي بعد نجاح الطلب
+        toast.success("تم استلام المهمة بنجاح"); // عرض رسالة النجاح
+        onRequestUpdated(); // تحديث الطلبات
       } else {
-        console.error("فشل في تسليم المهمة", response.statusText);
+        toast.error("فشل في استلام المهمة");
       }
     } catch (error) {
-      console.error("خطأ في تسليم المهمة", error);
+      toast.error("خطأ في استلام المهمة");
+      console.error("خطأ في استلام المهمة", error);
     }
   };
 
@@ -82,7 +86,7 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
       const token = document.cookie.replace(
         /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
         "$1"
-      ); // جلب التوكن من الكوكيز
+      );
 
       const response = await axios.put(
         `${API_BASE_URL}/api/maintenance-requests/${request.id}/complete`,
@@ -96,11 +100,13 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
       );
 
       if (response.status === 200) {
-        console.log("تم تسليم المهمة بنجاح");
+        toast.success("تم تسليم المهمة بنجاح");
+        onRequestUpdated(); // تحديث الطلبات
       } else {
-        console.error("فشل في تسليم المهمة", response.statusText);
+        toast.error("فشل في تسليم المهمة");
       }
     } catch (error) {
+      toast.error("خطأ في تسليم المهمة");
       console.error("خطأ في تسليم المهمة", error);
     }
   };
@@ -111,27 +117,28 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
       const token = document.cookie.replace(
         /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
         "$1"
-      ); // جلب التوكن من الكوكيز
+      );
 
       const response = await axios.delete(
         `${API_BASE_URL}/maintenance-requests/${request.id}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // إرسال التوكن في الهيدر
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
       if (response.status === 200) {
-        console.log("تم حذف الطلب بنجاح");
-        // إضافة منطق إضافي بعد نجاح الحذف
+        toast.success("تم حذف الطلب بنجاح");
+        onRequestUpdated(); // تحديث الطلبات
       } else {
-        console.error("فشل في حذف الطلب", response.statusText);
+        toast.error("فشل في حذف الطلب");
       }
     } catch (error) {
+      toast.error("خطأ في حذف الطلب");
       console.error("خطأ في حذف الطلب", error);
     } finally {
-      setIsDeleting(false); // إعادة حالة التحميل إلى false بعد الانتهاء
+      setIsDeleting(false);
     }
   };
 
@@ -141,7 +148,6 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
         isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
       }`}
     >
-      {/* عرض الصورة */}
       <Image
         src={
           typeof request.deviceImage === "string"
@@ -197,7 +203,6 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
           </span>
         </p>
 
-        {/* عرض التفاصيل عند التوسع */}
         {isExpanded && (
           <div>
             <p className="border-b pb-2">
@@ -223,48 +228,57 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
                 : String(request.cost) || "غير متوفر"}
             </p>
             <p className="border-b pb-2">
-              <strong>حالة الدفع:</strong>{" "}
-              {request.isPaid ? "تم الدفع" : "لم يتم الدفع"}
+              <strong>اجور الكشف:</strong>
+              <span
+                className={`font-bold ${
+                  request.isPaid ? "text-green-500" : "text-red-500"
+                }`}
+              >
+                {request.isPaidCheckFee ? "تم الدفع" : "لم يتم الدفع"}
+              </span>
+            </p>
+            <p className="border-b pb-2">
+              <strong>اجور الصيانة :</strong>
+              <span
+                className={`font-bold ${
+                  request.isPaid ? "text-green-500" : "text-red-500"
+                }`}
+              >
+                {request.isPaid ? "تم الدفع" : "لم يتم الدفع"}
+              </span>
+            </p>
+            <p className="border-b pb-2">
+              <strong>تاريخ الطلب:</strong>{" "}
+              {String(request.createdAt) || "غير متوفر"}
             </p>
           </div>
         )}
 
-        {/* الأزرار: عرض المزيد وزر الأكشن */}
-        <div className="flex justify-between items-center mt-4">
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-          >
-            {isExpanded ? "عرض أقل" : "عرض المزيد"}
-          </button>
-          <button
-            onClick={handleButtonClick}
-            className={`px-4 py-2 ${
-              userRole === "TECHNICIAN" ? "bg-blue-500" : "bg-red-500"
-            } text-white rounded hover:${
-              userRole === "TECHNICIAN" ? "bg-blue-600" : "bg-red-600"
-            } flex items-center justify-center`}
-            disabled={isDeleting}
-          >
-            {getButtonLabel()}
-            {isDeleting && (
-              <ClipLoader color="#ffffff" size={15} className="ml-2" />
-            )}
-          </button>
-        </div>
+        <button
+          className="mt-2 px-4 py-2 bg-red-500 text-white rounded-md"
+          onClick={handleButtonClick}
+          disabled={isDeleting}
+        >
+          {isDeleting ? (
+            <ClipLoader size={20} color="#ffffff" />
+          ) : (
+            getButtonLabel()
+          )}
+        </button>
+
+        <button
+          className="mt-2 mr-4 px-2 py-2 bg-blue-500 text-white rounded-md"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          {isExpanded ? "عرض أقل" : "عرض المزيد"}
+        </button>
       </div>
 
-      {/* المودال الخاص بتسعير الطلب */}
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        contentLabel="تسعير الطلب"
-        className="Modal"
-        overlayClassName="Overlay"
-      >
+      <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)}>
         <PricingForm
-          requestId={String(request.id)}
+          requestId={String(request.id)} //
           onClose={() => setIsModalOpen(false)}
+          onRequestUpdated={onRequestUpdated}
         />
       </Modal>
     </div>

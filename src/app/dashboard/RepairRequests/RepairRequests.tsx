@@ -59,7 +59,33 @@ const RepairRequests: React.FC = () => {
 
     fetchRepairRequests();
   }, []);
+  const onRequestUpdated = async () => {
+    setLoading(true); // عرض حالة التحميل
+    try {
+      const token = Cookies.get("token");
+      const response = await axios.get(
+        `${API_BASE_URL}/maintenance-requests/all/user`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
+      if (response.status === 200 && Array.isArray(response.data)) {
+        setRepairRequests(response.data); // تحديث الطلبات
+        toast.success("تم تحديث الطلبات بنجاح.");
+      } else {
+        console.warn("البيانات المستلمة ليست مصفوفة.");
+        toast.warn("البيانات المستلمة غير صحيحة.");
+      }
+    } catch (error) {
+      console.error("حدث خطأ أثناء جلب البيانات:", error);
+      toast.error("حدث خطأ أثناء جلب البيانات.");
+    } finally {
+      setLoading(false); // إخفاء حالة التحميل
+    }
+  };
   // تعريف التبويبات
   const tabs = [
     { label: "جميع الطلبات", key: "available" },
@@ -103,7 +129,7 @@ const RepairRequests: React.FC = () => {
   }, [activeTab, filteredRequests]);
 
   return (
-    <div className="p-4 flex flex-col w-full">
+    <div className=" flex flex-col w-full " style={{ minHeight: "90vh" }}>
       <h1 className="text-2xl text-center font-bold mb-4">طلبات الإصلاح</h1>
 
       {loading ? (
@@ -129,6 +155,7 @@ const RepairRequests: React.FC = () => {
                   key={request.id}
                   request={request as RepairRequest}
                   statusMap={statusMap}
+                  onRequestUpdated={onRequestUpdated} // تمرير الدالة
                 />
               ))
             )}

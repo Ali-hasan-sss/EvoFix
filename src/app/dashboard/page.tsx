@@ -86,8 +86,8 @@ const Dashboard = () => {
 
         {/* الحاوية الرئيسية */}
         <div
-          className={`flex-1  flex justify-center items-center p-2 ${
-            isDarkMode ? "bg-gray-600" : "bg-gray-400"
+          className={`flex-1  flex justify-center items-center ${
+            isDarkMode ? "bg-black-600" : "bg-gray-400"
           }`}
           style={{
             minHeight: "100%",
@@ -96,7 +96,7 @@ const Dashboard = () => {
           }}
         >
           <div
-            className="flex flex-col "
+            className="flex flex-col py-4"
             style={{ width: "100%", minHeight: "100%", overflowY: "auto" }}
           >
             {renderContent()}
