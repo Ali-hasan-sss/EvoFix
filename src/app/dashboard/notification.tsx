@@ -1,5 +1,3 @@
-// src/app/dashboard/notification.tsx
-
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../../utils/api";
@@ -8,8 +6,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ThemeContext } from "@/app/ThemeContext";
 import Modal from "react-modal";
+import PaymentForm from "@/components/forms/PaymentForm";
 
-// الواجهات كما هي
 interface APINotification {
   id: number;
   title: string;
@@ -37,12 +35,15 @@ const NotificationComponent: React.FC = () => {
   const [loadingAction, setLoadingAction] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { isDarkMode } = useContext(ThemeContext);
-
-  // حالة فتح/إغلاق المودال
+  const [isInspectionFee, setIsInspectionFee] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
     null
   );
+
+  useEffect(() => {
+    Modal.setAppElement(document.body);
+  }, []);
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -57,13 +58,10 @@ const NotificationComponent: React.FC = () => {
         },
       });
 
-      console.log("Response:", response.data);
-
       if (!Array.isArray(response.data)) {
         throw new Error("البيانات المستلمة ليست مصفوفة");
       }
 
-      // قم بتحويل الإشعارات المستلمة إلى الشكل المطلوب
       const notificationsWithReadStatus = response.data.map(
         (notification: APINotification) => ({
           id: notification.id,
@@ -76,7 +74,6 @@ const NotificationComponent: React.FC = () => {
         })
       );
 
-      // تحديث حالة الإشعارات
       setNotifications(notificationsWithReadStatus);
     } catch (err) {
       setError("فشل في جلب الإشعارات");
@@ -90,9 +87,12 @@ const NotificationComponent: React.FC = () => {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  const handleAcceptRequest = (requestId: number) => {
-    setSelectedRequestId(requestId);
-    setIsModalOpen(true); // فتح المودال عند النقر على القبول
+  const handleAcceptRequest = (requestId: number, inspectionFee: boolean) => {
+    if (!isModalOpen) {
+      setSelectedRequestId(requestId);
+      setIsInspectionFee(inspectionFee);
+      setIsModalOpen(true);
+    }
   };
 
   const handleRejectRequest = async (id: number, requestId: number) => {
@@ -140,7 +140,7 @@ const NotificationComponent: React.FC = () => {
           {notifications.map((notification) => (
             <li
               key={notification.id}
-              className={`mb-4  p-4 border rounded-md  ${
+              className={`mb-4 p-4 border rounded-md ${
                 isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-black"
               }`}
             >
@@ -156,21 +156,23 @@ const NotificationComponent: React.FC = () => {
               <p className="text-sm text-gray-500">
                 {new Date(notification.createdAt).toLocaleString()}
               </p>
-              {notification.title === "استلام الطلب" && ( // عرض الأزرار فقط إذا كان العنوان "استلام الطلب"
+              {notification.title === "استلام الطلب" && (
                 <div className="mt-2 flex">
                   <button
                     className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
-                    onClick={() => handleAcceptRequest(notification.requestId)} // تمرير requestId
+                    onClick={() =>
+                      handleAcceptRequest(notification.requestId, true)
+                    }
                     disabled={loadingAction === notification.id}
                   >
                     {loadingAction === notification.id ? (
                       <ClipLoader color="#ffffff" size={20} />
                     ) : (
-                      "قبول"
+                      "دفع أجور الكشف"
                     )}
                   </button>
                   <button
-                    className="bg-red-500 text-white px-4 py-2 rounded-md"
+                    className="bg-red-500 text-white px-4 mx-4 py-2 rounded-md"
                     onClick={() =>
                       handleRejectRequest(
                         notification.id,
@@ -187,12 +189,28 @@ const NotificationComponent: React.FC = () => {
                   </button>
                 </div>
               )}
+              {notification.title === "إنجاز الطلب" && (
+                <div className="mt-2 flex">
+                  <button
+                    className="bg-green-500 text-white px-4 py-2 rounded-md"
+                    onClick={() =>
+                      handleAcceptRequest(notification.requestId, false)
+                    }
+                    disabled={loadingAction === notification.id}
+                  >
+                    {loadingAction === notification.id ? (
+                      <ClipLoader color="#ffffff" size={20} />
+                    ) : (
+                      "دفع الرسوم"
+                    )}
+                  </button>
+                </div>
+              )}
             </li>
           ))}
         </ul>
       )}
 
-      {/* مودال الدفع */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
@@ -201,9 +219,11 @@ const NotificationComponent: React.FC = () => {
         overlayClassName="modal-overlay"
       >
         <h2>إتمام عملية الدفع</h2>
-        <p>طلب الدفع لـ ID: {selectedRequestId}</p>
-        {/* هنا سيتم وضع مكون فورم الدفع لاحقاً */}
-        <button onClick={closeModal}>إغلاق</button>
+        <PaymentForm
+          requestId={selectedRequestId}
+          closeModal={closeModal}
+          isInspectionPayment={isInspectionFee}
+        />
       </Modal>
 
       <ToastContainer
