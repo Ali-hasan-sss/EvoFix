@@ -6,10 +6,10 @@ import toast, { Toaster } from "react-hot-toast";
 import { ThemeContext } from "../ThemeContext";
 import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
-
+import Cookies from "js-cookie";
 import axios from "axios";
 import UserForm from "../../components/forms/UserForm";
-
+import { API_BASE_URL } from "@/utils/api";
 interface FormData {
   fullName: string;
   email: string;
@@ -22,7 +22,7 @@ interface FormData {
 
 const EditProfilePage = () => {
   const { isDarkMode } = useContext(ThemeContext);
-  const { token, logout } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
   const router = useRouter();
 
   const [initialData, setInitialData] = useState<FormData>({
@@ -34,19 +34,16 @@ const EditProfilePage = () => {
     phoneNO: "",
     address: "",
   });
-
+  const token = Cookies.get("token");
   useEffect(() => {
     // جلب بيانات المستخدم الحالية من الخادم
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(
-          "https://evo-fix-api.vercel.app/api/users/me",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${API_BASE_URL}/users/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const user = response.data;
         setInitialData({
           fullName: user.fullName,
@@ -57,11 +54,18 @@ const EditProfilePage = () => {
           phoneNO: user.phoneNO,
           address: user.address,
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast.error("تعذر جلب بيانات المستخدم");
-        if (error.response.status === 401) {
-          logout();
-          router.push("/login");
+
+        // تحقق مما إذا كان الخطأ هو من نوع AxiosError
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status === 401) {
+            logout();
+            router.push("/login");
+          }
+        } else {
+          // هنا يمكنك التعامل مع الأخطاء الأخرى التي ليست من Axios إذا لزم الأمر
+          console.error("Unexpected error:", error);
         }
       }
     };
@@ -99,7 +103,8 @@ const EditProfilePage = () => {
       } else {
         toast.error("حدث خطأ أثناء تحديث البيانات");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      // تغيير any إلى unknown
       if (axios.isAxiosError(error) && error.response) {
         toast.error(`حدث خطأ: ${error.response.data.message || "غير معروف"}`);
       } else {

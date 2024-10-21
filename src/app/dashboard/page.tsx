@@ -9,6 +9,7 @@ import { ThemeContext } from "../ThemeContext";
 import { useRouter } from "next/navigation";
 import RepairRequests from "./RepairRequests/RepairRequests";
 import Notifications from "./notification";
+
 const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");
   const { isDarkMode } = useContext(ThemeContext);
@@ -52,7 +53,7 @@ const Dashboard = () => {
   // التحقق من حالة تسجيل الدخول بعد انتهاء التحميل
   useEffect(() => {
     if (!loading && !isLoggedIn) {
-      router.push("/unauthorized"); // إعادة التوجيه لصفحة ليس لديك صلاحية
+      router.push("/unauthorized");
     }
   }, [isLoggedIn, loading, router]);
 
@@ -75,8 +76,9 @@ const Dashboard = () => {
           isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
         }`}
         style={{
-          minHeight: "100vh", // ضمان أن الحاوية لا تقل عن طول الشاشة
-          paddingTop: "64px", // إضافة الـ padding لأسفل النافبار
+          minHeight: "100vh",
+          paddingTop: "64px",
+          overflowY: "auto",
         }}
       >
         {/* Sidebar */}
@@ -84,8 +86,8 @@ const Dashboard = () => {
 
         {/* الحاوية الرئيسية */}
         <div
-          className={`flex-1  flex justify-center items-center p-6 ${
-            isDarkMode ? "bg-gray-600" : "bg-white"
+          className={`flex-1  flex justify-center items-center ${
+            isDarkMode ? "bg-black-600" : "bg-gray-400"
           }`}
           style={{
             minHeight: "100%",
@@ -94,8 +96,8 @@ const Dashboard = () => {
           }}
         >
           <div
-            className="flex flex-col  justify-center items-center"
-            style={{ width: "100%", maxWidth: "800px", minHeight: "100%" }}
+            className="flex flex-col py-4"
+            style={{ width: "100%", minHeight: "100%", overflowY: "auto" }}
           >
             {renderContent()}
           </div>

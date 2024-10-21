@@ -1,7 +1,6 @@
 // src/context/ThemeContext.tsx
 "use client";
 import React, { createContext, useState, useEffect } from "react";
-import RepairRequestButton from "@/components/requestbutton";
 interface ThemeContextType {
   isDarkMode: boolean;
   toggleTheme: () => void;
@@ -36,7 +35,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
       {children}
-      <RepairRequestButton />
     </ThemeContext.Provider>
   );
 };

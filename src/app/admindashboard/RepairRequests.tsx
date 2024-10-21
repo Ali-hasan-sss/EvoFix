@@ -1,6 +1,10 @@
-"use client";
-
-import React, { useState, useEffect, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useMemo,
+  useCallback,
+} from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "../../utils/api";
@@ -11,40 +15,31 @@ import { ClipLoader } from "react-spinners";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { confirmAlert } from "react-confirm-alert";
+import RepairRequestCard from "@/components/RepairRequestCard";
+import { RepairRequest } from "../../utils/types"; // استيراد الواجهة المشتركة
+import { useMediaQuery } from "react-responsive";
 
-interface RepairRequest {
-  id: string;
-  user: {
-    fullName: string;
-    phoneNO: string;
-    address: string;
-  };
-  governorate: string;
-  deviceType: string;
-  problemDescription: string;
-  status: string;
-}
+// تعريف statusMap خارج المكون لضمان عدم إعادة إنشائه في كل render
+const statusMap: { [key: string]: string } = {
+  PENDING: "قيد الانتظار",
+  ASSIGNED: "تم التعيين",
+  QUOTED: "تم التسعير",
+  IN_PROGRESS: "قيد التنفيذ",
+  COMPLETED: "مكتمل",
+};
 
 const RepairRequestsPage: React.FC = () => {
   const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
   const { isDarkMode } = useContext(ThemeContext);
 
-  const statusMap: { [key: string]: string } = {
-    PENDING: "قيد الانتظار",
-    ASSIGNED: "تم التعيين",
-    QUOTED: "تم التسعير",
-    IN_PROGRESS: "قيد التنفيذ",
-    COMPLETED: "مكتمل",
-  };
-
-  // دالة لحذف طلب الإصلاح
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: number) => {
     confirmAlert({
       title: "تأكيد الحذف",
-      message: "هل أنت متأكد من أنك تريد حذف هذا المستخدم؟",
+      message: "هل أنت متأكد من أنك تريد حذف هذا الطلب؟",
       buttons: [
         {
           label: "نعم",
@@ -68,12 +63,17 @@ const RepairRequestsPage: React.FC = () => {
             }
           },
         },
+        {
+          label: "لا",
+          onClick: () => {
+            toast.info("تم إلغاء عملية الحذف.");
+          },
+        },
       ],
     });
-  };
+  }, []);
 
-  // تعريف أعمدة الجدول مع إضافة عمود العمليات
-  const columns = React.useMemo(
+  const columns = useMemo(
     () => [
       {
         title: "الاسم",
@@ -100,6 +100,10 @@ const RepairRequestsPage: React.FC = () => {
         accessor: "problemDescription",
       },
       {
+        title: "التقني المخصص",
+        accessor: "technician.user.fullName",
+      },
+      {
         title: "الحالة",
         accessor: "status",
         render: (item: RepairRequest) => statusMap[item.status] || item.status,
@@ -110,7 +114,7 @@ const RepairRequestsPage: React.FC = () => {
           <button
             onClick={() => handleDelete(item.id)}
             className="text-red-500 hover:text-red-700 flex items-center"
-            disabled={loading}
+            disabled={isDeleting}
           >
             <FaTrash className="mr-2" />
             حذف
@@ -118,7 +122,7 @@ const RepairRequestsPage: React.FC = () => {
         ),
       },
     ],
-    [handleDelete, loading]
+    [handleDelete, isDeleting]
   );
 
   useEffect(() => {
@@ -136,7 +140,12 @@ const RepairRequestsPage: React.FC = () => {
         );
 
         if (response.status === 200) {
-          setRepairRequests(response.data);
+          if (Array.isArray(response.data)) {
+            setRepairRequests(response.data);
+          } else {
+            console.warn("Expected an array but got:", response.data);
+            setRepairRequests([]);
+          }
         } else {
           console.warn("لا توجد بيانات في الاستجابة.");
           toast.warn("لا توجد بيانات متاحة.");
@@ -151,7 +160,10 @@ const RepairRequestsPage: React.FC = () => {
 
     fetchRepairRequests();
   }, []);
-
+  const handleRequestUpdated = () => {
+    // يمكنك إعادة جلب الطلبات هنا أو تحديث الحالة
+    console.log("done"); // تأكد من أن لديك هذه الدالة متاحة
+  };
   return (
     <div
       className={`p-6 ${
@@ -164,11 +176,26 @@ const RepairRequestsPage: React.FC = () => {
         <div className="flex justify-center items-center h-96">
           <ClipLoader color="#4A90E2" size={50} />
         </div>
+      ) : isMobile ? (
+        <div>
+          {repairRequests.length > 0 ? (
+            repairRequests.map((request) => (
+              <RepairRequestCard
+                onRequestUpdated={handleRequestUpdated}
+                userRole={"ADMIN"}
+                key={request.id}
+                request={request}
+                statusMap={statusMap}
+              />
+            ))
+          ) : (
+            <div>لا توجد طلبات إصلاح متاحة.</div>
+          )}
+        </div>
       ) : (
-        <GenericTable data={repairRequests} columns={columns} />
+        <GenericTable<RepairRequest> data={repairRequests} columns={columns} />
       )}
 
-      {/* إضافة ToastContainer لعرض الإشعارات */}
       <ToastContainer
         position="top-right"
         autoClose={5000}

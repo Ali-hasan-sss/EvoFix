@@ -6,9 +6,10 @@ import Head from "next/head";
 import ChatBotButton from "@/components/ChatbotButton";
 import { Toaster } from "react-hot-toast";
 import { ThemeContext } from "./ThemeContext";
-import Hero from "@/components/Hero/Hero";
+import RepairRequestButton from "@/components/requestbutton";
+
 const Home: NextPage = () => {
-  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  const { isDarkMode } = useContext(ThemeContext);
 
   return (
     <div>
@@ -33,6 +34,7 @@ const Home: NextPage = () => {
         }`}
       >
         <Navbar />
+        <RepairRequestButton />
         <Toaster />
         <ChatBotButton />
         <section className="bg-blue-500 text-white py-20">
@@ -53,7 +55,7 @@ const Home: NextPage = () => {
           </div>
         </section>
         {/* Services Section */}
-        <Hero />
+
         {/* About Us Section */}
         <section id="about" className="py-20 bg-gray-100">
           <div className="container mx-auto px-4 text-center">

@@ -1,4 +1,7 @@
+// src/pages/RegisterPage.tsx
+
 "use client";
+
 import React, { useContext } from "react";
 import Navbar from "@/components/navBar";
 import toast, { Toaster } from "react-hot-toast";
@@ -9,21 +12,14 @@ import axios from "axios";
 import UserForm from "../../components/forms/UserForm";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "../../utils/api";
+import { RegisterUserData } from "../../utils/types"; // استيراد الواجهة المشتركة
 
 const RegisterPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
   const { login } = useContext(AuthContext);
   const router = useRouter();
 
-  const handleRegister = async (data: {
-    fullName: string;
-    email: string;
-    governorate: string;
-    password: string;
-    confirmPassword: string;
-    phoneNO: string;
-    address: string;
-  }) => {
+  const handleRegister = async (data: RegisterUserData): Promise<void> => {
     try {
       const response = await axios.post(
         `${API_BASE_URL}/users`,
@@ -71,7 +67,7 @@ const RegisterPage = () => {
       } else {
         toast.error("حدث خطأ أثناء إنشاء الحساب.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
         toast.error(
           `خطأ من الخادم: ${error.response.data.message || "غير معروف"}`

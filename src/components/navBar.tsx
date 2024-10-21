@@ -202,7 +202,7 @@ const Navbar: React.FC = () => {
 
       {/* Sidebar for mobile */}
       <div
-        className={`fixed inset-y-0 right-0 bg-gray-800 bg-opacity-75 z-20 transform ${
+        className={`fixed inset-y-0 right-0 bg-gray-800 bg-opacity-75 z-50 transform ${
           isOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-in-out md:hidden`}
       >

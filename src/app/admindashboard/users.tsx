@@ -4,23 +4,26 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../../utils/api";
 import { ThemeContext } from "../ThemeContext";
-import { FaEdit, FaTrash } from "react-icons/fa";
-import GenericTable from "@/components/dashboard/GenericTable"; // استيراد مكون الجدول العام
+import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import GenericTable, { Column } from "@/components/dashboard/GenericTable";
 import { toast, ToastContainer } from "react-toastify";
-import { confirmAlert } from "react-confirm-alert"; // استيراد مكتبة التأكيد
+import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
-import { ClipLoader } from "react-spinners"; // استيراد مؤشر التحميل
-import Switch from "react-switch"; // استيراد مكتبة Switch
-import "react-toastify/dist/ReactToastify.css"; // استيراد تنسيقات التوست
+import { ClipLoader } from "react-spinners";
+import Switch from "react-switch";
+import "react-toastify/dist/ReactToastify.css";
+import UserDetails from "./UserDetails";
 
 interface User {
+  displayId: number; // تأكد أن هذا من النوع number
   id: number;
   fullName: string;
   email: string;
   phoneNO: string;
+  address: string; // تأكد من أنها موجودة
   governorate: string;
   role: string;
-  isActive: boolean;
+  isActive: boolean; // أو أي نوع آخر إذا كان لديك نوع مخصص
 }
 
 const Users: React.FC = () => {
@@ -28,8 +31,9 @@ const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false); // حالة الحذف
-  const [togglingUserId, setTogglingUserId] = useState<number | null>(null); // حالة التفعيل/التعطيل
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [togglingUserId, setTogglingUserId] = useState<number | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const fetchUsers = async () => {
     try {
@@ -70,17 +74,16 @@ const Users: React.FC = () => {
         {
           label: "نعم",
           onClick: async () => {
-            setTogglingUserId(userId); // تعيين المستخدم الجاري تفعيله/تعطيله
+            setTogglingUserId(userId);
             try {
               const token = document.cookie
                 .split("; ")
                 .find((row) => row.startsWith("token="));
               const authToken = token ? token.split("=")[1] : "";
 
-              // إرسال طلب التعديل باستخدام axios
               await axios.put(
                 `${API_BASE_URL}/users/${userId}`,
-                { isActive: !currentStatus }, // تغيير حالة isActive
+                { isActive: !currentStatus },
                 {
                   headers: {
                     Authorization: `Bearer ${authToken}`,
@@ -88,7 +91,6 @@ const Users: React.FC = () => {
                 }
               );
 
-              // تحديث حالة المستخدمين بعد التعديل
               setUsers((prevUsers) =>
                 prevUsers.map((user) =>
                   user.id === userId
@@ -104,7 +106,7 @@ const Users: React.FC = () => {
               console.error("فشل في تحديث الحالة:", error);
               toast.error("حدث خطأ أثناء محاولة تحديث حالة الحساب.");
             } finally {
-              setTogglingUserId(null); // إلغاء حالة التعديل
+              setTogglingUserId(null);
             }
           },
         },
@@ -126,21 +128,19 @@ const Users: React.FC = () => {
         {
           label: "نعم",
           onClick: async () => {
-            setIsDeleting(true); // إظهار حالة الحذف
+            setIsDeleting(true);
             try {
               const token = document.cookie
                 .split("; ")
                 .find((row) => row.startsWith("token="));
               const authToken = token ? token.split("=")[1] : "";
 
-              // إرسال طلب الحذف باستخدام axios
               await axios.delete(`${API_BASE_URL}/users/${userId}`, {
                 headers: {
                   Authorization: `Bearer ${authToken}`,
                 },
               });
 
-              // تحديث حالة المستخدمين بعد الحذف
               setUsers((prevUsers) =>
                 prevUsers.filter((user) => user.id !== userId)
               );
@@ -150,7 +150,7 @@ const Users: React.FC = () => {
               console.error("فشل في حذف المستخدم:", error);
               toast.error("حدث خطأ أثناء محاولة حذف المستخدم.");
             } finally {
-              setIsDeleting(false); // إخفاء حالة الحذف
+              setIsDeleting(false);
             }
           },
         },
@@ -164,17 +164,12 @@ const Users: React.FC = () => {
     });
   };
 
-  const getUserRoleLabel = (role: string) => {
-    switch (role) {
-      case "ADMIN":
-        return "مسؤول";
-      case "SUB_ADMIN":
-        return "مسؤول فرعي";
-      case "TECHNICAL":
-        return "تقني";
-      default:
-        return "مستخدم";
-    }
+  const handleViewUser = (user: User) => {
+    setSelectedUser(user);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedUser(null);
   };
 
   if (loading) {
@@ -189,32 +184,16 @@ const Users: React.FC = () => {
     return <div className="text-red-500">{error}</div>;
   }
 
-  const tableData = users.map((user) => ({
+  const tableData = users.map((user, index) => ({
+    displayId: index + 1,
     id: user.id,
     fullName: user.fullName,
     governorate: user.governorate,
-    role: getUserRoleLabel(user.role),
+    role: user.role,
     email: user.email,
     phoneNO: user.phoneNO,
-    isActive: (
-      <div className="flex items-center justify-center">
-        <span
-          className={`inline-block w-3 h-3 rounded-full mr-2 ${
-            user.isActive ? "bg-green-500" : "bg-red-500"
-          }`}
-        ></span>
-        <Switch
-          onChange={() => handleToggleActive(user.id, user.isActive)}
-          checked={user.isActive}
-          onColor="#4A90E2"
-          offColor="#FF6347"
-          disabled={togglingUserId === user.id || isDeleting}
-        />
-        {togglingUserId === user.id && (
-          <ClipLoader color="#4A90E2" size={15} className="ml-2" />
-        )}
-      </div>
-    ),
+    address: user.address,
+    isActive: user.isActive, // الآن هي قيمة boolean
     actions: (
       <div className="flex space-x-2 justify-center">
         <button
@@ -233,30 +212,86 @@ const Users: React.FC = () => {
             />
           )}
         </button>
+        <button onClick={() => handleViewUser(user)}>
+          <FaEye className="text-green-500 hover:text-green-700" />
+        </button>
       </div>
     ),
   }));
 
-  const tableColumns = [
-    { title: "المعرف", accessor: "id" },
+  const tableColumns: Column<User>[] = [
+    { title: "#", accessor: "displayId" }, // هذا يجب أن يكون number
     { title: "اسم المستخدم", accessor: "fullName" },
     { title: "المحافظة", accessor: "governorate" },
     { title: "نوع المستخدم", accessor: "role" },
     { title: "البريد الالكتروني", accessor: "email" },
     { title: "رقم الهاتف", accessor: "phoneNO" },
-    { title: "الحالة", accessor: "isActive" },
-    { title: "العمليات", accessor: "actions" },
+    { title: "العنوان", accessor: "address" }, // تأكد من تضمين العنوان
+    {
+      title: "الحالة",
+      render: (item: User) => (
+        <div className="flex items-center justify-center">
+          <span
+            className={`inline-block w-3 h-3 rounded-full mr-2 ${
+              item.isActive ? "bg-green-500" : "bg-red-500"
+            }`}
+          ></span>
+          <Switch
+            onChange={() => handleToggleActive(item.id, item.isActive)}
+            checked={item.isActive}
+            onColor="#4A90E2"
+            offColor="#FF6347"
+            disabled={togglingUserId === item.id || isDeleting}
+          />
+          {togglingUserId === item.id && (
+            <ClipLoader color="#4A90E2" size={15} className="ml-2" />
+          )}
+        </div>
+      ),
+    },
+    {
+      title: "العمليات",
+      render: (item: User) => (
+        <div className="flex space-x-2 justify-center">
+          <button
+            onClick={() =>
+              console.log(`تعديل المستخدم برقم المعرف: ${item.id}`)
+            }
+          >
+            <FaEdit className="text-blue-500 hover:text-blue-700" />
+          </button>
+          <button
+            onClick={() => handleDeleteUser(item.id)}
+            disabled={isDeleting}
+          >
+            {isDeleting ? (
+              <ClipLoader color="#FF6347" size={15} />
+            ) : (
+              <FaTrash
+                className={`ms-2 ${
+                  isDeleting
+                    ? "text-gray-400"
+                    : "text-red-500 hover:text-red-700"
+                }`}
+              />
+            )}
+          </button>
+          <button onClick={() => handleViewUser(item)}>
+            <FaEye className="text-green-500 hover:text-green-700" />
+          </button>
+        </div>
+      ),
+    },
   ];
 
   return (
-    <div
-      className={`p-6 ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
-      }`}
-    >
-      <h2 className="text-2xl font-bold mb-4 text-center">قائمة المستخدمين</h2>
+    <div className={`p-5 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+      <ToastContainer />
+      <h2 className="text-2xl font-semibold mb-4">إدارة المستخدمين</h2>
       <GenericTable data={tableData} columns={tableColumns} />
-      <ToastContainer position="top-right" autoClose={2000} />
+      {selectedUser && (
+        <UserDetails user={selectedUser} onClose={handleCloseDetails} />
+      )}
     </div>
   );
 };

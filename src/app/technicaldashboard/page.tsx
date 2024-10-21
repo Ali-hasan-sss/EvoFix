@@ -77,6 +77,7 @@ const Dashboard = () => {
         style={{
           minHeight: "100vh", // ضمان أن الحاوية لا تقل عن طول الشاشة
           paddingTop: "64px", // إضافة الـ padding لأسفل النافبار
+          overflowY: "auto",
         }}
       >
         {/* Sidebar */}
@@ -94,8 +95,8 @@ const Dashboard = () => {
           }}
         >
           <div
-            className="flex flex-col justify-center items-center"
-            style={{ width: "100%", maxWidth: "800px", minHeight: "100%" }}
+            className="flex flex-col py-4"
+            style={{ width: "100%", minHeight: "100%", overflowY: "auto" }}
           >
             {renderContent()}
           </div>

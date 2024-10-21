@@ -1,4 +1,7 @@
+// src/pages/RegisterTechnicianPage.tsx
+
 "use client";
+
 import React, { useContext } from "react";
 import Navbar from "@/components/navBar";
 import toast, { Toaster } from "react-hot-toast";
@@ -9,26 +12,19 @@ import axios from "axios";
 import UserForm from "../../components/forms/UserForm";
 import Cookies from "js-cookie"; // استيراد مكتبة js-cookie لحفظ التوكن في الكوكيز
 import { API_BASE_URL } from "../../utils/api"; // استيراد الدومين من الملف الخارجي
+import { RegisterTechnicianData } from "../../utils/types"; // استيراد الواجهة المشتركة
 
 const RegisterTechnicianPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
   const { login } = useContext(AuthContext);
   const router = useRouter();
 
-  const handleRegisterTechnician = async (data: {
-    fullName: string;
-    email: string;
-    governorate: string;
-    password: string;
-    confirmPassword: string;
-    phoneNO: string;
-    address: string;
-    specialization: string; // الاختصاص مطلوب في تسجيل التقني
-    services: string; // وصف الخدمات المطلوبة من التقني
-  }) => {
+  const handleRegisterTechnician = async (
+    data: RegisterTechnicianData
+  ): Promise<void> => {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/users`, // استخدام الدومين من الملف الخارجي
+        `${API_BASE_URL}/users`,
         {
           email: data.email,
           fullName: data.fullName,
@@ -46,8 +42,6 @@ const RegisterTechnicianPage = () => {
           },
         }
       );
-
-      //  console.log("Response Data:", response.data); // للتأكد من البيانات المستلمة
 
       if (response.status === 200 || response.status === 201) {
         const userId = response.data.id;
@@ -68,7 +62,7 @@ const RegisterTechnicianPage = () => {
 
         toast.success("تم إنشاء حساب تقني بنجاح!");
 
-        // تمرير التوكن مع البريد الإلكتروني ومعرف المستخدم
+        // تسجيل الدخول تلقائيًا
         login(email, userId);
 
         // إعادة توجيه المستخدم بعد التسجيل
@@ -78,7 +72,7 @@ const RegisterTechnicianPage = () => {
       } else {
         toast.error("حدث خطأ أثناء إنشاء الحساب");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
         toast.error(`حدث خطأ: ${error.response.data.message || "غير معروف"}`);
       } else {
@@ -96,11 +90,18 @@ const RegisterTechnicianPage = () => {
           isDarkMode ? "bg-gray-900" : "bg-gray-100"
         }`}
       >
-        <UserForm
-          onSubmit={handleRegisterTechnician} // تمرير دالة handleRegisterTechnician
-          isNew={true} // تمرير القيمة isNew كـ true
-          isUser={false} // تمرير القيمة isUser كـ false، لتحديد أنه حساب تقني
-        />
+        <div
+          className={`p-8 rounded shadow-md w-full max-w-sm ${
+            isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+          }`}
+        >
+          <h2 className="text-xl font-bold mb-4">تسجيل حساب تقني جديد</h2>
+          <UserForm
+            onSubmit={handleRegisterTechnician}
+            isNew={true}
+            isUser={false}
+          />
+        </div>
       </div>
     </>
   );

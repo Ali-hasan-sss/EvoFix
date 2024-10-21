@@ -1,14 +1,16 @@
 "use client";
 
 import React, { useEffect, useState, useContext } from "react";
-import { useRouter } from "next/navigation"; // تأكد من استيراد useRouter من next/navigation
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/navBar";
-import { ThemeContext } from "../ThemeContext"; // تأكد من استيراد ThemeContext
+import { ThemeContext } from "../ThemeContext";
 import Notifications from "./notification";
 import Users from "./users";
+import { toast } from "react-toastify";
 import DashboardHome from "./DashboardHome";
 import RepairRequestsPage from "./RepairRequests";
 import { ClipLoader } from "react-spinners";
+import { AuthContext } from "@/app/context/AuthContext";
 import {
   FaHome,
   FaUsers,
@@ -16,64 +18,63 @@ import {
   FaBell,
   FaCogs,
   FaWrench,
+  FaSignOutAlt,
+  FaChevronUp,
+  FaChevronDown,
 } from "react-icons/fa"; // استيراد الأيقونات
 
 const AdminDashboard: React.FC = () => {
   const router = useRouter();
-  const { isDarkMode } = useContext(ThemeContext); // استخدم السياق هنا
+  const { isDarkMode } = useContext(ThemeContext);
   const [activeTab, setActiveTab] = useState("home");
-  const [loading, setLoading] = useState(true); // إضافة حالة التحميل
+  const [loading, setLoading] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(true); // حالة الطي
+  const { logout } = useContext(AuthContext); // استخدام isLoggedIn و logout من AuthContext
 
   // دالة للتحقق من صلاحيات المستخدم
-  const checkAdminRole = () => {
-    const userRole = localStorage.getItem("userRole"); // يمكنك تعديل هذا بناءً على كيفية تخزين بيانات المستخدم
-    if (userRole !== "ADMIN" && userRole !== "SUBADMIN") {
-      router.push("/unauthorized"); // توجيه إلى صفحة عدم الصلاحية
-    } else {
-      setLoading(false); // إنهاء التحميل إذا كان المستخدم أدمن
-    }
-  };
-
-  // تنفيذ التحقق عند تحميل الصفحة
   useEffect(() => {
-    checkAdminRole();
-  }, [checkAdminRole]);
+    const checkAdminRole = () => {
+      const userRole = localStorage.getItem("userRole");
+      if (userRole !== "ADMIN" && userRole !== "SUBADMIN") {
+        router.push("/unauthorized");
+      } else {
+        setLoading(false);
+      }
+    };
 
+    checkAdminRole();
+  }, [router]); // Include `router` if it's not stable across renders
+
+  const navigationOptions = [
+    { name: "الرئيسية", icon: <FaHome />, key: "home" },
+    { name: "طلبات الإصلاح", icon: <FaWrench />, key: "repairRequests" },
+    { name: "الإشعارات", icon: <FaBell />, key: "notifications" },
+    { name: "المستخدمين", icon: <FaUsers />, key: "users" },
+    { name: "التقنيين", icon: <FaTools />, key: "technicians" },
+    { name: "الإعدادات", icon: <FaCogs />, key: "settings" },
+  ];
+  const handleLogout = () => {
+    logout();
+    toast.success("تم تسجيل الخروج بنجاح!");
+    window.location.href = "/";
+  };
+  // تقسيم المصفوفة إلى صفوف
+  const firstRow = navigationOptions.slice(0, 3);
+  const secondRow = navigationOptions.slice(3, 6);
+
+  // دالة رندر المحتوى بناءً على التبويب النشط
   const renderContent = () => {
     switch (activeTab) {
       case "home":
-        return (
-          <div>
-            <DashboardHome />
-          </div>
-        );
+        return <DashboardHome />;
       case "users":
-        return (
-          <div>
-            <Users />
-          </div>
-        );
-
-      case "users":
-        return (
-          <div>
-            <Users />
-          </div>
-        );
+        return <Users />;
       case "technicians":
         return <div>إدارة التقنيين</div>;
       case "repairRequests":
-        return (
-          <div>
-            <RepairRequestsPage />
-          </div>
-        );
+        return <RepairRequestsPage />;
       case "notifications":
-        return (
-          <div>
-            <Notifications />
-          </div>
-        );
+        return <Notifications />;
       case "settings":
         return <div>الإعدادات</div>;
       default:
@@ -84,14 +85,8 @@ const AdminDashboard: React.FC = () => {
   // عرض رسالة تحميل أثناء التحقق من الصلاحيات
   if (loading) {
     return (
-      <div className="flex contentn-center item-center">
-        <div
-          className={` ${
-            isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
-          }`}
-        >
-          <ClipLoader color="#4A90E2" size={50} />
-        </div>
+      <div className="flex justify-center items-center min-h-screen min-w-screen">
+        <ClipLoader color="#4A90E2" size={50} />
       </div>
     );
   }
@@ -106,72 +101,119 @@ const AdminDashboard: React.FC = () => {
       {/* النافبار */}
       <Navbar />
 
-      {/* Sidebar */}
+      {/* الشريط الجانبي للشاشات الكبيرة */}
       <div
-        className={`w-1/5 bg-gray-800 text-white p-6 mt-16 ${
-          isDarkMode ? "bg-gray-800 " : "bg-white"
+        className={`hidden md:flex p-6 mt-16 flex-col w-1/5  ${
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
         }`}
       >
-        <h2 className="text-xl font-bold mb-4">لوحة التحكم</h2>
-        <ul className="space-y-4">
+        <h2 className="text-xl font-bold my-6 text-center">لوحة التحكم</h2>
+        <ul className="space-y-6">
+          {navigationOptions.map((option) => (
+            <li
+              key={option.key}
+              className={`flex items-center cursor-pointer p-3 rounded-lg ${
+                activeTab === option.key ? "bg-gray-700" : ""
+              }`}
+              onClick={() => setActiveTab(option.key)}
+              aria-label={option.name}
+            >
+              {option.icon}
+              <span className="ml-4 text-lg mr-5">{option.name}</span>
+            </li>
+          ))}
           <li
-            className={`flex items-center cursor-pointer p-2 ${
-              activeTab === "home" ? "bg-gray-700" : ""
-            }`}
-            onClick={() => setActiveTab("home")}
+            className={`flex items-center cursor-pointer p-3 rounded-lg text-red-500 hover:text-red-700`}
+            onClick={handleLogout}
+            aria-label="تسجيل الخروج"
           >
-            <FaHome className="ml-2" /> الرئيسية
-          </li>
-          <li
-            className={`flex items-center cursor-pointer p-2 ${
-              activeTab === "users" ? "bg-gray-700" : ""
-            }`}
-            onClick={() => setActiveTab("users")}
-          >
-            <FaUsers className="ml-2" /> المستخدمين
-          </li>
-          <li
-            className={`flex items-center cursor-pointer p-2 ${
-              activeTab === "technicians" ? "bg-gray-700" : ""
-            }`}
-            onClick={() => setActiveTab("technicians")}
-          >
-            <FaTools className="ml-2" /> التقنيين
-          </li>
-          <li
-            className={`flex items-center cursor-pointer p-2 ${
-              activeTab === "repairRequests" ? "bg-gray-700" : ""
-            }`}
-            onClick={() => setActiveTab("repairRequests")}
-          >
-            <FaWrench className="ml-2" /> طلبات الإصلاح
-          </li>
-          <li
-            className={`flex items-center cursor-pointer p-2 ${
-              activeTab === "notifications" ? "bg-gray-700" : ""
-            }`}
-            onClick={() => setActiveTab("notifications")}
-          >
-            <FaBell className="ml-2" /> الإشعارات
-          </li>
-          <li
-            className={`flex items-center cursor-pointer p-2 ${
-              activeTab === "settings" ? "bg-gray-700" : ""
-            }`}
-            onClick={() => setActiveTab("settings")}
-          >
-            <FaCogs className="ml-2" /> الإعدادات
+            <FaSignOutAlt className="ml-2" />
+            <span className="ml-4 text-lg">تسجيل الخروج</span>
           </li>
         </ul>
       </div>
 
-      {/* Container */}
+      {/* الحاوية الرئيسية للمحتوى */}
+      <div className={`flex-grow p-6 mt-16 w-full md:w-4/5 pb-20 md:pb-0`}>
+        {renderContent()}
+      </div>
+
+      {/* شريط التنقل السفلي للشاشات الصغيرة */}
       <div
-        className={`w-4/5 p-6 mt-16 ${
-          isDarkMode ? "bg-gray-900" : "bg-gray-100"
+        className={`fixed bottom-0 left-0 w-full md:hidden z-40 ${
+          isDarkMode ? "bg-gray-900 text-white" : "bg-blue-600 text-black"
         }`}
       >
-        {renderContent()}
+        <div className="flex flex-col">
+          {/* زر الطي/التوسيع */}
+          <div className="flex justify-center p-1 border-t border-gray-300 ">
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="text-gray-500"
+            >
+              {isCollapsed ? (
+                <FaChevronUp className="text-2xl" />
+              ) : (
+                <FaChevronDown className="text-2xl" />
+              )}
+            </button>
+          </div>
+          {/* الصف الأول من شريط التنقل السفلي */}
+          <div className="flex justify-around p-1 border-t border-gray-300">
+            {firstRow.map((option) => (
+              <button
+                key={option.key}
+                onClick={() => setActiveTab(option.key)}
+                className={`flex flex-col items-center flex-1 py-1 ${
+                  activeTab === option.key
+                    ? "text-yellow-800" // اللون النشط
+                    : "text-white" // جعل اللون أبيض في كلا الوضعين
+                } transition-colors duration-200`}
+                aria-label={option.name}
+              >
+                {option.icon}
+                <span className="text-sm mt-1">{option.name}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* الصف الثاني من شريط التنقل السفلي وزر تسجيل الخروج */}
+          {!isCollapsed && (
+            <>
+              <div className="flex justify-around p-1 border-t border-gray-300">
+                {secondRow.map((option) => (
+                  <button
+                    key={option.key}
+                    onClick={() => setActiveTab(option.key)}
+                    className={`flex flex-col items-center flex-1 py-1 ${
+                      activeTab === option.key
+                        ? "text-yellow-800"
+                        : isDarkMode
+                        ? "text-gray-300"
+                        : "text-white"
+                    } transition-colors duration-200`}
+                    aria-label={option.name}
+                  >
+                    {option.icon}
+                    <span className="text-sm mt-1">{option.name}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* زر تسجيل الخروج في الشريط السفلي */}
+              <div className="flex justify-center p-1 border-t border-gray-300">
+                <button
+                  onClick={handleLogout}
+                  className={`flex flex-col items-center text-red-500 hover:text-red-700 transition-colors duration-200`}
+                  aria-label="تسجيل الخروج"
+                >
+                  <FaSignOutAlt className="text-2xl" />
+                  <span className="text-sm mt-1">خروج</span>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

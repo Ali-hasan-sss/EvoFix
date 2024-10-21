@@ -1,23 +1,34 @@
+// components/Sidebar.tsx
+
+"use client";
+
 import React, { useState, useContext, useEffect } from "react";
-import "./dashboard.css"; // تأكد من تضمين ملف CSS هنا
+import "./dashboard.css"; // تأكد من تضمين ملف CSS هنا بدون تعيينات ألوان النصوص
 import { ThemeContext } from "@/app/ThemeContext";
 import { AuthContext } from "@/app/context/AuthContext"; // استيراد AuthContext
-import { FaTools, FaClipboardList, FaBell, FaSignOutAlt } from "react-icons/fa";
+import { FaClipboardList, FaBell, FaSignOutAlt, FaUser } from "react-icons/fa"; // إضافة FaEye
 import { API_BASE_URL } from "../../utils/api";
 import Cookies from "js-cookie";
 import axios from "axios";
 import userImage from "../assets/images/userImage.webp";
 import technicalImage from "../assets/images/user-solid.svg";
+import Image from "next/image";
 
 interface SidebarProps {
   onSelectOption: (option: string) => void;
 }
-
+interface UserData {
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
+  // يمكنك إضافة المزيد من الحقول حسب الحاجة
+}
 const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
   const { isDarkMode } = useContext(ThemeContext);
   const { logout } = useContext(AuthContext); // الحصول على دالة logout
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [activeOption, setActiveOption] = useState<string>(
     localStorage.getItem("activeOption") || "viewRequests"
   ); // تعيين الخيار النشط
@@ -62,112 +73,137 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
   };
 
   return (
-    <div className="flex h-full">
+    <div className="flex min-h-screen">
       {/* شريط جانبي للشاشات الكبيرة */}
       <div
-        className={`sidebar p-4 flex flex-col h-full flex-shrink-0 ${
+        className={`hidden md:flex p-4 flex-col flex-shrink-0 ${
           isDarkMode ? "bg-gray-800 text-white" : "bg-blue-500 text-black"
-        } `}
-        style={{ width: "250px", minHeight: "100vh" }}
+        }`}
+        style={{ width: "250px", minHeight: "100vh", overflowY: "auto" }}
       >
-        <div className="space-y-6">
+        <div className="space-y-6 sticky top-0">
           <div className="flex items-center justify-between mt-4">
-            <img
+            <Image
               src={
                 userData && userData.role === "TECHNICAL"
-                  ? technicalImage.src
-                  : userImage.src
+                  ? technicalImage
+                  : userImage
               }
               alt="Profile"
-              className="w-12 h-12 rounded-full object-cover"
+              width={40} // تعيين عرض الصورة
+              height={40} // تعيين ارتفاع الصورة
+              className="rounded-full object-cover"
             />
             <span className="ml-4 font-bold">
               {userData ? userData.fullName : "Loading..."}
             </span>
           </div>
-        </div>
 
-        <button
-          onClick={() => handleOptionSelect("viewRequests")}
-          className={`sidebar-button flex items-center m-2 mt-3 ${
-            activeOption === "viewRequests" ? "active" : ""
-          }`}
-        >
-          <FaClipboardList className="text-2xl ml-2" />
-          <span className="mr-2">طلبات الإصلاح</span>
-        </button>
-        <button
-          onClick={() => handleOptionSelect("notifications")}
-          className={`sidebar-button flex items-center m-2 ${
-            activeOption === "notifications" ? "active" : ""
-          }`}
-        >
-          <FaBell className="text-2xl ml-2" />
-          <span className="mr-2">الإشعارات</span>
-        </button>
-        <button
-          onClick={() => handleOptionSelect("profile")}
-          className={`sidebar-button flex items-center m-2 ${
-            activeOption === "profile" ? "active" : ""
-          }`}
-        >
-          <FaTools className="text-2xl ml-2" />
-          <span className="mr-2">الملف الشخصي</span>
-        </button>
-        {isLoggedIn && (
+          {/* استخدام فئات Tailwind لتحديد لون النص */}
           <button
-            onClick={handleLogout}
-            className="sidebar-button flex items-center m-2"
+            onClick={() => handleOptionSelect("viewRequests")}
+            className={`flex items-center m-2 mt-3 ${
+              activeOption === "viewRequests"
+                ? "bg-blue-600 text-white"
+                : isDarkMode
+                ? "text-gray-300 hover:bg-blue-400 hover:text-white"
+                : "text-black hover:bg-blue-400 hover:text-white"
+            } rounded p-2 transition-colors duration-200`}
           >
-            <FaSignOutAlt className="text-2xl ml-2" />
-            <span className="mr-2 text-red-500">تسجيل الخروج</span>
+            <FaClipboardList className="text-2xl ml-2" />
+            <span className="mr-2">طلبات الإصلاح</span>
           </button>
-        )}
+          <button
+            onClick={() => handleOptionSelect("notifications")}
+            className={`flex items-center m-2 ${
+              activeOption === "notifications"
+                ? "bg-blue-600 text-white"
+                : isDarkMode
+                ? "text-gray-300 hover:bg-blue-400 hover:text-white"
+                : "text-black hover:bg-blue-400 hover:text-white"
+            } rounded p-2 transition-colors duration-200`}
+          >
+            <FaBell className="text-2xl ml-2" />
+            <span className="mr-2">الإشعارات</span>
+          </button>
+          <button
+            onClick={() => handleOptionSelect("profile")}
+            className={`flex items-center m-2 ${
+              activeOption === "profile"
+                ? "bg-blue-600 text-white"
+                : isDarkMode
+                ? "text-gray-300 hover:bg-blue-400 hover:text-white"
+                : "text-black hover:bg-blue-400 hover:text-white"
+            } rounded p-2 transition-colors duration-200`}
+          >
+            <FaUser className="text-2xl ml-2" />
+            <span className="mr-2">الملف الشخصي</span>
+          </button>
+          {isLoggedIn && (
+            <button
+              onClick={handleLogout}
+              className={`flex items-center m-2 text-red-500 hover:text-red-700 rounded p-2 transition-colors duration-200`}
+            >
+              <FaSignOutAlt className="text-2xl ml-2" />
+              <span className="mr-2">تسجيل الخروج</span>
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* شريط التنقل السفلي للشاشات الصغيرة */}
       <div
-        className={`bottom-navigation fixed bottom-0 left-0 w-full flex justify-around items-center p-2 ${
+        className={`flex md:hidden fixed bottom-0 left-0 w-full justify-around items-center p-2 ${
           isDarkMode ? "bg-gray-800 text-white" : "bg-blue-500 text-black"
-        } h-16`}
+        } h-16 z-20`} // إضافة z-20 لضمان ظهور الشريط فوق العناصر الأخرى
       >
         <button
           onClick={() => handleOptionSelect("viewRequests")}
           className={`flex flex-col items-center ${
-            activeOption === "viewRequests" ? "active" : ""
-          }`}
+            activeOption === "viewRequests"
+              ? "text-blue-600"
+              : isDarkMode
+              ? "text-gray-300 hover:text-blue-400"
+              : "text-black hover:text-blue-400"
+          } transition-colors duration-200`}
         >
           <FaClipboardList className="text-2xl" />
+          <span className="text-xs">طلبات الإصلاح</span>
         </button>
         <button
           onClick={() => handleOptionSelect("notifications")}
           className={`flex flex-col items-center ${
-            activeOption === "notifications" ? "active" : ""
-          }`}
+            activeOption === "notifications"
+              ? "text-blue-600"
+              : isDarkMode
+              ? "text-gray-300 hover:text-blue-400"
+              : "text-black hover:text-blue-400"
+          } transition-colors duration-200`}
         >
           <FaBell className="text-2xl" />
+          <span className="text-xs">الإشعارات</span>
         </button>
         <button
           onClick={() => handleOptionSelect("profile")}
           className={`flex flex-col items-center ${
-            activeOption === "profile" ? "active" : ""
-          }`}
+            activeOption === "profile"
+              ? "text-blue-600"
+              : isDarkMode
+              ? "text-gray-300 hover:text-blue-400"
+              : "text-black hover:text-blue-400"
+          } transition-colors duration-200`}
         >
-          <div className="space-y-6">
-            <div className="flex items-center justify-between mt-4">
-              <img
-                src={
-                  userData && userData.role === "TECHNICAL"
-                    ? technicalImage.src
-                    : userImage.src
-                }
-                alt="Profile"
-                className="w-10 h-10 mb-4 rounded-full object-cover"
-              />
-            </div>
-          </div>
+          <FaUser className="text-2xl ml-2" />
+
+          <span className="text-xs">الملف الشخصي</span>
         </button>
         {isLoggedIn && (
-          <button onClick={handleLogout} className="flex flex-col items-center">
-            <FaSignOutAlt className="text-2xl text-red-500" />
+          <button
+            onClick={handleLogout}
+            className={`flex flex-col items-center ${"text-red-500 hover:text-red-700"} transition-colors duration-200`}
+          >
+            <FaSignOutAlt className="text-2xl" />
+            <span className="text-xs">خروج</span>
           </button>
         )}
       </div>
