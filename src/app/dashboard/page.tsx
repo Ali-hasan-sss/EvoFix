@@ -104,7 +104,7 @@ const Dashboard = () => {
           }}
         >
           <div
-            className="flex flex-col py-4"
+            className="flex flex-col py-4 mb-9"
             style={{ width: "100%", minHeight: "100%", overflowY: "auto" }}
           >
             {renderContent()}

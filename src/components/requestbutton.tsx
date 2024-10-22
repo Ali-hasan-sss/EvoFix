@@ -93,7 +93,7 @@ const RepairRequestButton: React.FC = () => {
     <>
       <button
         onClick={openModal}
-        className="fixed bottom-20 left-5 bg-blue-400 text-white p-2 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-20"
+        className="fixed bottom-20 mb-5 left-5 bg-blue-400 text-white p-2 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-20"
       >
         طلب إصلاح
       </button>
@@ -235,7 +235,7 @@ const RepairRequestButton: React.FC = () => {
                   onClick={closeModal}
                   className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg mr-2"
                 >
-                  تراجع
+                  اغلاق
                 </button>
                 <button
                   type="submit"

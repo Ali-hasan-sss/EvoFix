@@ -8,7 +8,7 @@ import "../../components/dashboard/dashboard.css";
 import { ThemeContext } from "../ThemeContext";
 import { useRouter } from "next/navigation";
 import RepairRequests from "./RepairRequests/RepairRequests";
-import Notifications from "./notification";
+import Notifications from "../dashboard/notification";
 const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");
   const { isDarkMode } = useContext(ThemeContext);
@@ -95,7 +95,7 @@ const Dashboard = () => {
           }}
         >
           <div
-            className="flex flex-col py-4"
+            className="flex flex-col py-4 mb-8"
             style={{ width: "100%", minHeight: "100%", overflowY: "auto" }}
           >
             {renderContent()}

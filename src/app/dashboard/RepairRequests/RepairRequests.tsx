@@ -10,6 +10,7 @@ import Tabs from "@/components/Tabs";
 import { ClipLoader } from "react-spinners";
 import RepairRequestCard from "@/components/RepairRequestCard"; // استيراد مكون البطاقة
 import { RepairRequest } from "@/utils/types";
+import RepairRequestButton from "@/components/requestbutton";
 
 const RepairRequests: React.FC = () => {
   const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
@@ -143,6 +144,7 @@ const RepairRequests: React.FC = () => {
             isDarkMode ? "bg-gray-700" : "bg-gray-500"
           } `}
         >
+          <RepairRequestButton />
           <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
           {/* عرض الطلبات المفلترة على شكل بطاقات */}

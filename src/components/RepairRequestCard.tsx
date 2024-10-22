@@ -29,7 +29,7 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
 
   const getButtonLabel = () => {
     if (userRole === "TECHNICIAN") {
-      if (request.status === "ASSIGNED") {
+      if (request.status === "ASSIGNED" && request.isPaidCheckFee === true) {
         return "تسعير الطلب";
       } else if (request.status === "IN_PROGRESS") {
         return "تسليم المهمة";
@@ -273,7 +273,7 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
         {getButtonLabel() !== null && (
           <button
             onClick={handleButtonClick}
-            className={`mt-2 px-4 py-2 ${
+            className={`m-2 px-4 py-2 ${
               userRole === "TECHNICIAN"
                 ? "bg-green-500 hover:bg-green-600"
                 : "bg-red-500 hover:bg-red-600"

@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
-import { useRouter } from "next/router"; // استيراد useRouter
-import Image from "next/image"; // إضافة استيراد Image من next/image
+import { useRouter } from "next/router";
+import Image from "next/image";
 import "./dashboard.css";
 import { ThemeContext } from "@/app/ThemeContext";
 import { AuthContext } from "@/app/context/AuthContext";
@@ -34,12 +34,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeOption, setActiveOption] = useState<string>("viewRequests");
-  const [isCollapsed, setIsCollapsed] = useState(true); // حالة الطي
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [notificationsCount, setNotificationsCount] = useState<number>(0); // حالة لعدد الإشعارات
 
   useEffect(() => {
     const token = localStorage.getItem("email");
     setIsLoggedIn(!!token);
     fetchUserData();
+    fetchNotificationsCount(); // استدعاء دالة جلب عدد الإشعارات
     const savedOption = localStorage.getItem("activeOption");
     if (savedOption) {
       setActiveOption(savedOption);
@@ -79,7 +81,25 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
     }
   };
 
-  // الصف الرئيسي من شريط التنقل السفلي
+  const fetchNotificationsCount = async () => {
+    const token = Cookies.get("token");
+    if (token) {
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/notifications/count`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setNotificationsCount(response.data.count); // تحديث حالة عدد الإشعارات
+      } catch (error: unknown) {
+        console.error("خطأ في جلب عدد الإشعارات", error);
+      }
+    }
+  };
+
   const mainRow = [
     {
       key: "",
@@ -94,7 +114,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
     {
       key: "notifications",
       name: "الإشعارات",
-      icon: <FaBell className="text-2xl" />,
+      icon: (
+        <div className="relative">
+          <FaBell className="text-2xl" />
+          {notificationsCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5">
+              {notificationsCount}
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       key: "profile",
@@ -116,12 +145,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
             <Image
               src={
                 userData && userData.role === "TECHNICAL"
-                  ? "/images/technicalImage.png" // تعديل مسار الصورة هنا
-                  : "/images/userImage.png" // تعديل مسار الصورة هنا
+                  ? "/images/technicalImage.png"
+                  : "/images/userImage.png"
               }
               alt="Profile"
-              width={40} // تعيين عرض الصورة
-              height={40} // تعيين ارتفاع الصورة
+              width={40}
+              height={40}
               className="rounded-full object-cover"
             />
             <span className="ml-4 font-bold">
@@ -129,59 +158,24 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
             </span>
           </div>
 
-          {/* استخدام فئات Tailwind لتحديد لون النص */}
-          <button
-            onClick={() => handleOptionSelect("")}
-            className={`flex items-center m-2 mt-3 ${
-              activeOption === ""
-                ? "bg-blue-600 text-white"
-                : isDarkMode
-                ? "text-gray-300 hover:bg-blue-400 hover:text-white"
-                : "text-black hover:bg-blue-400 hover:text-white"
-            } rounded p-2 transition-colors duration-200`}
-          >
-            <FaHome className="text-2xl ml-2" />
-            <span className="mr-2"> الرئيسية</span>
-          </button>
-          <button
-            onClick={() => handleOptionSelect("viewRequests")}
-            className={`flex items-center m-2 mt-3 ${
-              activeOption === "viewRequests"
-                ? "bg-blue-600 text-white"
-                : isDarkMode
-                ? "text-gray-300 hover:bg-blue-400 hover:text-white"
-                : "text-black hover:bg-blue-400 hover:text-white"
-            } rounded p-2 transition-colors duration-200`}
-          >
-            <FaClipboardList className="text-2xl ml-2" />
-            <span className="mr-2">طلبات الإصلاح</span>
-          </button>
-          <button
-            onClick={() => handleOptionSelect("notifications")}
-            className={`flex items-center m-2 ${
-              activeOption === "notifications"
-                ? "bg-blue-600 text-white"
-                : isDarkMode
-                ? "text-gray-300 hover:bg-blue-400 hover:text-white"
-                : "text-black hover:bg-blue-400 hover:text-white"
-            } rounded p-2 transition-colors duration-200`}
-          >
-            <FaBell className="text-2xl ml-2" />
-            <span className="mr-2">الإشعارات</span>
-          </button>
-          <button
-            onClick={() => handleOptionSelect("profile")}
-            className={`flex items-center m-2 ${
-              activeOption === "profile"
-                ? "bg-blue-600 text-white"
-                : isDarkMode
-                ? "text-gray-300 hover:bg-blue-400 hover:text-white"
-                : "text-black hover:bg-blue-400 hover:text-white"
-            } rounded p-2 transition-colors duration-200`}
-          >
-            <FaUser className="text-2xl ml-2" />
-            <span className="mr-2">الملف الشخصي</span>
-          </button>
+          {/* إضافة زر الإشعارات مع عدد الإشعارات في الشريط الجانبي */}
+          {mainRow.map((option) => (
+            <button
+              key={option.key}
+              onClick={() => handleOptionSelect(option.key)}
+              className={`flex items-center m-2 mt-3 ${
+                activeOption === option.key
+                  ? "bg-blue-600 text-white"
+                  : isDarkMode
+                  ? "text-gray-300 hover:bg-blue-400 hover:text-white"
+                  : "text-black hover:bg-blue-400 hover:text-white"
+              } rounded p-2 transition-colors duration-200`}
+            >
+              {option.icon}
+              <span className="mr-2">{option.name}</span>
+            </button>
+          ))}
+
           {isLoggedIn && (
             <button
               onClick={handleLogout}
@@ -201,7 +195,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
         }`}
       >
         <div className="flex flex-col">
-          {/* زر الطي/التوسيع */}
           <div className="flex justify-center p-1 border-t border-gray-300">
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
@@ -214,16 +207,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
               )}
             </button>
           </div>
-          {/* الصف الرئيسي من شريط التنقل السفلي */}
           <div className="flex justify-around p-1 border-t border-gray-300">
             {mainRow.map((option) => (
               <button
                 key={option.key}
                 onClick={() => handleOptionSelect(option.key)}
                 className={`flex flex-col items-center flex-1 py-1 ${
-                  activeOption === option.key
-                    ? "text-yellow-800" // اللون النشط
-                    : "text-white" // جعل اللون أبيض في كلا الوضعين
+                  activeOption === option.key ? "text-yellow-800" : "text-white"
                 } transition-colors duration-200`}
                 aria-label={option.name}
               >
@@ -233,7 +223,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
             ))}
           </div>
 
-          {/* زر تسجيل الخروج في الشريط السفلي */}
           {!isCollapsed && (
             <div className="flex justify-center p-1 border-t border-gray-300">
               <button
