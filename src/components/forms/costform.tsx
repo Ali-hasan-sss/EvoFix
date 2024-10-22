@@ -3,6 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "@/utils/api";
 import { ThemeContext } from "@/app/ThemeContext";
+import { ClipLoader } from "react-spinners"; // استيراد السبينر
 
 interface PricingFormProps {
   requestId: string;
@@ -19,6 +20,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
   const [cost, setCost] = useState<number | "">("");
   const [resultCheck, setResultCheck] = useState<string>(""); // حقل وصف العطل
   const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false); // حالة التحميل
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +32,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
     }
 
     try {
+      setIsLoading(true); // تعيين حالة التحميل إلى true
       const token = Cookies.get("token");
       await axios.put(
         `${API_BASE_URL}/maintenance-requests/${requestId}/quote`,
@@ -48,6 +51,8 @@ const PricingForm: React.FC<PricingFormProps> = ({
     } catch (err) {
       console.error("خطأ أثناء تسعير الطلب:", err);
       setError("حدث خطأ أثناء تسعير الطلب.");
+    } finally {
+      setIsLoading(false); // إعادة تعيين حالة التحميل إلى false
     }
   };
 
@@ -57,7 +62,11 @@ const PricingForm: React.FC<PricingFormProps> = ({
         isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
       }`}
     >
-      <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-md max-w-md w-full">
+      <div
+        className={`${
+          isDarkMode ? "bg-gray-700 text-white" : "bg-white text-black"
+        } p-6 rounded shadow-md max-w-md w-full`}
+      >
         <form onSubmit={handleSave}>
           <div className="mb-4">
             <label htmlFor="cost" className="block font-bold mb-2">
@@ -68,7 +77,9 @@ const PricingForm: React.FC<PricingFormProps> = ({
               id="cost"
               value={cost}
               onChange={(e) => setCost(Number(e.target.value))}
-              className="w-full p-2 border border-gray-300 rounded"
+              className={`w-full p-2 border text-black ${
+                isDarkMode ? "border-gray-600" : "border-gray-300"
+              } rounded`}
               placeholder="أدخل التكلفة"
             />
           </div>
@@ -81,7 +92,9 @@ const PricingForm: React.FC<PricingFormProps> = ({
               id="resultCheck"
               value={resultCheck}
               onChange={(e) => setResultCheck(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
+              className={`w-full p-2 border text-black ${
+                isDarkMode ? "border-gray-600" : "border-gray-300"
+              } rounded`}
               placeholder="أدخل وصف العطل"
             />
           </div>
@@ -93,14 +106,16 @@ const PricingForm: React.FC<PricingFormProps> = ({
               type="button"
               onClick={onClose}
               className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+              disabled={isLoading}
             >
               إغلاق
             </button>
             <button
               type="submit"
-              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 flex items-center justify-center"
+              disabled={isLoading}
             >
-              حفظ
+              {isLoading ? <ClipLoader color="#fff" size={20} /> : "ارسال"}
             </button>
           </div>
         </form>

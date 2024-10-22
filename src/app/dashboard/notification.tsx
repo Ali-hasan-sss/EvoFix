@@ -172,7 +172,7 @@ const NotificationComponent: React.FC = () => {
                 {new Date(notification.createdAt).toLocaleString()}
               </p>
 
-              {notification.title === "استلام الطلب" && (
+              {notification.title === "دفع أجور الكشف" && (
                 <div className="mt-2 flex">
                   <button
                     className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
