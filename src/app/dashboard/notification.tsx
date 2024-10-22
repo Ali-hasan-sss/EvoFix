@@ -10,23 +10,23 @@ import PaymentForm from "@/components/forms/PaymentForm"; // استيراد ال
 
 interface APINotification {
   id: number;
+  recipientId: number;
+  senderId: number;
+  requestId: number;
   title: string;
   content: string;
   createdAt: string;
-  senderId: number;
   isRead: boolean;
-  requestId: number;
-  recipientId: number;
+  request?: {
+    isPaid: boolean;
+    isPaidCheckFee: boolean;
+  };
 }
 
-interface MappedNotification {
-  id: number;
-  title: string;
-  content: string;
-  createdAt: string;
-  senderId: number;
-  isRead: boolean;
-  requestId: number;
+// تأكد من توسيع APINotification
+interface MappedNotification extends APINotification {
+  isPaidCheckFee: boolean; // تأكد من إضافة هذه الخاصية
+  isPaid: boolean; // إضافة خاصية isPaid هنا
 }
 
 const NotificationComponent: React.FC = () => {
@@ -63,16 +63,24 @@ const NotificationComponent: React.FC = () => {
       }
 
       const notificationsWithReadStatus = response.data.map(
-        (notification: APINotification) => ({
-          id: notification.id,
-          title: notification.title,
-          content: notification.content,
-          createdAt: notification.createdAt,
-          senderId: notification.senderId,
-          isRead: notification.isRead,
-          requestId: notification.requestId,
-        })
+        (notification: APINotification) => {
+          console.log("Notification Request:", notification.request); // تحقق من القيم
+          return {
+            id: notification.id,
+            title: notification.title,
+            content: notification.content,
+            createdAt: notification.createdAt,
+            senderId: notification.senderId,
+            isRead: notification.isRead,
+            requestId: notification.requestId,
+            isPaidCheckFee: notification.request?.isPaidCheckFee ?? true,
+            isPaid: notification.request?.isPaid ?? false,
+            recipientId: notification.recipientId,
+          };
+        }
       );
+
+      console.log("Mapped notifications:", notificationsWithReadStatus); // إضافة هنا
 
       setNotifications(notificationsWithReadStatus);
     } catch (err) {
@@ -92,7 +100,6 @@ const NotificationComponent: React.FC = () => {
       console.warn(inspectionFee);
       return;
     }
-    console.log("فتح النافذة لطلب:", requestId);
     setSelectedRequestId(requestId);
     setIsInspectionFee(true);
     setIsModalOpen(true);
@@ -110,7 +117,7 @@ const NotificationComponent: React.FC = () => {
         {},
         {
           headers: {
-            Authorization: `Bearer ${authToken}`, // إضافة التوكن في ترويسة الطلب
+            Authorization: `Bearer ${authToken}`,
           },
         }
       );
@@ -127,6 +134,31 @@ const NotificationComponent: React.FC = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedRequestId(null);
+  };
+
+  const handleNotificationClick = async (notificationId: number) => {
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("token="));
+    const authToken = token ? token.split("=")[1] : "";
+
+    await axios.put(
+      `${API_BASE_URL}/notifications/${notificationId}`,
+      { isRead: true },
+      {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) =>
+        notification.id === notificationId
+          ? { ...notification, isRead: true }
+          : notification
+      )
+    );
   };
 
   if (loading) {
@@ -155,9 +187,10 @@ const NotificationComponent: React.FC = () => {
           {notifications.map((notification) => (
             <li
               key={notification.id}
-              className={`mb-4 p-4 border rounded-md ${
+              className={`mb-4 p-4 border rounded-md cursor-pointer ${
                 isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-black"
               }`}
+              onClick={() => handleNotificationClick(notification.id)}
             >
               <div className="flex items-center justify-between">
                 <h2 className="font-bold text-yellow-500">
@@ -180,7 +213,12 @@ const NotificationComponent: React.FC = () => {
                     onClick={() =>
                       handleAcceptRequest(notification.requestId, true)
                     }
-                    disabled={loadingAction === notification.id || isModalOpen}
+                    disabled={
+                      loadingAction === notification.id ||
+                      notification.request?.isPaidCheckFee ||
+                      notification.request?.isPaid || // تحقق من حالة isPaid هنا
+                      isModalOpen
+                    }
                   >
                     {loadingAction === notification.id ? (
                       <ClipLoader color="#ffffff" size={20} />
@@ -197,7 +235,11 @@ const NotificationComponent: React.FC = () => {
                         notification.requestId
                       )
                     }
-                    disabled={loadingAction === notification.id}
+                    disabled={
+                      loadingAction === notification.id ||
+                      notification.request?.isPaidCheckFee ||
+                      notification.request?.isPaid // تحقق من حالة isPaid هنا
+                    }
                   >
                     {loadingAction === notification.id ? (
                       <ClipLoader color="#ffffff" size={20} />
@@ -215,7 +257,6 @@ const NotificationComponent: React.FC = () => {
                     onClick={async () => {
                       setLoadingAction(notification.id);
                       try {
-                        // استخراج التوكن من الكوكيز
                         const token = document.cookie
                           .split("; ")
                           .find((row) => row.startsWith("token="));
@@ -226,12 +267,12 @@ const NotificationComponent: React.FC = () => {
                           {},
                           {
                             headers: {
-                              Authorization: `Bearer ${authToken}`, // إضافة التوكن في ترويسة الطلب
+                              Authorization: `Bearer ${authToken}`,
                             },
                           }
                         );
                         toast.success("تمت الموافقة على السعر بنجاح.");
-                        fetchNotifications(); // تحديث الإشعارات
+                        fetchNotifications();
                       } catch (error) {
                         console.error(
                           "حدث خطأ أثناء الموافقة على السعر:",
@@ -244,7 +285,9 @@ const NotificationComponent: React.FC = () => {
                         setLoadingAction(null);
                       }
                     }}
-                    disabled={loadingAction === notification.id}
+                    disabled={
+                      loadingAction === notification.id || notification.isPaid // تحقق من حالة isPaid هنا
+                    }
                   >
                     {loadingAction === notification.id ? (
                       <ClipLoader color="#ffffff" size={20} />

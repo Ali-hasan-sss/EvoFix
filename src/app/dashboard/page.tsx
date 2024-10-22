@@ -17,6 +17,42 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
+  useEffect(() => {
+    const checkAuth = async () => {
+      setTimeout(() => {
+        setLoading(false); // انتهاء التحميل بعد التحقق
+      }, 1000); // يمكنك تعديل المهلة
+    };
+
+    checkAuth();
+  }, []);
+
+  // التحقق من حالة تسجيل الدخول بعد انتهاء التحميل
+  useEffect(() => {
+    if (!loading && !isLoggedIn) {
+      router.push("/unauthorized");
+    }
+  }, [isLoggedIn, loading, router]);
+
+  // تعيين العنصر النشط من localStorage عند التحميل
+  useEffect(() => {
+    const storedOption = localStorage.getItem("activeOption");
+    if (storedOption) {
+      setSelectedOption(storedOption);
+    }
+  }, []);
+
+  // عرض رسالة أثناء التحقق من حالة تسجيل الدخول
+  if (loading) {
+    return <div>جاري التحقق من حالة تسجيل الدخول...</div>;
+  }
+
+  // عدم عرض الداشبورد إذا لم يكن المستخدم مسجلاً للدخول
+  if (!isLoggedIn) {
+    return null;
+  }
+
   // دالة لتحديد المحتوى الذي سيتم عرضه بناءً على الخيار المختار
   const renderContent = () => {
     switch (selectedOption) {
@@ -39,34 +75,6 @@ const Dashboard = () => {
     }
   };
 
-  // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
-  useEffect(() => {
-    const checkAuth = async () => {
-      setTimeout(() => {
-        setLoading(false); // انتهاء التحميل بعد التحقق
-      }, 1000); // يمكنك تعديل المهلة
-    };
-
-    checkAuth();
-  }, []);
-
-  // التحقق من حالة تسجيل الدخول بعد انتهاء التحميل
-  useEffect(() => {
-    if (!loading && !isLoggedIn) {
-      router.push("/unauthorized");
-    }
-  }, [isLoggedIn, loading, router]);
-
-  // عرض رسالة أثناء التحقق من حالة تسجيل الدخول
-  if (loading) {
-    return <div>جاري التحقق من حالة تسجيل الدخول...</div>;
-  }
-
-  // عدم عرض الداشبورد إذا لم يكن المستخدم مسجلاً للدخول
-  if (!isLoggedIn) {
-    return null;
-  }
-
   // عرض لوحة التحكم إذا كان المستخدم مسجلاً للدخول
   return (
     <>
@@ -86,7 +94,7 @@ const Dashboard = () => {
 
         {/* الحاوية الرئيسية */}
         <div
-          className={`flex-1  flex justify-center items-center ${
+          className={`flex-1 flex justify-center items-center ${
             isDarkMode ? "bg-black-600" : "bg-gray-400"
           }`}
           style={{
