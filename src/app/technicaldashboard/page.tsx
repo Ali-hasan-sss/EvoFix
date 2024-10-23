@@ -49,14 +49,12 @@ const Dashboard = () => {
     checkAuth();
   }, []);
 
-  // التحقق من حالة تسجيل الدخول بعد انتهاء التحميل
   useEffect(() => {
     if (!loading && !isLoggedIn) {
-      router.push("/unauthorized"); // إعادة التوجيه لصفحة ليس لديك صلاحية
+      router.push("/unauthorized");
     }
   }, [isLoggedIn, loading, router]);
 
-  // عرض رسالة أثناء التحقق من حالة تسجيل الدخول
   if (loading) {
     return <div>جاري التحقق من حالة تسجيل الدخول...</div>;
   }
@@ -75,8 +73,8 @@ const Dashboard = () => {
           isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
         }`}
         style={{
-          minHeight: "100vh", // ضمان أن الحاوية لا تقل عن طول الشاشة
-          paddingTop: "64px", // إضافة الـ padding لأسفل النافبار
+          minHeight: "100vh",
+          paddingTop: "64px",
           overflowY: "auto",
         }}
       >
@@ -86,7 +84,7 @@ const Dashboard = () => {
         {/* الحاوية الرئيسية */}
         <div
           className={`flex-1 flex justify-center items-center p-6 ${
-            isDarkMode ? "bg-gray-600" : "bg-white"
+            isDarkMode ? "bg-gray-700" : "bg-gray-400"
           }`}
           style={{
             minHeight: "100%", // الحاوية تمتد لتتوافق مع طول الشاشة

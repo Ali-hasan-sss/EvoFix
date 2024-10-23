@@ -69,3 +69,6 @@ body {
   background: #3c0404;
   color: gold;
 }
+.logo:hover {
+  background-color: transparent;
+}

@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
-import { useRouter } from "next/router";
 import Image from "next/image";
 import "./dashboard.css";
+import BottomNavbar from "./BottomNavbar"; // استيراد المكون الجديد
 import { ThemeContext } from "@/app/ThemeContext";
 import { AuthContext } from "@/app/context/AuthContext";
 import {
@@ -9,8 +9,6 @@ import {
   FaBell,
   FaUser,
   FaSignOutAlt,
-  FaChevronUp,
-  FaChevronDown,
   FaHome,
 } from "react-icons/fa";
 import { API_BASE_URL } from "../../utils/api";
@@ -34,14 +32,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeOption, setActiveOption] = useState<string>("viewRequests");
-  const [isCollapsed, setIsCollapsed] = useState(true);
   const [notificationsCount, setNotificationsCount] = useState<number>(0); // حالة لعدد الإشعارات
 
   useEffect(() => {
     const token = localStorage.getItem("email");
     setIsLoggedIn(!!token);
     fetchUserData();
-    fetchNotificationsCount(); // استدعاء دالة جلب عدد الإشعارات
+    fetchNotificationsCount();
     const savedOption = localStorage.getItem("activeOption");
     if (savedOption) {
       setActiveOption(savedOption);
@@ -99,6 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
       }
     }
   };
+
   useEffect(() => {
     fetchNotificationsCount();
 
@@ -109,7 +107,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
 
   const mainRow = [
     {
-      key: "",
+      key: "viewHome",
       name: "الرئيسية",
       icon: <FaHome className="text-2xl" />,
     },
@@ -139,13 +137,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
     },
   ];
 
+  // نسخة مخصصة للـ Sidebar بدون خيار "الرئيسية"
+  const sidebarRow = mainRow.filter((option) => option.key !== "viewHome");
+
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen mt-4 text-white">
       <div
         className={`hidden md:flex p-4 flex-col flex-shrink-0 ${
-          isDarkMode ? "bg-gray-800 text-white" : "bg-blue-500 text-black"
+          isDarkMode ? "bg-gray-800" : "bg-gray-600"
         }`}
-        style={{ width: "250px", minHeight: "100vh", overflowY: "auto" }}
+        style={{ width: "250px", minHeight: "100vh" }}
       >
         <div className="space-y-6 sticky top-0">
           <div className="flex items-center justify-between mt-4">
@@ -165,8 +166,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
             </span>
           </div>
 
-          {/* إضافة زر الإشعارات مع عدد الإشعارات في الشريط الجانبي */}
-          {mainRow.map((option) => (
+          {sidebarRow.map((option) => (
             <button
               key={option.key}
               onClick={() => handleOptionSelect(option.key)}
@@ -175,7 +175,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
                   ? "bg-blue-600 text-white"
                   : isDarkMode
                   ? "text-gray-300 hover:bg-blue-400 hover:text-white"
-                  : "text-black hover:bg-blue-400 hover:text-white"
+                  : "text-white hover:bg-blue-400 hover:text-white"
               } rounded p-2 transition-colors duration-200`}
             >
               {option.icon}
@@ -196,54 +196,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
       </div>
 
       {/* شريط التنقل السفلي للشاشات الصغيرة */}
-      <div
-        className={`fixed bottom-0 left-0 w-full md:hidden z-40 ${
-          isDarkMode ? "bg-gray-900 text-white" : "bg-blue-600 text-black"
-        }`}
-      >
-        <div className="flex flex-col">
-          <div className="flex justify-center p-1 border-t border-gray-300">
-            <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className="text-gray-500"
-            >
-              {isCollapsed ? (
-                <FaChevronUp className="text-2xl" />
-              ) : (
-                <FaChevronDown className="text-2xl" />
-              )}
-            </button>
-          </div>
-          <div className="flex justify-around p-1 border-t border-gray-300">
-            {mainRow.map((option) => (
-              <button
-                key={option.key}
-                onClick={() => handleOptionSelect(option.key)}
-                className={`flex flex-col items-center flex-1 py-1 ${
-                  activeOption === option.key ? "text-yellow-800" : "text-white"
-                } transition-colors duration-200`}
-                aria-label={option.name}
-              >
-                {option.icon}
-                <span className="text-sm mt-1">{option.name}</span>
-              </button>
-            ))}
-          </div>
-
-          {!isCollapsed && (
-            <div className="flex justify-center p-1 border-t border-gray-300">
-              <button
-                onClick={handleLogout}
-                className={`flex flex-col items-center text-red-500 hover:text-red-700 transition-colors duration-200`}
-                aria-label="تسجيل الخروج"
-              >
-                <FaSignOutAlt className="text-2xl" />
-                <span className="text-sm mt-1">خروج</span>
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+      <BottomNavbar
+        mainRow={mainRow} // تحتوي على خيار "الرئيسية"
+        activeOption={activeOption}
+        handleOptionSelect={handleOptionSelect}
+        handleLogout={handleLogout}
+        isDarkMode={isDarkMode}
+      />
     </div>
   );
 };

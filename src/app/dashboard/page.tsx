@@ -9,7 +9,7 @@ import { ThemeContext } from "../ThemeContext";
 import { useRouter } from "next/navigation";
 import RepairRequests from "./RepairRequests/RepairRequests";
 import Notifications from "./notification";
-
+import Home from "../page";
 const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");
   const { isDarkMode } = useContext(ThemeContext);
@@ -56,6 +56,12 @@ const Dashboard = () => {
   // دالة لتحديد المحتوى الذي سيتم عرضه بناءً على الخيار المختار
   const renderContent = () => {
     switch (selectedOption) {
+      case "viewHome":
+        return (
+          <div>
+            <Home />
+          </div>
+        );
       case "viewRequests":
         return (
           <div>
@@ -81,7 +87,7 @@ const Dashboard = () => {
       <Navbar />
       <div
         className={`flex flex-row  ${
-          isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
+          isDarkMode ? "bg-gray-900 text-white" : "bg-gray-300 text-black"
         }`}
         style={{
           minHeight: "100vh",

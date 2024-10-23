@@ -10,6 +10,7 @@ import { ThemeContext } from "@/app/ThemeContext"; // استيراد سياق ا
 // استيراد الصور
 import SyriatelImage from "../assets/images/syriatel.jpeg";
 import MTNImage from "../assets/images/mtn.jpeg";
+import { ClipLoader } from "react-spinners"; // استيراد سبينر
 
 interface PaymentFormProps {
   requestId: number | null;
@@ -28,6 +29,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   const [amount, setAmount] = useState("");
   const [CheckFee, setCheckFee] = useState("");
   const [textMessage, setTextMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // حالة التحميل
 
   // جلب حالة الوضع (دارك/لايت)
   const { isDarkMode } = useContext(ThemeContext);
@@ -59,7 +61,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     const token = Cookies.get("token");
 
     const paymentData = {
-      requestId,
       typePaid,
       OperationNumber: operationNum,
       ...(isInspectionPayment
@@ -72,6 +73,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       ? `${API_BASE_URL}/maintenance-requests/${requestId}/accept_check`
       : `${API_BASE_URL}/epaid/${requestId}`;
 
+    setIsLoading(true); // بدء التحميل
     try {
       await axios.post(apiUrl, paymentData, {
         headers: {
@@ -80,9 +82,22 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       });
       toast.success("تمت عملية الدفع بنجاح");
       closeModal();
-    } catch (error) {
-      toast.error("حدث خطأ أثناء عملية الدفع");
+    } catch (error: unknown) {
+      if (
+        axios.isAxiosError(error) &&
+        error.response &&
+        error.response.data &&
+        (error.response.data as { message?: string }).message
+      ) {
+        const errorMessage = (error.response.data as { message: string })
+          .message;
+        toast.error(`حدث خطأ: ${errorMessage}`);
+      } else {
+        toast.error("حدث خطأ أثناء عملية الدفع");
+      }
       console.error(error);
+    } finally {
+      setIsLoading(false); // إنهاء التحميل
     }
   };
 
@@ -94,7 +109,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     >
       {step === 1 ? (
         <div className="flex justify-center items-center gap-8">
-          {/* استخدم gap لتباعد ثابت بين الصور */}
           <div
             className="cursor-pointer rounded-full overflow-hidden"
             onClick={() => handleTypeSelect("SYRIATEL_CACH")}
@@ -104,7 +118,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
               alt="Syriatel Payment"
               width={150}
               height={150}
-              className="rounded-[50%] w-40 h-24 object-cover" // جعل الصورة بيضوية الشكل
+              className="rounded-[50%] w-40 h-24 object-cover"
             />
           </div>
           <div
@@ -116,7 +130,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
               alt="MTN Payment"
               width={150}
               height={150}
-              className="rounded-[50%] w-40 h-24 object-cover" // نفس الحجم والشكل
+              className="rounded-[50%] w-40 h-24 object-cover"
             />
           </div>
         </div>
@@ -198,9 +212,14 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
             </button>
             <button
               onClick={handleSubmit}
-              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
+              disabled={isLoading} // تعطيل الزر أثناء التحميل
             >
-              إتمام عملية الدفع
+              {isLoading ? (
+                <ClipLoader size={20} color={"#ffffff"} />
+              ) : (
+                "إتمام عملية الدفع"
+              )}
             </button>
           </div>
         </div>

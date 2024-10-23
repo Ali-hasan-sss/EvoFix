@@ -5,7 +5,9 @@ import axios from "axios";
 // import { cookies } from "next/headers";
 import Image from "next/image";
 import { browser } from "process";
-
+import BottomNavbar from "@/components/dashboard/BottomNavbar"; // قم بتغيير المسار حسب موقع الملف
+import { AuthContext } from "@/app/context/AuthContext";
+import Sidebar from "@/components/dashboard/Sidebar";
 export default function Home() {
   const login = async () => {
     // const url = 'https://evo-fix-api.vercel.app/api/users/login'

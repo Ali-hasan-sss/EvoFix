@@ -8,7 +8,14 @@ import { usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import "./assets/navbar.css";
 import { FaUser } from "react-icons/fa";
-const Navbar: React.FC = () => {
+import Image from "next/image";
+import EVOFIX from "./assets/images/EVOFIX.png";
+
+interface NavbarProps {
+  className?: string;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ className }) => {
   const { toggleTheme, isDarkMode } = useContext(ThemeContext);
   const { isLoggedIn, logout } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
@@ -84,23 +91,29 @@ const Navbar: React.FC = () => {
     <div>
       {/* Navbar for larger screens */}
       <nav
-        className={`p-4 fixed w-full z-10 top-0 shadow-lg md:flex md:justify-between ${
-          isDarkMode ? "bg-gray-800 text-white" : "bg-blue-500 text-black"
+        className={`p-4 fixed w-full z-10 top-0 shadow-lg md:flex md:justify-between items-center opacity-95 border-b border-yellow-500 ${
+          isDarkMode ? "bg-gray-800 text-white" : "bg-gray-600 text-black"
         }`}
       >
         <div className="flex justify-between items-center">
-          <button onClick={toggleTheme} className="p-2 mr-4">
+          <button onClick={toggleTheme} className="p-2 mr-4 ">
             {isDarkMode ? "🌙" : "☀️"}
           </button>
-          <Link href="/">
-            <h1 className="text-2xl mr-2 font-bold">EVOFIX</h1>
+          <Link href="/" className="logo">
+            <Image
+              src={EVOFIX}
+              alt="logo"
+              width={60}
+              height={40}
+              className="object-cover "
+            />
           </Link>
           <button
             className="md:hidden text-white focus:outline-none ml-4"
             onClick={toggleMenu}
           >
             {isLoggedIn ? (
-              <FaUser className="text-2xl" /> // أيقونة المستخدم
+              <FaUser className="text-2xl" />
             ) : (
               <span className="text-bold btn">التسجيل</span>
             )}
@@ -211,16 +224,6 @@ const Navbar: React.FC = () => {
               </li>
             </>
           )}
-          {isLoggedIn && (
-            <li>
-              <button
-                onClick={handleLogout}
-                className="hover:text-gray-300 text-light"
-              >
-                تسجيل الخروج
-              </button>
-            </li>
-          )}
         </ul>
       </nav>
 
@@ -228,22 +231,11 @@ const Navbar: React.FC = () => {
       {isOpen && (
         <div
           ref={dropdownRef}
-          className={`md:hidden bg-blue-500 text-black border border-yellow-500 shadow-lg w-1/2 p-4 absolute left-2 top-20 z-50 rounded ${
-            isDarkMode ? "bg-gray-800" : "bg-blue-500"
+          className={`md:hidden bg-blue-500 text-black border border-yellow-500 shadow-lg w-1/2 p-4 fixed left-2 top-20 z-50 rounded opacity-95 ${
+            isDarkMode ? "bg-gray-800" : "bg-gray-600"
           }`}
         >
           <ul className="space-y-4">
-            <li>
-              <Link
-                href="/"
-                className={`hover:text-gray-300 ${
-                  activeItem === "home" ? "text-yellow-400" : ""
-                }`}
-                onClick={() => handleItemClick("home")}
-              >
-                الرئيسية
-              </Link>
-            </li>
             {isLoggedIn ? (
               <li>
                 {userRole === "ADMIN" ? (

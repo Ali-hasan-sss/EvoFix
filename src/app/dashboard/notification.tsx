@@ -192,7 +192,7 @@ const NotificationComponent: React.FC = () => {
 
   return (
     <div
-      className={`p-6 ${
+      className={`p-4 w-full ${
         isDarkMode ? "bg-gray-900 text-white" : "bg-gray-300 text-black"
       }`}
     >
