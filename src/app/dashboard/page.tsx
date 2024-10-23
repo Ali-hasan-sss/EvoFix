@@ -80,7 +80,7 @@ const Dashboard = () => {
     <>
       <Navbar />
       <div
-        className={`flex flex-row ${
+        className={`flex flex-row  ${
           isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
         }`}
         style={{
@@ -94,7 +94,7 @@ const Dashboard = () => {
 
         {/* الحاوية الرئيسية */}
         <div
-          className={`flex-1 flex justify-center items-center ${
+          className={`flex-1 flex justify-center items-center rounded ${
             isDarkMode ? "bg-black-600" : "bg-gray-400"
           }`}
           style={{

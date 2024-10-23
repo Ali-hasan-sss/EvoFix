@@ -34,7 +34,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          {/* تغليف التطبيق بـ AuthProvider */}
           <ToastContainer
             position="top-right"
             autoClose={5000}

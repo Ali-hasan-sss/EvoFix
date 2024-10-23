@@ -6,7 +6,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ThemeContext } from "@/app/ThemeContext";
 import Modal from "react-modal";
-import PaymentForm from "@/components/forms/PaymentForm"; // استيراد المكون
+import PaymentForm from "@/components/forms/PaymentForm";
 
 interface APINotification {
   id: number;
@@ -23,10 +23,9 @@ interface APINotification {
   };
 }
 
-// تأكد من توسيع APINotification
 interface MappedNotification extends APINotification {
-  isPaidCheckFee: boolean; // تأكد من إضافة هذه الخاصية
-  isPaid: boolean; // إضافة خاصية isPaid هنا
+  isPaidCheckFee: boolean;
+  isPaid: boolean;
 }
 
 const NotificationComponent: React.FC = () => {
@@ -40,6 +39,7 @@ const NotificationComponent: React.FC = () => {
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
     null
   );
+  const FETCH_INTERVAL = 10000; // 10 دقائق بالمللي ثانية
 
   useEffect(() => {
     Modal.setAppElement(document.body);
@@ -80,8 +80,7 @@ const NotificationComponent: React.FC = () => {
         }
       );
 
-      console.log("Mapped notifications:", notificationsWithReadStatus); // إضافة هنا
-
+      console.log("Mapped notifications:", notificationsWithReadStatus);
       setNotifications(notificationsWithReadStatus);
     } catch (err) {
       setError("فشل في جلب الإشعارات");
@@ -90,6 +89,15 @@ const NotificationComponent: React.FC = () => {
       setLoading(false);
     }
   }, []);
+
+  // استدعاء الدالة تلقائيًا كل 10 دقائق باستخدام useEffect
+  useEffect(() => {
+    fetchNotifications(); // استدعاء أولي عند تحميل المكون
+
+    const intervalId = setInterval(fetchNotifications, FETCH_INTERVAL);
+
+    return () => clearInterval(intervalId); // تنظيف عند إزالة المكون
+  }, [fetchNotifications]);
 
   useEffect(() => {
     fetchNotifications();
@@ -102,6 +110,15 @@ const NotificationComponent: React.FC = () => {
     }
     setSelectedRequestId(requestId);
     setIsInspectionFee(true);
+    setIsModalOpen(true);
+  };
+  const handleBaiedRequest = (requestId: number, inspectionFee: boolean) => {
+    if (isModalOpen) {
+      console.warn(inspectionFee);
+      return;
+    }
+    setSelectedRequestId(requestId);
+    setIsInspectionFee(false);
     setIsModalOpen(true);
   };
 
@@ -216,7 +233,7 @@ const NotificationComponent: React.FC = () => {
                     disabled={
                       loadingAction === notification.id ||
                       notification.request?.isPaidCheckFee ||
-                      notification.request?.isPaid || // تحقق من حالة isPaid هنا
+                      notification.request?.isPaid ||
                       isModalOpen
                     }
                   >
@@ -238,7 +255,51 @@ const NotificationComponent: React.FC = () => {
                     disabled={
                       loadingAction === notification.id ||
                       notification.request?.isPaidCheckFee ||
-                      notification.request?.isPaid // تحقق من حالة isPaid هنا
+                      notification.request?.isPaid
+                    }
+                  >
+                    {loadingAction === notification.id ? (
+                      <ClipLoader color="#ffffff" size={20} />
+                    ) : (
+                      "رفض"
+                    )}
+                  </button>
+                </div>
+              )}
+              {notification.title === "إنجاز الطلب" && (
+                <div className="mt-2 flex">
+                  <button
+                    className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
+                    type="button"
+                    onClick={() =>
+                      handleBaiedRequest(notification.requestId, false)
+                    }
+                    disabled={
+                      loadingAction === notification.id ||
+                      notification.request?.isPaidCheckFee ||
+                      notification.request?.isPaid ||
+                      isModalOpen
+                    }
+                  >
+                    {loadingAction === notification.id ? (
+                      <ClipLoader color="#ffffff" size={20} />
+                    ) : (
+                      "دفع رسوم الطلب"
+                    )}
+                  </button>
+
+                  <button
+                    className="bg-red-500 text-white px-4 mx-4 py-2 rounded-md"
+                    onClick={() =>
+                      handleRejectRequest(
+                        notification.id,
+                        notification.requestId
+                      )
+                    }
+                    disabled={
+                      loadingAction === notification.id ||
+                      notification.request?.isPaidCheckFee ||
+                      notification.request?.isPaid
                     }
                   >
                     {loadingAction === notification.id ? (
@@ -286,7 +347,7 @@ const NotificationComponent: React.FC = () => {
                       }
                     }}
                     disabled={
-                      loadingAction === notification.id || notification.isPaid // تحقق من حالة isPaid هنا
+                      loadingAction === notification.id || notification.isPaid
                     }
                   >
                     {loadingAction === notification.id ? (
@@ -324,12 +385,10 @@ const NotificationComponent: React.FC = () => {
         onRequestClose={closeModal}
         contentLabel="Modal"
         className={`relative p-6 rounded-lg max-w-md mx-auto z-50 ${
-          // زيادة قيمة z-index
           isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
         }`}
         overlayClassName={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40`} // زيادة z-index للطبقة الخلفية
       >
-        {/* زر الإغلاق على شكل X */}
         <button
           onClick={closeModal}
           className={`absolute top-2 left-2 ${
@@ -338,15 +397,13 @@ const NotificationComponent: React.FC = () => {
               : "text-gray-500 hover:text-gray-800"
           }`}
         >
-          &#x2715; {/* رمز X */}
+          &#x2715;
         </button>
 
-        {/* العنوان في المنتصف */}
         <h2 className="text-center text-xl font-bold mb-4">
           إتمام عملية الدفع
         </h2>
 
-        {/* مكون PaymentForm في منتصف المودال */}
         {selectedRequestId && (
           <PaymentForm
             requestId={selectedRequestId}

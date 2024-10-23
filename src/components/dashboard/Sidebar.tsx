@@ -99,6 +99,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
       }
     }
   };
+  useEffect(() => {
+    fetchNotificationsCount();
+
+    const intervalId = setInterval(fetchNotificationsCount, 10000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   const mainRow = [
     {
