@@ -131,9 +131,7 @@ const RepairRequests: React.FC = () => {
   }, [activeTab, filteredRequests]);
 
   return (
-    <div className=" flex flex-col w-full " style={{ minHeight: "90vh" }}>
-      <h1 className="text-2xl text-center font-bold mb-4">طلبات الإصلاح</h1>
-
+    <div className="mt-3 flex flex-col w-full " style={{ minHeight: "90vh" }}>
       {loading ? (
         <div className="flex justify-center items-center h-screen">
           <ClipLoader color="#4A90E2" size={50} />

@@ -92,7 +92,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
       {/* Navbar for larger screens */}
       <nav
         className={`p-4 fixed w-full z-10 top-0 shadow-lg md:flex md:justify-between items-center opacity-95 border-b border-yellow-500 ${
-          isDarkMode ? "bg-gray-800 text-white" : "bg-gray-600 text-black"
+          isDarkMode ? "bg-gray-900 text-white" : "bg-gray-700 text-black"
         }`}
       >
         <div className="flex justify-between items-center">
@@ -231,7 +231,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
       {isOpen && (
         <div
           ref={dropdownRef}
-          className={`md:hidden bg-blue-500 text-black border border-yellow-500 shadow-lg w-1/2 p-4 fixed left-2 top-20 z-50 rounded opacity-95 ${
+          className={`md:hidden bg-blue-500 text-black border border-yellow-500 shadow-lg w-1/2 p-4 fixed left-2 top-20 z-50 rounded opacity-98 ${
             isDarkMode ? "bg-gray-800" : "bg-gray-600"
           }`}
         >

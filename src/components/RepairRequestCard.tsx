@@ -272,21 +272,23 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
           >
             {isExpanded ? "عرض اقل" : "عرض المزيد"}
           </button>
-          <button
-            className={`text-white px-4 py-2 rounded-md ${
-              isDeleting || isProcessing
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-red-500 hover:bg-red-600"
-            }`}
-            onClick={handleButtonClick}
-            disabled={isDeleting || isProcessing} // تعطيل الزر أثناء التحميل
-          >
-            {(isDeleting || isProcessing) ? (
-              <ClipLoader size={20} color="#ffffff" />
-            ) : (
-              getButtonLabel()
-            )}
-          </button>
+          {getButtonLabel() && (
+            <button
+              className={`text-white px-4 py-2 rounded-md ${
+                isDeleting || isProcessing
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-red-500 hover:bg-red-600"
+              }`}
+              onClick={handleButtonClick}
+              disabled={isDeleting || isProcessing} // تعطيل الزر أثناء التحميل
+            >
+              {isDeleting || isProcessing ? (
+                <ClipLoader size={20} color="#ffffff" />
+              ) : (
+                getButtonLabel()
+              )}
+            </button>
+          )}
         </div>
       </div>
       <Modal
@@ -297,7 +299,7 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
         overlayClassName="overlay"
       >
         <PricingForm
-          requestId={String(request.id)} 
+          requestId={String(request.id)}
           onClose={() => setIsModalOpen(false)}
           onRequestUpdated={onRequestUpdated}
         />

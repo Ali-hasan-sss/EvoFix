@@ -192,11 +192,10 @@ const NotificationComponent: React.FC = () => {
 
   return (
     <div
-      className={`p-4 w-full ${
+      className={`p-4 mt-3 w-full ${
         isDarkMode ? "bg-gray-900 text-white" : "bg-gray-300 text-black"
       }`}
     >
-      <h1 className="text-2xl text-center font-bold mb-6">الإشعارات</h1>
       {notifications.length === 0 ? (
         <div className="text-center">لا توجد إشعارات.</div>
       ) : (

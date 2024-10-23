@@ -3,19 +3,25 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "../../../utils/api";
-import { ThemeContext } from "@/app/ThemeContext"; // لاستدعاء حالة الوضع الداكن
-import Tabs from "@/components/Tabs";
+import { ThemeContext } from "@/app/ThemeContext";
 import { ClipLoader } from "react-spinners";
-import RepairRequestCard from "@/components/RepairRequestCard"; // استيراد مكون البطاقة
+import RepairRequestCard from "@/components/RepairRequestCard";
 import { RepairRequest } from "@/utils/types";
 
 const RepairRequests: React.FC = () => {
   const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const { isDarkMode } = useContext(ThemeContext); // التحقق من حالة الوضع الداكن
-  const [activeTab, setActiveTab] = useState<string>("available"); // التبويب النشط
+  const { isDarkMode } = useContext(ThemeContext);
+  const [activeTab, setActiveTab] = useState<string>("available");
+  const [tabCounts, setTabCounts] = useState<{ [key: string]: number }>({
+    available: 0,
+    assign: 0,
+    quote: 0,
+    in_progress: 0,
+    completed: 0,
+    rejected: 0,
+  });
 
-  // تعريف statusMap
   const statusMap: { [key: string]: string } = {
     PENDING: "قيد الانتظار",
     IN_PROGRESS: "جارٍ التنفيذ",
@@ -25,14 +31,12 @@ const RepairRequests: React.FC = () => {
     QUOTED: "انتظار القبول",
   };
 
-  // دالة لجلب البيانات بناءً على التبويب النشط
   const fetchRepairRequests = async (tab: string) => {
     setLoading(true);
     try {
       const token = Cookies.get("token");
       let endpoint = `${API_BASE_URL}/maintenance-requests/all`;
 
-      // تغيير رابط الجلب حسب التبويب النشط
       if (tab === "quote") {
         endpoint += "/quote";
       } else if (tab === "in_progress") {
@@ -56,12 +60,12 @@ const RepairRequests: React.FC = () => {
       if (response.status === 200) {
         if (Array.isArray(response.data)) {
           setRepairRequests(response.data);
-        } else if (response.data.message === "لا يوجد طلبات حاليا") {
-          setRepairRequests([]); // تعيين مصفوفة فارغة
-          toast.info("لا توجد طلبات في هذا التبويب."); // عرض رسالة تنبيه
+          setTabCounts((prev) => ({
+            ...prev,
+            [tab]: response.data.length,
+          }));
         } else {
-          console.warn("البيانات المستلمة ليست مصفوفة.");
-          toast.warn("لا يوجد طلبات في هذا التبويب");
+          toast.info("لا توجد طلبات في هذا التبويب.");
         }
       }
     } catch (error) {
@@ -73,14 +77,21 @@ const RepairRequests: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchRepairRequests(activeTab); // جلب البيانات حسب التبويب النشط
-  }, [activeTab]); // تحديث عند تغيير التبويب
+    const savedTab = localStorage.getItem("activeTab");
+    if (savedTab) {
+      setActiveTab(savedTab);
+    }
+  }, []); // يعمل مرة واحدة عند تحميل المكون
+
+  useEffect(() => {
+    fetchRepairRequests(activeTab);
+    localStorage.setItem("activeTab", activeTab); // حفظ التبويب النشط
+  }, [activeTab]);
 
   const onRequestUpdated = async () => {
-    fetchRepairRequests(activeTab); // تحديث الطلبات عند التحديث
+    fetchRepairRequests(activeTab);
   };
 
-  // تعريف التبويبات
   const tabs = [
     { label: "الطلبات المتاحة", key: "available" },
     { label: "الطلبات المستلمة", key: "assign" },
@@ -104,24 +115,27 @@ const RepairRequests: React.FC = () => {
             isDarkMode ? "bg-gray-700" : "bg-gray-500"
           }`}
         >
-          {/* قائمة التبويبات */}
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:flex lg:justify-center mb-4">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
-                className={`p-2 text-center rounded ${
+                className={`relative p-2 text-center rounded ${
                   activeTab === tab.key
                     ? "bg-blue-500 text-white"
                     : "bg-white text-black"
                 }`}
-                onClick={() => setActiveTab(tab.key)}
+                onClick={() => setActiveTab(tab.key)} // تعيين التبويب النشط
               >
                 {tab.label}
+                {tabCounts[tab.key] > 0 && (
+                  <span className="absolute top-5 right-4 mt-[-10px] mr-[-10px] bg-yellow-500 text-black text-xs rounded-full px-2 py-1">
+                    {tabCounts[tab.key]}
+                  </span>
+                )}
               </button>
             ))}
           </div>
 
-          {/* عرض الطلبات أو رسالة إذا كانت المصفوفة فارغة */}
           {repairRequests.length === 0 ? (
             <div className="flex justify-center items-center h-screen">
               <p className="text-xl text-gray-700">
