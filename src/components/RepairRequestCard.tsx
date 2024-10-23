@@ -24,6 +24,7 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
 }) => {
   const { isDarkMode } = useContext(ThemeContext);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false); // حالة التحميل العامة
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -36,8 +37,7 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
       } else if (request.status === "PENDING") {
         return "استلام المهمة";
       }
-      // إخفاء الزر عند الحالات الأخرى
-      return null;
+      return null; // إخفاء الزر في الحالات الأخرى
     }
     return "حذف";
   };
@@ -55,6 +55,7 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
   };
 
   const handleReceiveTask = async () => {
+    setIsProcessing(true); // تفعيل حالة التحميل
     try {
       const token = document.cookie.replace(
         /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
@@ -81,10 +82,13 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
     } catch (error) {
       toast.error("خطأ في استلام المهمة");
       console.error("خطأ في استلام المهمة", error);
+    } finally {
+      setIsProcessing(false); // إيقاف حالة التحميل
     }
   };
 
   const handleSubmitTask = async () => {
+    setIsProcessing(true); // تفعيل حالة التحميل
     try {
       const token = document.cookie.replace(
         /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
@@ -111,11 +115,13 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
     } catch (error) {
       toast.error("خطأ في تسليم المهمة");
       console.error("خطأ في تسليم المهمة", error);
+    } finally {
+      setIsProcessing(false); // إيقاف حالة التحميل
     }
   };
 
   const handleDeleteRequest = async () => {
-    setIsDeleting(true);
+    setIsDeleting(true); // تفعيل حالة التحميل الخاصة بالحذف
     try {
       const token = document.cookie.replace(
         /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
@@ -141,7 +147,7 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
       toast.error("خطأ في حذف الطلب");
       console.error("خطأ في حذف الطلب", error);
     } finally {
-      setIsDeleting(false);
+      setIsDeleting(false); // إيقاف حالة التحميل
     }
   };
 
@@ -239,7 +245,7 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
             <p className="border-b pb-2">
               <strong>اجور الكشف:</strong>
               <span
-                className={`font-bold ${
+                className={`font-bold text-sm ${
                   request.isPaidCheckFee ? "text-green-500" : "text-red-500"
                 }`}
               >
@@ -247,50 +253,52 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
               </span>
             </p>
             <p className="border-b pb-2">
-              <strong>اجور الصيانة :</strong>
+              <strong>الأجور:</strong>
               <span
-                className={`font-bold ${
+                className={`font-bold text-sm ${
                   request.isPaid ? "text-green-500" : "text-red-500"
                 }`}
               >
                 {request.isPaid ? "تم الدفع" : "لم يتم الدفع"}
               </span>
             </p>
-            <p className="border-b pb-2">
-              <strong>تاريخ الطلب:</strong>{" "}
-              {String(request.createdAt) || "غير متوفر"}
-            </p>
           </div>
         )}
 
-        <button
-          className="mt-2 px-4 py-2 bg-blue-300 text-white rounded-md hover:bg-gray-400 transition duration-300"
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          {isExpanded ? "عرض أقل" : "عرض المزيد"}
-        </button>
-
-        {getButtonLabel() !== null && (
+        <div className="flex justify-between items-center">
           <button
-            onClick={handleButtonClick}
-            className={`m-2 px-4 py-2 ${
-              userRole === "TECHNICIAN"
-                ? "bg-green-500 hover:bg-green-600"
-                : "bg-red-500 hover:bg-red-600"
-            } text-white rounded-md transition duration-300`}
+            className="text-primary font-bold hover:text-gray-500"
+            onClick={() => setIsExpanded(!isExpanded)}
           >
-            {isDeleting ? (
-              <ClipLoader color="#ffffff" size={20} />
+            {isExpanded ? "عرض اقل" : "عرض المزيد"}
+          </button>
+          <button
+            className={`text-white px-4 py-2 rounded-md ${
+              isDeleting || isProcessing
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-red-500 hover:bg-red-600"
+            }`}
+            onClick={handleButtonClick}
+            disabled={isDeleting || isProcessing} // تعطيل الزر أثناء التحميل
+          >
+            {(isDeleting || isProcessing) ? (
+              <ClipLoader size={20} color="#ffffff" />
             ) : (
               getButtonLabel()
             )}
           </button>
-        )}
+        </div>
       </div>
-      <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)}>
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        contentLabel="Form Modal"
+        className="modal"
+        overlayClassName="overlay"
+      >
         <PricingForm
-          requestId={String(request.id)}
-          onClose={() => setIsModalOpen(false)} // أضف الخاصية هنا
+          requestId={String(request.id)} 
+          onClose={() => setIsModalOpen(false)}
           onRequestUpdated={onRequestUpdated}
         />
       </Modal>

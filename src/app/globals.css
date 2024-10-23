@@ -59,3 +59,13 @@ body {
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
   z-index: 10000; /* تأكيد أن المودال نفسه فوق الخلفية */
 }
+.btn {
+  font-size: 18px;
+  border: 1px solid #fcd71dd6;
+  border-radius: 20px;
+  padding: 2px 5px;
+}
+.btn:hover {
+  background: #3c0404;
+  color: gold;
+}
