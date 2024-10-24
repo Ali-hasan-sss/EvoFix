@@ -82,6 +82,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user, onClose }) => {
         onSubmit={handleEditSubmit}
         submitButtonLabel="تحديث"
         isUser={true}
+        isNew={false}
         onClose={() => setIsEditing(false)}
       />
     );

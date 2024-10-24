@@ -63,6 +63,7 @@ const UserForm: React.FC<UserFormProps> = ({
   });
   const [showPassword, setShowPassword] = useState(false); // لإظهار كلمة المرور
   const [showPasswordR, setShowPasswordR] = useState(false); // لإظهار تأكيد كلمة المرور
+  const [isLoading, setIsLoading] = useState(false); // حالة التحميل
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -92,7 +93,8 @@ const UserForm: React.FC<UserFormProps> = ({
       if (!formData.phoneNO) newErrors.phoneNO = "رقم الهاتف مطلوب";
     } else if (currentStep === 2) {
       if (!formData.governorate) newErrors.governorate = "المحافظة مطلوبة";
-      if (!formData.address) newErrors.address = "العنوان  مطلوب";
+      if (!formData.address)
+        newErrors.address = "العنوان يجب ان يتجاوز 10 احرف";
       if (!isUser) {
         // إذا كان المستخدم تقنيًا
         if (!formData.specialization)
@@ -100,7 +102,8 @@ const UserForm: React.FC<UserFormProps> = ({
         if (!formData.services) newErrors.services = "وصف الخدمة مطلوب";
       }
     } else if (currentStep === 3) {
-      if (!formData.address) newErrors.address = "العنوان مطلوب";
+      if (!formData.address && formData.address.length < 10)
+        newErrors.address = "العنوان مطلوب";
       if (formData.password.length < 8)
         newErrors.password = "كلمة المرور يجب أن تكون على الأقل 8 أحرف";
       if (formData.password !== formData.confirmPassword)
@@ -127,6 +130,7 @@ const UserForm: React.FC<UserFormProps> = ({
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true); // تعيين حالة التحميل إلى true عند بدء الإرسال
 
     if (validateForm()) {
       // إزالة الحقول إذا كان المستخدم User وليس Technical
@@ -136,7 +140,17 @@ const UserForm: React.FC<UserFormProps> = ({
 
       console.log("Form data being submitted:", filteredFormData);
 
-      await onSubmit(filteredFormData);
+      try {
+        await onSubmit(filteredFormData);
+        // يمكنك إضافة أي إجراء تود القيام به بعد نجاح الإرسال
+      } catch (error) {
+        // التعامل مع الأخطاء هنا (مثلاً: عرض رسالة خطأ)
+        console.error("Error submitting form:", error);
+      } finally {
+        setIsLoading(false); // إعادة تعيين حالة التحميل إلى false بعد الانتهاء
+      }
+    } else {
+      setIsLoading(false); // تعيين إلى false إذا لم يتم التحقق من النموذج
     }
   };
 
@@ -441,11 +455,13 @@ const UserForm: React.FC<UserFormProps> = ({
         ) : (
           <button
             type="submit"
+            disabled={isLoading} // تعطيل الزر عند التحميل
             className={`px-4 py-2 bg-green-500 text-white rounded ${
               isDarkMode ? "hover:bg-green-600" : "hover:bg-green-600"
             }`}
           >
             {submitButtonLabel}
+            {isLoading && " ..."} {/* إضافة ثلاث نقاط عند التحميل */}
           </button>
         )}
       </div>

@@ -1,52 +1,18 @@
 /* dashboard.css */
-
-/* إزالة أو تعديل فئات sidebar-button لتجنب تعارض الألوان */
 .sidebar-button {
   transition: background-color 0.3s, color 0.3s; /* تأثير التحويل */
-  padding: 10px; /* إضافة مسافة داخلية */
-  border-radius: 5px; /* إضافة زوايا مستديرة */
+  padding: 10px;
+  border-radius: 5px;
 }
-
 .sidebar-button:hover {
   background-color: rgba(255, 255, 255, 0.2);
-  /* إزالة color: yellow; لتجنب تعارض الألوان */
 }
-
-/* إزالة القاعدة التي قد تتسبب في تعارض الألوان */
 .bg-gray-800 .sidebar-button:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
-
 .main {
   min-height: 100vh;
 }
-
 .content {
   width: 100%;
-}
-
-/* إزالة قواعد bottom-navigation لأننا سنستخدم Tailwind للتحكم في العرض */
-.bottom-navigation {
-  /* display: none; */ /* سنستخدم Tailwind لإخفاء العرض */
-}
-
-@media (max-width: 768px) {
-  /* إزالة قواعد العرض المخصص وإدارة العرض باستخدام Tailwind */
-  /* 
-  .bottom-navigation {
-    display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    border-top: 1px solid #e0e0e0;
-    justify-content: space-around;
-    padding: 10px 0;
-    z-index: 10;
-  }
-
-  .sidebar {
-    display: none;
-  }
-  */
 }

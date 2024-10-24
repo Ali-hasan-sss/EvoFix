@@ -13,7 +13,7 @@ import UserForm from "../../components/forms/UserForm";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "../../utils/api";
 import { RegisterUserData } from "../../utils/types"; // استيراد الواجهة المشتركة
-
+import { AxiosError } from "axios";
 const RegisterPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
   const { login } = useContext(AuthContext);
@@ -63,15 +63,16 @@ const RegisterPage = () => {
         // إعادة توجيه المستخدم بعد التسجيل
         setTimeout(() => {
           router.push("/dashboard");
-        }, 1500);
+        }, 500);
       } else {
         toast.error("حدث خطأ أثناء إنشاء الحساب.");
       }
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error) && error.response) {
-        toast.error(
-          `خطأ من الخادم: ${error.response.data.message || "غير معروف"}`
-        );
+    } catch (error) {
+      // التحقق إذا كان الخطأ من نوع AxiosError
+      if (error instanceof AxiosError && error.response) {
+        // عرض رسالة الخطأ من الخادم في التوست
+        const message = error.response.data.message || "حدث خطأ غير معروف";
+        toast.error(message);
       } else {
         toast.error("تعذر الاتصال بالخادم. حاول مرة أخرى لاحقاً.");
       }

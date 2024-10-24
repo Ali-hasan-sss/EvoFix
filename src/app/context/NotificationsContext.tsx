@@ -47,6 +47,7 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({
   const [notifications, setNotifications] = useState<APINotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     const token = document.cookie
@@ -68,11 +69,10 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({
         setLoading(false);
       }
     };
-
     fetchNotifications();
 
     // تأسيس اتصال WebSocket
-    const socket = new WebSocket(`wss://${API_BASE_URL}/notifications`);
+    const socket = new WebSocket(`wss://${API_BASE_URL}?userId=${userId}`);
 
     socket.onopen = () => {
       console.log("WebSocket Connection Established");

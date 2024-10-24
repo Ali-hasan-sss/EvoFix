@@ -8,7 +8,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { ThemeContext } from "../ThemeContext";
 import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import axios, { AxiosError } from "axios"; // استيراد AxiosError
 import UserForm from "../../components/forms/UserForm";
 import Cookies from "js-cookie"; // استيراد مكتبة js-cookie لحفظ التوكن في الكوكيز
 import { API_BASE_URL } from "../../utils/api"; // استيراد الدومين من الملف الخارجي
@@ -72,8 +72,9 @@ const RegisterTechnicianPage = () => {
       } else {
         toast.error("حدث خطأ أثناء إنشاء الحساب");
       }
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error) && error.response) {
+    } catch (error) {
+      // استخدام AxiosError للتحقق من نوع الخطأ
+      if (error instanceof AxiosError && error.response) {
         toast.error(`حدث خطأ: ${error.response.data.message || "غير معروف"}`);
       } else {
         toast.error("تعذر الاتصال بالخادم");

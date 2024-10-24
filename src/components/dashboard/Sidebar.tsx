@@ -149,7 +149,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
         style={{ width: "250px", minHeight: "100vh" }}
       >
         <div className="space-y-6 sticky top-0">
-          <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center mt-4">
             <Image
               src={
                 userData && userData.role === "TECHNICAL"
@@ -161,7 +161,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
               height={40}
               className="rounded-full object-cover"
             />
-            <span className="ml-4 font-bold">
+            <span className="ml-4 font-bold mr-4">
               {userData ? userData.fullName : "Loading..."}
             </span>
           </div>
@@ -195,9 +195,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
         </div>
       </div>
 
-      {/* شريط التنقل السفلي للشاشات الصغيرة */}
       <BottomNavbar
-        mainRow={mainRow} // تحتوي على خيار "الرئيسية"
+        mainRow={mainRow}
         activeOption={activeOption}
         handleOptionSelect={handleOptionSelect}
         handleLogout={handleLogout}

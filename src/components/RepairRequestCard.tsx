@@ -24,7 +24,7 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
 }) => {
   const { isDarkMode } = useContext(ThemeContext);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false); // حالة التحميل العامة
+  const [isProcessing, setIsProcessing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -37,9 +37,11 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
       } else if (request.status === "PENDING") {
         return "استلام المهمة";
       }
-      return null; // إخفاء الزر في الحالات الأخرى
+      return null;
+    } else if (userRole === "USER" && request.status === "PENDING") {
+      return "حذف";
     }
-    return "حذف";
+    return null;
   };
 
   const handleButtonClick = () => {
@@ -274,10 +276,12 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
           </button>
           {getButtonLabel() && (
             <button
-              className={`text-white px-4 py-2 rounded-md ${
+              className={`text-white px-4 mt-2 py-2 rounded-md ${
                 isDeleting || isProcessing
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-red-500 hover:bg-red-600"
+                  : getButtonLabel() === "حذف" // تحقق إذا كان نص الزر "حذف"
+                  ? "bg-red-500 hover:bg-red-600" // لون زر الحذف
+                  : "bg-blue-500 hover:bg-blue-600" // لون الأزرار الأخرى
               }`}
               onClick={handleButtonClick}
               disabled={isDeleting || isProcessing} // تعطيل الزر أثناء التحميل

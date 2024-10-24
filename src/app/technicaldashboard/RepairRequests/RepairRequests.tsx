@@ -81,11 +81,11 @@ const RepairRequests: React.FC = () => {
     if (savedTab) {
       setActiveTab(savedTab);
     }
-  }, []); // يعمل مرة واحدة عند تحميل المكون
+  }, []);
 
   useEffect(() => {
     fetchRepairRequests(activeTab);
-    localStorage.setItem("activeTab", activeTab); // حفظ التبويب النشط
+    localStorage.setItem("activeTab", activeTab);
   }, [activeTab]);
 
   const onRequestUpdated = async () => {
@@ -102,9 +102,7 @@ const RepairRequests: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-col w-full" style={{ minHeight: "90vh" }}>
-      <h1 className="text-2xl text-center font-bold mb-4">طلبات الإصلاح</h1>
-
+    <div className="flex flex-col mt-2 w-full" style={{ minHeight: "90vh" }}>
       {loading ? (
         <div className="flex justify-center items-center h-screen">
           <ClipLoader color="#4A90E2" size={50} />
@@ -112,7 +110,7 @@ const RepairRequests: React.FC = () => {
       ) : (
         <div
           className={`w-full flex-grow p-2 rounded ${
-            isDarkMode ? "bg-gray-700" : "bg-gray-500"
+            isDarkMode ? "bg-gray-700" : "bg-gray-400"
           }`}
         >
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:flex lg:justify-center mb-4">

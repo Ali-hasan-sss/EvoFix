@@ -7,7 +7,7 @@ import ChatBotButton from "@/components/ChatbotButton";
 import { Toaster } from "react-hot-toast";
 import { ThemeContext } from "./ThemeContext";
 import RepairRequestButton from "@/components/requestbutton";
-
+import WebSocketTest from "./dashboard/WebSocketTest";
 const Home: NextPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
 
@@ -55,7 +55,10 @@ const Home: NextPage = () => {
           </div>
         </section>
         {/* Services Section */}
-
+        <div>
+          <h1>مرحبًا بك في صفحتنا الرئيسية</h1>
+          <WebSocketTest />
+        </div>
         {/* About Us Section */}
         <section id="about" className="py-20 bg-gray-100">
           <div className="container mx-auto px-4 text-center">

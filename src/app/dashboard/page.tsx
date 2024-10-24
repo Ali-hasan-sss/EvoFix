@@ -2,13 +2,13 @@
 import React, { useState, useContext, useEffect } from "react";
 import Navbar from "@/components/navBar";
 import Sidebar from "@/components/dashboard/Sidebar";
-import Profile from "./profile";
+import Profile from "../../components/dashboard/profile";
 import { AuthContext } from "@/app/context/AuthContext";
 import "../../components/dashboard/dashboard.css";
 import { ThemeContext } from "../ThemeContext";
 import { useRouter } from "next/navigation";
 import RepairRequests from "./RepairRequests/RepairRequests";
-import Notifications from "./notification";
+import Notifications from "../../components/dashboard/notification";
 import Home from "../page";
 const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");

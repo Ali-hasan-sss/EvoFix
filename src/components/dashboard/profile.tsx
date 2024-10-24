@@ -5,13 +5,13 @@ import axios, { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "../../utils/api";
-import UserForm from "../../components/forms/UserForm"; // استيراد الفورم
+import UserForm from "../forms/UserForm"; // استيراد الفورم
 import { toast, ToastContainer } from "react-toastify"; // استيراد توست و ToastContainer
 import "react-toastify/dist/ReactToastify.css"; // استيراد CSS الخاص بالتوست
 import { FaEdit, FaTrash, FaSpinner } from "react-icons/fa"; // استيراد الأيقونات
 import { confirmAlert } from "react-confirm-alert"; // استيراد مكتبة التأكيد
 import "react-confirm-alert/src/react-confirm-alert.css"; // استيراد CSS الخاص بـ react-confirm-alert
-import { ThemeContext } from "../ThemeContext";
+import { ThemeContext } from "../../app/ThemeContext";
 import { EditProfileData } from "@/utils/types";
 import { AuthContext } from "@/app/context/AuthContext";
 
@@ -242,8 +242,7 @@ const Profile: React.FC = () => {
         isDarkMode ? "bg-gray-900 text-white " : "bg-gray-100 text-black"
       }`}
     >
-      <ToastContainer /> {/* إضافة ToastContainer لعرض رسائل التوست */}
-      <h1 className="text-3xl font-bold mb-6 text-center">الملف الشخصي</h1>
+      <ToastContainer />
       {isEditing ? (
         <div
           className={`p-6 rounded-lg shadow-md ${
@@ -260,6 +259,7 @@ const Profile: React.FC = () => {
           </div>
           <UserForm
             isNew={false}
+            submitButtonLabel="حفظ"
             isUser={isUser}
             initialData={formData}
             onSubmit={handleUpdate}

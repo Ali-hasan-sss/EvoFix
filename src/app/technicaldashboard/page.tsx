@@ -2,13 +2,14 @@
 import React, { useState, useContext, useEffect } from "react";
 import Navbar from "@/components/navBar";
 import Sidebar from "@/components/dashboard/Sidebar";
-import Profile from "../dashboard/profile";
+import Profile from "../../components/dashboard/profile";
+import Home from "../page";
 import { AuthContext } from "@/app/context/AuthContext";
 import "../../components/dashboard/dashboard.css";
 import { ThemeContext } from "../ThemeContext";
 import { useRouter } from "next/navigation";
 import RepairRequests from "./RepairRequests/RepairRequests";
-import Notifications from "../dashboard/notification";
+import Notifications from "../../components/dashboard/notification";
 const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");
   const { isDarkMode } = useContext(ThemeContext);
@@ -16,9 +17,14 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // دالة لتحديد المحتوى الذي سيتم عرضه بناءً على الخيار المختار
   const renderContent = () => {
     switch (selectedOption) {
+      case "viewHome":
+        return (
+          <div>
+            <Home />
+          </div>
+        );
       case "viewRequests":
         return (
           <div>
@@ -38,12 +44,11 @@ const Dashboard = () => {
     }
   };
 
-  // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
   useEffect(() => {
     const checkAuth = async () => {
       setTimeout(() => {
-        setLoading(false); // انتهاء التحميل بعد التحقق
-      }, 1000); // يمكنك تعديل المهلة
+        setLoading(false);
+      }, 1000);
     };
 
     checkAuth();
@@ -59,12 +64,10 @@ const Dashboard = () => {
     return <div>جاري التحقق من حالة تسجيل الدخول...</div>;
   }
 
-  // عدم عرض الداشبورد إذا لم يكن المستخدم مسجلاً للدخول
   if (!isLoggedIn) {
     return null;
   }
 
-  // عرض لوحة التحكم إذا كان المستخدم مسجلاً للدخول
   return (
     <>
       <Navbar />
@@ -81,15 +84,14 @@ const Dashboard = () => {
         {/* Sidebar */}
         <Sidebar onSelectOption={setSelectedOption} />
 
-        {/* الحاوية الرئيسية */}
         <div
           className={`flex-1 flex justify-center items-center p-6 ${
             isDarkMode ? "bg-gray-700" : "bg-gray-400"
           }`}
           style={{
-            minHeight: "100%", // الحاوية تمتد لتتوافق مع طول الشاشة
+            minHeight: "100%",
             width: "100%",
-            overflowY: "auto", // السماح بالتمرير عند وجود محتوى طويل
+            overflowY: "auto",
           }}
         >
           <div
