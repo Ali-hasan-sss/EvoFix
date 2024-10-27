@@ -1,13 +1,17 @@
-"use client";
-
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { API_BASE_URL } from "../utils/api";
 import { AuthContext } from "@/app/context/AuthContext";
 import { ThemeContext } from "@/app/ThemeContext";
 import Image from "next/image";
-import toast from "react-hot-toast"; // تأكد من تثبيت react-hot-toast
+import toast from "react-hot-toast";
+
+interface Service {
+  id: string;
+  title: string;
+  DevicesModels: { id: string; title: string }[]; // اضافة موديلات الأجهزة
+}
 
 const RepairRequestButton: React.FC = () => {
   const { isLoggedIn } = useContext(AuthContext);
@@ -17,6 +21,9 @@ const RepairRequestButton: React.FC = () => {
   const [address, setAddress] = useState("");
   const [deviceType, setDeviceType] = useState("");
   const [deviceModel, setDeviceModel] = useState("");
+  const [deviceModels, setDeviceModels] = useState<
+    { id: string; title: string }[]
+  >([]);
   const [problemDescription, setProblemDescription] = useState("");
   const [deviceImage, setDeviceImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -32,6 +39,64 @@ const RepairRequestButton: React.FC = () => {
   const removeImage = () => {
     setDeviceImage(null);
     setImagePreview(null);
+  };
+
+  const DeviceTypeSelector: React.FC<{
+    deviceType: string;
+    setDeviceType: (type: string) => void;
+    setDeviceModels: (models: { id: string; title: string }[]) => void;
+  }> = ({ deviceType, setDeviceType, setDeviceModels }) => {
+    const [services, setServices] = useState<Service[]>([]);
+
+    useEffect(() => {
+      const fetchServices = async () => {
+        try {
+          const authToken = Cookies.get("authToken");
+          const response = await axios.get(`${API_BASE_URL}/services`, {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          });
+          setServices(response.data.services || []);
+        } catch (error) {
+          console.error("حدث خطأ أثناء جلب الخدمات:", error);
+        }
+      };
+
+      fetchServices();
+    }, []); // استدعاء الخدمة مرة واحدة عند تحميل المكون
+
+    const handleDeviceTypeChange = (type: string) => {
+      setDeviceType(type);
+
+      const selectedService = services.find(
+        (service) => service.title === type
+      );
+      setDeviceModels(selectedService ? selectedService.DevicesModels : []);
+    };
+
+    return (
+      <div className="mb-4">
+        <label className="block">نوع الجهاز</label>
+        <select
+          value={deviceType}
+          onChange={(e) => handleDeviceTypeChange(e.target.value)}
+          className={`w-full p-2 border-b focus:outline-none ${
+            isDarkMode
+              ? "bg-gray-700 text-white border-gray-600"
+              : "bg-white text-gray-800 border-gray-300"
+          }`}
+          required
+        >
+          <option value="">اختر نوع الجهاز</option>
+          {services.map((service) => (
+            <option key={service.id} value={service.title}>
+              {service.title}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
   };
 
   const openModal = () => setIsModalOpen(true);
@@ -68,22 +133,21 @@ const RepairRequestButton: React.FC = () => {
       );
 
       if (response.status === 201) {
-        toast.success("تم إرسال الطلب بنجاح!"); // رسالة توست عند الإرسال الناجح
-        // إعادة تعيين النموذج
-        setGovernorate("دمشق");
-        setPhoneNO("0991742941");
-        setAddress("مزة اوتستراد");
-        setDeviceType("غسالة");
+        toast.success("تم إرسال الطلب بنجاح!");
+        setGovernorate("");
+        setPhoneNO("");
+        setAddress("");
+        setDeviceType("");
         setDeviceModel("");
-        setProblemDescription("هناك ارتجاج بالمحرك مع صوت");
-        removeImage(); // إزالة الصورة
-        closeModal(); // إغلاق النافذة
+        setProblemDescription("");
+        removeImage();
+        closeModal();
       } else {
         console.log("فشل في إرسال الطلب");
       }
     } catch (error) {
       console.error("حدث خطأ:", error);
-      toast.error("حدث خطأ أثناء إرسال الطلب"); // رسالة توست عند حدوث خطأ
+      toast.error("حدث خطأ أثناء إرسال الطلب");
     } finally {
       setIsLoading(false);
     }
@@ -127,51 +191,12 @@ const RepairRequestButton: React.FC = () => {
                 </select>
               </div>
 
-              <div className="mb-4">
-                <label className="block">رقم الهاتف</label>
-                <input
-                  type="text"
-                  value={phoneNO}
-                  onChange={(e) => setPhoneNO(e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg text-black${
-                    isDarkMode
-                      ? "bg-gray-800 text-black"
-                      : "bg-gray-200 text-black"
-                  }`}
-                  required
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block">العنوان</label>
-                <input
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="w-full text-black px-4 py-2 border rounded-lg"
-                  required
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block">نوع الجهاز</label>
-                <select
-                  value={deviceType}
-                  onChange={(e) => setDeviceType(e.target.value)}
-                  className={`w-full p-2 border-b focus:outline-none ${
-                    isDarkMode
-                      ? "bg-gray-700 text-white border-gray-600"
-                      : "bg-white text-gray-800 border-gray-300"
-                  }`}
-                  required
-                >
-                  <option value="">اختر نوع الجهاز</option>
-                  <option value="شاشات">شاشات الكترونية</option>
-                  <option value="كمبيوتر">جهاز كمبيوتر</option>
-                  <option value="موبايل">موبايل</option>
-                  <option value="لابتوب">لابتوب</option>
-                </select>
-              </div>
+              {/* حقل اختيار نوع الجهاز */}
+              <DeviceTypeSelector
+                deviceType={deviceType}
+                setDeviceType={setDeviceType}
+                setDeviceModels={setDeviceModels} // تمرير setDeviceModels
+              />
 
               <div className="mb-4">
                 <label className="block">موديل الجهاز</label>
@@ -186,9 +211,11 @@ const RepairRequestButton: React.FC = () => {
                   required
                 >
                   <option value="">اختر موديل الجهاز</option>
-                  <option value="LG">LG</option>
-                  <option value="Samsung">Samsung</option>
-                  <option value="Haier">Haier</option>
+                  {deviceModels.map((model) => (
+                    <option key={model.id} value={model.title}>
+                      {model.title}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -225,27 +252,28 @@ const RepairRequestButton: React.FC = () => {
                 <textarea
                   value={problemDescription}
                   onChange={(e) => setProblemDescription(e.target.value)}
-                  className="w-full text-black px-4 py-2 border rounded-lg"
+                  className={`w-full p-2 border-b focus:outline-none ${
+                    isDarkMode
+                      ? "bg-gray-700 text-white border-gray-600"
+                      : "bg-white text-gray-800 border-gray-300"
+                  }`}
                 />
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-between">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg mr-2"
+                  className="bg-red-500 hover:bg-red-600 mr-4 text-white px-4 py-2 rounded-lg focus:outline-none"
                 >
-                  اغلاق
+                  إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none"
                   disabled={isLoading}
                 >
-                  {isLoading && (
-                    <span className="mr-2 spinner-border animate-spin"></span>
-                  )}
-                  {isLoading ? "إرسال..." : "إرسال"}
+                  {isLoading ? "جاري الإرسال..." : "إرسال"}
                 </button>
               </div>
             </form>

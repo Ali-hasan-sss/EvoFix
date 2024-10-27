@@ -16,7 +16,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { confirmAlert } from "react-confirm-alert";
 import RepairRequestCard from "@/components/RepairRequestCard";
-import { RepairRequest } from "../../utils/types"; // استيراد الواجهة المشتركة
+import { RepairRequest, Technician } from "../../utils/types"; // استيراد الواجهة المشتركة
 import { useMediaQuery } from "react-responsive";
 
 // تعريف statusMap خارج المكون لضمان عدم إعادة إنشائه في كل render
@@ -142,6 +142,7 @@ const RepairRequestsPage: React.FC = () => {
         if (response.status === 200) {
           if (Array.isArray(response.data)) {
             setRepairRequests(response.data);
+            console.log(response.data);
           } else {
             console.warn("Expected an array but got:", response.data);
             setRepairRequests([]);

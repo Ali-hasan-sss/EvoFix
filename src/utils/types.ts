@@ -1,13 +1,17 @@
 // src/types/types.ts
 
-// واجهة المستخدم
 export interface User {
+  id: number;
   fullName: string;
   email: string;
+  phoneNO: string;
+  isActive?: boolean;
   address: string;
   governorate: string;
-  phoneNO: string;
+  role: string;
+  [key: string]: unknown;
 }
+
 export interface UserFormInput {
   fullName: string;
   email: string;
@@ -21,13 +25,13 @@ export interface UserFormInput {
   specialization?: string;
   services?: string;
 }
-// واجهة تقنية
-export interface TechnicianUser {
-  fullName: string;
-}
 
-export interface Technician {
-  user: TechnicianUser;
+export interface Technician extends User {
+  isActive: boolean;
+  technician?: {
+    services?: string;
+    specialization?: string;
+  };
 }
 
 // واجهة طلب الإصلاح
@@ -43,7 +47,11 @@ export interface RepairRequest {
   createdAt: string;
   isPaid: boolean;
   problemDescription: string;
-  user: User;
+  user: {
+    fullName: string;
+    phoneNO: string;
+    address: string;
+  };
   technician?: Technician;
 }
 
@@ -109,4 +117,18 @@ export interface EditProfileData {
   specialization?: string;
   isActive?: boolean;
   role?: string; // إذا كانت role موجودة
+}
+export interface Service {
+  id: number;
+  title: string;
+  description: string;
+  serviceImage: string;
+}
+export interface DeviceModel {
+  id: number;
+  title: string;
+  serviceID: number;
+  createAt: string;
+  isActive?: boolean;
+  services: Service[];
 }

@@ -186,6 +186,7 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
             </strong>
           </p>
         )}
+
         <div className="flex justify-between mb-2 border-b pb-2">
           <p className="border-l pl-2">
             <strong>نوع الجهاز:</strong>{" "}

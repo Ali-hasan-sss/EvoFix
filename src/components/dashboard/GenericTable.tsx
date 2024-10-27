@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { ThemeContext } from "@/app/ThemeContext";
 
 // Define columns based on having an accessor or render
@@ -34,7 +34,9 @@ const GenericTable = <T extends Record<string, unknown>>({
     key: keyof T; // Use keyof T here
     direction: "asc" | "desc";
   } | null>(null);
-
+  useEffect(() => {
+    setSortedData(data);
+  }, [data]);
   // Function to get values based on accessor or render
   const getValueByAccessorOrRender = (
     column: Column<T>,

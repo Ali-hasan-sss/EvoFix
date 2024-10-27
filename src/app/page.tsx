@@ -4,10 +4,12 @@ import React, { useContext } from "react";
 import Navbar from "@/components/navBar";
 import Head from "next/head";
 import ChatBotButton from "@/components/ChatbotButton";
+import ServiceSlider from "@/components/ServiceSlider";
 import { Toaster } from "react-hot-toast";
 import { ThemeContext } from "./ThemeContext";
 import RepairRequestButton from "@/components/requestbutton";
-import WebSocketTest from "./dashboard/WebSocketTest";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 const Home: NextPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
 
@@ -37,7 +39,7 @@ const Home: NextPage = () => {
         <RepairRequestButton />
         <Toaster />
         <ChatBotButton />
-        <section className="bg-blue-500 text-white py-20">
+        <section className="bg-blue-500 text-white py-20 hero">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-4xl font-bold">
               We Fix Your Electronics Quickly & Professionally
@@ -46,22 +48,17 @@ const Home: NextPage = () => {
               Screen repairs, battery replacements, and more. Get your device
               working like new again.
             </p>
-            <a
-              href="#services"
-              className="mt-6 inline-block bg-white text-blue-500 py-3 px-6 rounded-full shadow hover:bg-gray-100"
-            >
-              Explore Our Services
-            </a>
           </div>
         </section>
         {/* Services Section */}
-        <div>
-          <h1>مرحبًا بك في صفحتنا الرئيسية</h1>
-          <WebSocketTest />
-        </div>
+        <ServiceSlider />
         {/* About Us Section */}
-        <section id="about" className="py-20 bg-gray-100">
-          <div className="container mx-auto px-4 text-center">
+        <section id="about" className="py-20">
+          <div
+            className={`container mx-auto px-4 text-center${
+              isDarkMode ? "bg-gray-900 text-light" : "bg-gray-400 text-black"
+            }`}
+          >
             <h3 className="text-3xl font-semibold mb-8">Why Choose Us?</h3>
             <p className="text-lg text-gray-700 max-w-2xl mx-auto">
               We are experts in repairing electronics, offering fast, reliable,
@@ -71,8 +68,12 @@ const Home: NextPage = () => {
           </div>
         </section>
         {/* Contact Section */}
-        <section id="contact" className="py-20">
-          <div className="container mx-auto px-4">
+        <section id="contact" className="py-20 ">
+          <div
+            className={`container mx-auto px-4 text-center  ${
+              isDarkMode ? "bg-gray-800 text-light" : "bg-blue-200 text-black"
+            }`}
+          >
             <h3 className="text-3xl font-semibold text-center mb-8">
               Get In Touch
             </h3>

@@ -23,6 +23,9 @@ body {
   direction: rtl; /* تغيير الاتجاه إلى اليمين */
   text-align: right;
 }
+.hero {
+  margin-top: 75px;
+}
 .tabs {
   border-bottom: 1px solid #ffc803d4;
 }
@@ -71,4 +74,17 @@ body {
 }
 .logo:hover {
   background-color: transparent;
+}
+.slick-slider {
+  overflow: hidden;
+  position: relative;
+}
+.slick-list {
+  margin: 0;
+  padding: 0;
+}
+.slick-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

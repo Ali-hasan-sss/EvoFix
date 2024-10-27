@@ -6,6 +6,7 @@ import Navbar from "@/components/navBar";
 import { ThemeContext } from "../ThemeContext";
 import Notifications from "./notification";
 import Users from "./users";
+import Technicians from "./technicians";
 import { toast } from "react-toastify";
 import DashboardHome from "./DashboardHome";
 import RepairRequestsPage from "./RepairRequests";
@@ -22,6 +23,9 @@ import {
   FaChevronUp,
   FaChevronDown,
 } from "react-icons/fa"; // استيراد الأيقونات
+import TechniciansTable from "./technicians";
+import ServicesComponent from "./services";
+import DevicesModels from "./DevicesModels";
 
 const AdminDashboard: React.FC = () => {
   const router = useRouter();
@@ -49,6 +53,8 @@ const AdminDashboard: React.FC = () => {
     { name: "الرئيسية", icon: <FaHome />, key: "home" },
     { name: "طلبات الإصلاح", icon: <FaWrench />, key: "repairRequests" },
     { name: "الإشعارات", icon: <FaBell />, key: "notifications" },
+    { name: "الخدمات", icon: <FaBell />, key: "services" },
+    { name: "موديلات الاجهزة", icon: <FaBell />, key: "device_models" },
     { name: "المستخدمين", icon: <FaUsers />, key: "users" },
     { name: "التقنيين", icon: <FaTools />, key: "technicians" },
     { name: "الإعدادات", icon: <FaCogs />, key: "settings" },
@@ -70,11 +76,15 @@ const AdminDashboard: React.FC = () => {
       case "users":
         return <Users />;
       case "technicians":
-        return <div>إدارة التقنيين</div>;
+        return <Technicians />;
       case "repairRequests":
         return <RepairRequestsPage />;
       case "notifications":
         return <Notifications />;
+      case "services":
+        return <ServicesComponent />;
+      case "device_models":
+        return <DevicesModels />;
       case "settings":
         return <div>الإعدادات</div>;
       default:
@@ -91,14 +101,12 @@ const AdminDashboard: React.FC = () => {
     );
   }
 
-  // عرض لوحة التحكم إذا تم التحقق من أن المستخدم أدمن
   return (
     <div
       className={`min-h-screen flex ${
         isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
       }`}
     >
-      {/* النافبار */}
       <Navbar />
 
       {/* الشريط الجانبي للشاشات الكبيرة */}
@@ -140,13 +148,13 @@ const AdminDashboard: React.FC = () => {
 
       {/* شريط التنقل السفلي للشاشات الصغيرة */}
       <div
-        className={`fixed bottom-0 left-0 w-full md:hidden z-40 ${
-          isDarkMode ? "bg-gray-900 text-white" : "bg-blue-600 text-black"
+        className={`fixed bottom-0 left-0 w-full md:hidden z-20 ${
+          isDarkMode ? "bg-gray-900 text-white" : "bg-gray-700 text-black"
         }`}
       >
         <div className="flex flex-col">
           {/* زر الطي/التوسيع */}
-          <div className="flex justify-center p-1 border-t border-gray-300 ">
+          <div className="flex justify-center p-1 border-t border-yellow-500 ">
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="text-gray-500"
@@ -159,7 +167,7 @@ const AdminDashboard: React.FC = () => {
             </button>
           </div>
           {/* الصف الأول من شريط التنقل السفلي */}
-          <div className="flex justify-around p-1 border-t border-gray-300">
+          <div className="flex justify-around p-1 border-t border-yellow-500">
             {firstRow.map((option) => (
               <button
                 key={option.key}
@@ -180,7 +188,7 @@ const AdminDashboard: React.FC = () => {
           {/* الصف الثاني من شريط التنقل السفلي وزر تسجيل الخروج */}
           {!isCollapsed && (
             <>
-              <div className="flex justify-around p-1 border-t border-gray-300">
+              <div className="flex justify-around p-1 border-t border-yellow-500">
                 {secondRow.map((option) => (
                   <button
                     key={option.key}
@@ -201,7 +209,7 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               {/* زر تسجيل الخروج في الشريط السفلي */}
-              <div className="flex justify-center p-1 border-t border-gray-300">
+              <div className="flex justify-center p-1 border-t border-yellow-500">
                 <button
                   onClick={handleLogout}
                   className={`flex flex-col items-center text-red-500 hover:text-red-700 transition-colors duration-200`}

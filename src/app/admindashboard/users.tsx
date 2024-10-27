@@ -13,17 +13,19 @@ import { ClipLoader } from "react-spinners";
 import Switch from "react-switch";
 import "react-toastify/dist/ReactToastify.css";
 import UserDetails from "./UserDetails";
+import UserCard from "./UserCard";
+import { useMediaQuery } from "react-responsive";
 
 interface User {
-  displayId: number; // تأكد أن هذا من النوع number
+  displayId: number;
   id: number;
   fullName: string;
   email: string;
   phoneNO: string;
-  address: string; // تأكد من أنها موجودة
+  address: string;
   governorate: string;
   role: string;
-  isActive: boolean; // أو أي نوع آخر إذا كان لديك نوع مخصص
+  isActive: boolean;
 }
 
 const Users: React.FC = () => {
@@ -34,6 +36,18 @@ const Users: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [togglingUserId, setTogglingUserId] = useState<number | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" }); // تحديد إذا كان العرض من موبايل
+
+  const openEditModal = (user: User) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedUser(null);
+  };
 
   const fetchUsers = async () => {
     try {
@@ -144,7 +158,6 @@ const Users: React.FC = () => {
               setUsers((prevUsers) =>
                 prevUsers.filter((user) => user.id !== userId)
               );
-
               toast.success("تم حذف المستخدم بنجاح!");
             } catch (error) {
               console.error("فشل في حذف المستخدم:", error);
@@ -193,7 +206,7 @@ const Users: React.FC = () => {
     email: user.email,
     phoneNO: user.phoneNO,
     address: user.address,
-    isActive: user.isActive, // الآن هي قيمة boolean
+    isActive: user.isActive,
     actions: (
       <div className="flex space-x-2 justify-center">
         <button
@@ -220,13 +233,13 @@ const Users: React.FC = () => {
   }));
 
   const tableColumns: Column<User>[] = [
-    { title: "#", accessor: "displayId" }, // هذا يجب أن يكون number
+    { title: "#", accessor: "displayId" },
     { title: "اسم المستخدم", accessor: "fullName" },
     { title: "المحافظة", accessor: "governorate" },
     { title: "نوع المستخدم", accessor: "role" },
     { title: "البريد الالكتروني", accessor: "email" },
     { title: "رقم الهاتف", accessor: "phoneNO" },
-    { title: "العنوان", accessor: "address" }, // تأكد من تضمين العنوان
+    { title: "العنوان", accessor: "address" },
     {
       title: "الحالة",
       render: (item: User) => (
@@ -241,6 +254,8 @@ const Users: React.FC = () => {
             checked={item.isActive}
             onColor="#4A90E2"
             offColor="#FF6347"
+            height={20}
+            width={40}
             disabled={togglingUserId === item.id || isDeleting}
           />
           {togglingUserId === item.id && (
@@ -253,13 +268,6 @@ const Users: React.FC = () => {
       title: "العمليات",
       render: (item: User) => (
         <div className="flex space-x-2 justify-center">
-          <button
-            onClick={() =>
-              console.log(`تعديل المستخدم برقم المعرف: ${item.id}`)
-            }
-          >
-            <FaEdit className="text-blue-500 hover:text-blue-700" />
-          </button>
           <button
             onClick={() => handleDeleteUser(item.id)}
             disabled={isDeleting}
@@ -288,7 +296,24 @@ const Users: React.FC = () => {
     <div className={`p-5 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
       <ToastContainer />
       <h2 className="text-2xl font-semibold mb-4">إدارة المستخدمين</h2>
-      <GenericTable data={tableData} columns={tableColumns} />
+
+      {isMobile ? (
+        <div className="grid grid-cols-1 gap-4">
+          {users.map((user) => (
+            <UserCard
+              key={user.id}
+              user={user}
+              onEdit={() => openEditModal(user)} // تمرير الدالة مع userId
+              onDelete={() => handleDeleteUser(user.id)} // تمرير دالة الحذف
+              onView={() => handleViewUser(user)} // تمرير دالة العرض
+              onToggleActive={() => handleToggleActive(user.id, user.isActive)} // تمرير دالة التبديل
+            />
+          ))}
+        </div>
+      ) : (
+        <GenericTable data={tableData} columns={tableColumns} />
+      )}
+
       {selectedUser && (
         <UserDetails user={selectedUser} onClose={handleCloseDetails} />
       )}
