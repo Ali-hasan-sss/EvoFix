@@ -5,7 +5,7 @@ import Switch from "react-switch";
 import { FaTrash, FaEye } from "react-icons/fa";
 
 interface User {
-  displayId: number;
+  displayId?: number;
   fullName: string;
   email: string;
   phoneNO: string;
@@ -60,7 +60,7 @@ const UserCard: React.FC<UserCardProps> = ({
       <p className="mb-1">
         <strong>نوع المستخدم:</strong> {user.role}
       </p>
-      <p className="mb-1 item-center">
+      <div className="mb-1 item-center">
         <Switch
           className="mr-5"
           onChange={onToggleActive}
@@ -70,7 +70,7 @@ const UserCard: React.FC<UserCardProps> = ({
           height={20}
           width={40}
         />
-      </p>
+      </div>
       <div className="flex gap-4 m-4">
         <button
           onClick={onView}

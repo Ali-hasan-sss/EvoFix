@@ -29,6 +29,7 @@ export interface UserFormInput {
 export interface Technician extends User {
   isActive: boolean;
   technician?: {
+    displayId?: 123; // يجب تحديد القيمة
     services?: string;
     specialization?: string;
   };

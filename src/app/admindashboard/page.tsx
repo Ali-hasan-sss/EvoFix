@@ -26,6 +26,9 @@ import {
 import TechniciansTable from "./technicians";
 import ServicesComponent from "./services";
 import DevicesModels from "./DevicesModels";
+import ContactMessages from "./ContactUsAndFAQ";
+import Review from "./Review";
+import ContactUsAndFAQ from "./ContactUsAndFAQ";
 
 const AdminDashboard: React.FC = () => {
   const router = useRouter();
@@ -53,8 +56,10 @@ const AdminDashboard: React.FC = () => {
     { name: "الرئيسية", icon: <FaHome />, key: "home" },
     { name: "طلبات الإصلاح", icon: <FaWrench />, key: "repairRequests" },
     { name: "الإشعارات", icon: <FaBell />, key: "notifications" },
+    { name: "اتصل بنا", icon: <FaBell />, key: "contact-us" },
     { name: "الخدمات", icon: <FaBell />, key: "services" },
     { name: "موديلات الاجهزة", icon: <FaBell />, key: "device_models" },
+    { name: "التقييمات", icon: <FaBell />, key: "review" },
     { name: "المستخدمين", icon: <FaUsers />, key: "users" },
     { name: "التقنيين", icon: <FaTools />, key: "technicians" },
     { name: "الإعدادات", icon: <FaCogs />, key: "settings" },
@@ -81,10 +86,14 @@ const AdminDashboard: React.FC = () => {
         return <RepairRequestsPage />;
       case "notifications":
         return <Notifications />;
+      case "contact-us":
+        return <ContactUsAndFAQ />;
       case "services":
         return <ServicesComponent />;
       case "device_models":
         return <DevicesModels />;
+      case "review":
+        return <Review />;
       case "settings":
         return <div>الإعدادات</div>;
       default:
