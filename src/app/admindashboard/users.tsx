@@ -91,7 +91,7 @@ const Users: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [selectedTab, fetchUsers]);
+  }, [selectedTab]);
 
   const handleToggleActive = (userId: number, currentStatus: boolean) => {
     confirmAlert({
