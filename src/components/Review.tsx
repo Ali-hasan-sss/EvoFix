@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -26,9 +24,10 @@ const Reviews = () => {
   const fetchReviews = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/review`);
-      setReviews(response.data);
+      setReviews(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("فشل في جلب التقييمات:", error);
+      toast.error("حدث خطأ أثناء جلب التقييمات.");
     }
   };
 
@@ -86,37 +85,39 @@ const Reviews = () => {
       </h2>
 
       {/* عرض التقييمات */}
-      <div
-        className={`mb-6 ${
-          isDarkMode ? "bg-gray-700 text-light" : "bg-blue-200 text-black"
-        }`}
-      >
-        {reviews.map((review) => (
-          <div key={review.id} className="mb-4 border-b pb-2">
-            <details>
-              <summary className="cursor-pointer font-semibold">
-                <div className="flex items-center">
-                  {/* عرض التقييم بنجوم */}
-                  {[...Array(5)].map((_, i) => (
-                    <FaStar
-                      key={i}
-                      className={
-                        i < review.rating ? "text-yellow-500" : "text-gray-300"
-                      }
-                    />
-                  ))}
-                </div>
-              </summary>
-              <p className="mt-2">{review.comment}</p>
-            </details>
-          </div>
-        ))}
+      <div className="mb-6">
+        {Array.isArray(reviews) && reviews.length > 0 ? (
+          reviews.map((review) => (
+            <div key={review.id} className="mb-4 border-b pb-2">
+              <details>
+                <summary className="cursor-pointer font-semibold">
+                  <div className="flex items-center">
+                    {/* عرض التقييم بنجوم */}
+                    {[...Array(5)].map((_, i) => (
+                      <FaStar
+                        key={i}
+                        className={
+                          i < review.rating
+                            ? "text-yellow-500"
+                            : "text-gray-300"
+                        }
+                      />
+                    ))}
+                  </div>
+                </summary>
+                <p className="mt-2">{review.comment}</p>
+              </details>
+            </div>
+          ))
+        ) : (
+          <p>لا توجد تقييمات بعد.</p>
+        )}
       </div>
 
       {/* إضافة تقييم جديد */}
       <form
         onSubmit={handleSubmitReview}
-        className={`p-4 bg-gray-100 rounded ${
+        className={`p-4 rounded ${
           isDarkMode ? "bg-gray-700 text-light" : "bg-blue-200 text-black"
         }`}
       >
@@ -145,7 +146,7 @@ const Reviews = () => {
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="w-full p-2 border rounded pr-10" // إضافة padding للجانب الأيمن حتى لا يتداخل الزر مع النص
+            className="w-full p-2 border rounded pr-10"
             rows={3}
             placeholder="اكتب تعليقك هنا..."
             required

@@ -1,45 +1,48 @@
-// src/components/Review.tsx
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Switch from "react-switch";
 import { API_BASE_URL } from "@/utils/api";
 import { ClipLoader } from "react-spinners";
 
+// تعريف نوع المراجعة لتحديد شكل البيانات القادمة من الـ API
 interface Review {
   id: number;
   reviewerName: string;
-  rating: number; // يمكن استخدام string إذا كنت تستخدم نجوم لتقييم
+  rating: number; // يمكن تغييره إلى string إذا كانت النجوم تستخدم كالتقييم
   comment: string;
   isActive: boolean;
 }
 
 const Review: React.FC = () => {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  // حالات خاصة بالبيانات
+  const [reviews, setReviews] = useState<Review[]>([]); // حفظ التقييمات
+  const [loading, setLoading] = useState<boolean>(true); // حالة التحميل
+  const [error, setError] = useState<string | null>(null); // حالة الخطأ
 
+  // جلب التقييمات عند تحميل المكون
   useEffect(() => {
     const fetchReviews = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/review`);
-        setReviews(response.data);
+        setReviews(response.data); // تعيين البيانات المجلوبة للتقييمات
       } catch (err) {
-        setError("حدث خطأ أثناء جلب التقييمات.");
+        setError("حدث خطأ أثناء جلب التقييمات."); // حفظ رسالة الخطأ في حال حدوث مشكلة
       } finally {
-        setLoading(false);
+        setLoading(false); // إنهاء التحميل
       }
     };
 
-    fetchReviews();
+    fetchReviews(); // استدعاء الدالة
   }, []);
 
+  // التعامل مع تبديل حالة التفعيل للمراجعة
   const handleToggleActive = async (id: number) => {
     try {
-      await axios.put(`${API_BASE_URL}/review/${id}`, { isActive: true });
+      await axios.put(`${API_BASE_URL}/review/${id}`, { isActive: true }); // تحديث حالة التفعيل في الخادم
       setReviews((prevReviews) =>
-        prevReviews.map((review) =>
-          review.id === id ? { ...review, isActive: true } : review
+        prevReviews.map(
+          (review) =>
+            review.id === id ? { ...review, isActive: true } : review // تحديث الحالة محليًا
         )
       );
     } catch (err) {
@@ -47,12 +50,15 @@ const Review: React.FC = () => {
     }
   };
 
+  // عرض مؤشر التحميل أثناء انتظار البيانات
   if (loading)
     return (
       <div className="flex justify-center items-center h-96">
         <ClipLoader color="#4A90E2" size={50} />
       </div>
     );
+
+  // عرض رسالة خطأ عند حدوث مشكلة في جلب البيانات
   if (error)
     return (
       <div className="flex justify-center items-center h-96">
@@ -60,15 +66,17 @@ const Review: React.FC = () => {
       </div>
     );
 
+  // العرض الأساسي للمكون
   return (
     <div>
       <h2>التقييمات</h2>
+      {/* عرض رسالة في حال عدم وجود تقييمات */}
       {reviews.length === 0 ? (
         <p>لا توجد تقييمات.</p>
       ) : (
         <ul>
           {reviews.map((review) => (
-            <li key={review.id}>
+            <li key={review.id} className="mb-4 border-b pb-2">
               <h3>{review.reviewerName}</h3>
               <p>تقييم: {review.rating}</p>
               <p>{review.comment}</p>
