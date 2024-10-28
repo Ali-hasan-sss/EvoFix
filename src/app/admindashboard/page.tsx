@@ -4,7 +4,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navBar";
 import { ThemeContext } from "../ThemeContext";
-import Notifications from "./notification";
+import Notifications from "../../components/dashboard/notification";
 import Users from "./users";
 import { toast } from "react-toastify";
 import DashboardHome from "./DashboardHome";
