@@ -8,9 +8,9 @@ import Cookies from "js-cookie";
 
 interface ContactMessage {
   id: number;
-  name: string;
+  content: string;
   email: string;
-  message: string;
+  subject: string;
 }
 
 interface FAQ {
@@ -37,7 +37,7 @@ const ContactUsAndFAQ: React.FC = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setContactMessages(response.data);
+        setContactMessages(response.data.adminContactUs);
       } catch (err) {
         setError("حدث خطأ أثناء جلب رسائل اتصل بنا.");
       } finally {
@@ -109,9 +109,9 @@ const ContactUsAndFAQ: React.FC = () => {
             {contactMessages.map((message) => (
               <li key={message.id} className="border rounded-lg p-4 shadow">
                 <h3 className="font-semibold">
-                  {message.name} ({message.email})
+                  {message.subject} ({message.email})
                 </h3>
-                <p>{message.message}</p>
+                <p>{message.content}</p>
               </li>
             ))}
           </ul>

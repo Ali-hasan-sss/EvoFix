@@ -296,10 +296,10 @@ const Users: React.FC = () => {
       <h2 className="text-2xl font-semibold mb-4">إدارة المستخدمين</h2>
 
       {/* التبويبات */}
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center  mb-4">
         <button
           onClick={() => setSelectedTab("users")}
-          className={`px-4 py-2 ${
+          className={`px-4 py-2  ${
             selectedTab === "users" ? "bg-blue-500 text-white" : "bg-gray-200"
           }`}
         >
@@ -307,7 +307,7 @@ const Users: React.FC = () => {
         </button>
         <button
           onClick={() => setSelectedTab("technicians")}
-          className={`px-4 py-2 ${
+          className={`px-4 py-2 mx-2 ${
             selectedTab === "technicians"
               ? "bg-blue-500 text-white"
               : "bg-gray-200"

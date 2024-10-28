@@ -24,15 +24,16 @@ const Review: React.FC = () => {
     const fetchReviews = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/review`);
-        setReviews(response.data); // تعيين البيانات المجلوبة للتقييمات
+        console.log(response.data); // تحقق من شكل البيانات هنا
+        setReviews(Array.isArray(response.data) ? response.data : []); // تأكد من أن البيانات مصفوفة
       } catch (err) {
-        setError("حدث خطأ أثناء جلب التقييمات."); // حفظ رسالة الخطأ في حال حدوث مشكلة
+        setError("حدث خطأ أثناء جلب التقييمات.");
       } finally {
-        setLoading(false); // إنهاء التحميل
+        setLoading(false);
       }
     };
 
-    fetchReviews(); // استدعاء الدالة
+    fetchReviews();
   }, []);
 
   // التعامل مع تبديل حالة التفعيل للمراجعة

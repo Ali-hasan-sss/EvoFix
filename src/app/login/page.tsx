@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Navbar from "@/components/navBar";
 import { ThemeContext } from "../ThemeContext";
 import { AuthContext } from "../context/AuthContext";
@@ -9,17 +9,27 @@ import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "../../utils/api";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import Modal from "react-modal";
+import ResetPasswordForm from "@/components/forms/ResetPasswordForm";
 
 const LoginForm = () => {
   const { isDarkMode } = useContext(ThemeContext);
   const { login } = useContext(AuthContext);
   const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false); // لإظهار كلمة المرور
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    Modal.setAppElement(document.body);
+  }, []);
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,21 +61,17 @@ const LoginForm = () => {
       const response = await axios.post(
         `${API_BASE_URL}/users/login`,
         { email, password },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        { headers: { "Content-Type": "application/json" } }
       );
 
       if (response.status === 200 || response.status === 201) {
         const userId = response.data.info.id;
         const userRole = response.data.info.role;
         const userEmail = response.data.info.email;
-        const token = response.data.token; // استقبل التوكن من الاستجابة
+        const token = response.data.token;
 
         Cookies.set("token", token, {
-          expires: 7, // حفظ التوكن لمدة 7 أيام
+          expires: 7,
           secure: process.env.NODE_ENV === "production",
         });
 
@@ -76,7 +82,6 @@ const LoginForm = () => {
         toast.success(response.data.message || "تم تسجيل الدخول بنجاح!");
         login(userEmail, userId);
 
-        // التوجيه بناءً على صلاحيات المستخدم
         if (userRole === "ADMIN") {
           router.push("/admindashboard");
         } else if (userRole === "TECHNICAL") {
@@ -154,7 +159,7 @@ const LoginForm = () => {
                   isDarkMode
                     ? "bg-gray-700 text-white border-gray-600"
                     : "bg-white text-gray-800 border-gray-300"
-                } `}
+                }`}
                 required
               />
               <button
@@ -170,11 +175,22 @@ const LoginForm = () => {
               </button>
             </div>
           </div>
-          <p className="m-2">
-            <a className="text-blue-200 p-1" href="register">
-              ليس لدي حساب
-            </a>
-          </p>
+
+          <div className="flex space-between w-full">
+            <p className="m-2">
+              <a className="text-blue-200 p-1" href="register">
+                ليس لدي حساب
+              </a>
+            </p>
+            <button
+              type="button"
+              onClick={toggleModal}
+              className="text-blue-500"
+            >
+              نسيت كلمة المرور
+            </button>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -186,6 +202,20 @@ const LoginForm = () => {
           </button>
         </form>
       </div>
+
+      {/* مودال لاستعادة كلمة المرور */}
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={toggleModal}
+        contentLabel="Modal"
+        className={`relative  rounded-lg max-w-md mx-auto z-50 ${
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+        }`}
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40"
+      >
+        <ResetPasswordForm onClose={toggleModal} />{" "}
+        {/* عرض فورم استعادة كلمة المرور */}
+      </Modal>
     </>
   );
 };
