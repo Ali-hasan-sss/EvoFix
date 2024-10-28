@@ -22,6 +22,10 @@ import {
   FaSignOutAlt,
   FaChevronUp,
   FaChevronDown,
+  FaStar,
+  FaMobileAlt,
+  FaConciergeBell,
+  FaPhoneAlt,
 } from "react-icons/fa"; // استيراد الأيقونات
 import TechniciansTable from "./technicians";
 import ServicesComponent from "./services";
@@ -56,10 +60,10 @@ const AdminDashboard: React.FC = () => {
     { name: "الرئيسية", icon: <FaHome />, key: "home" },
     { name: "طلبات الإصلاح", icon: <FaWrench />, key: "repairRequests" },
     { name: "الإشعارات", icon: <FaBell />, key: "notifications" },
-    { name: "اتصل بنا", icon: <FaBell />, key: "contact-us" },
-    { name: "الخدمات", icon: <FaBell />, key: "services" },
-    { name: "موديلات الاجهزة", icon: <FaBell />, key: "device_models" },
-    { name: "التقييمات", icon: <FaBell />, key: "review" },
+    { name: "اتصل بنا", icon: <FaPhoneAlt />, key: "contact-us" },
+    { name: "الخدمات", icon: <FaConciergeBell />, key: "services" },
+    { name: "موديلات الأجهزة", icon: <FaMobileAlt />, key: "device_models" },
+    { name: "التقييمات", icon: <FaStar />, key: "review" },
     { name: "المستخدمين", icon: <FaUsers />, key: "users" },
     { name: "التقنيين", icon: <FaTools />, key: "technicians" },
     { name: "الإعدادات", icon: <FaCogs />, key: "settings" },
