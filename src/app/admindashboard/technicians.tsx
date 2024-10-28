@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import Cookies from "js-cookie";
 import GenericTable, { Column } from "@/components/dashboard/GenericTable";
@@ -13,8 +13,10 @@ import Switch from "react-switch"; // استيراد Switch من مكتبة reac
 import UserDetails from "./UserDetails";
 import Modal from "react-modal"; // لإدارة المودال
 import { User, Technician } from "@/utils/types";
+import { ThemeContext } from "../ThemeContext";
 
 const Technicians: React.FC = () => {
+  const { isDarkMode } = useContext(ThemeContext);
   const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [togglingUserId, setTogglingUserId] = useState<number | null>(null);
@@ -32,12 +34,12 @@ const Technicians: React.FC = () => {
   const fetchTechnicians = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/technicians`, {
+      const response = await axios.get(`${API_BASE_URL}/users/technicians`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setTechnicians(response.data.technicians || []);
+      setTechnicians(response.data.adminTechnicians || []);
     } catch (error) {
       const axiosError = error as AxiosError;
       const errorMessage =
@@ -153,7 +155,7 @@ const Technicians: React.FC = () => {
         <div className="flex justify-center space-x-2">
           <button
             onClick={() => deleteTechnician(technician.id)}
-            className="text-red-500 hover:text-red-700"
+            className="text-red-500 hover:text-red-700 ml-3"
             title="حذف"
             disabled={isDeleting}
           >
@@ -169,29 +171,33 @@ const Technicians: React.FC = () => {
 
   return (
     <>
-      <GenericTable<Technician>
-        data={technicians}
-        columns={columns}
-        isLoading={isLoading}
-      />
+      <div className={`p-5 mt-5 ${isDarkMode ? "bg-gray-800" : "bg-gray-200"}`}>
+        <h2 className="text-2xl font-semibold mb-4">إدارة التقنيين</h2>
 
-      {/* مودال عرض تفاصيل المستخدم */}
-      {selectedUser && (
-        <Modal
-          isOpen={isModalOpen}
-          onRequestClose={handleCloseDetails}
-          contentLabel="تفاصيل المستخدم"
-          ariaHideApp={false}
-          className="modal-content"
-          overlayClassName="modal-overlay"
-        >
-          <UserDetails
-            user={selectedUser}
-            onClose={() => setIsModalOpen(false)}
-          />
-          <button onClick={handleCloseDetails}>إغلاق</button>
-        </Modal>
-      )}
+        <GenericTable<Technician>
+          data={technicians}
+          columns={columns}
+          isLoading={isLoading}
+        />
+
+        {/* مودال عرض تفاصيل المستخدم */}
+        {selectedUser && (
+          <Modal
+            isOpen={isModalOpen}
+            onRequestClose={handleCloseDetails}
+            contentLabel="تفاصيل المستخدم"
+            ariaHideApp={false}
+            className="modal-content"
+            overlayClassName="modal-overlay"
+          >
+            <UserDetails
+              user={selectedUser}
+              onClose={() => setIsModalOpen(false)}
+            />
+            <button onClick={handleCloseDetails}>إغلاق</button>
+          </Modal>
+        )}
+      </div>
     </>
   );
 };

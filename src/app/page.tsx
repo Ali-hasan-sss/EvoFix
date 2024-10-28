@@ -10,6 +10,9 @@ import { ThemeContext } from "./ThemeContext";
 import RepairRequestButton from "@/components/requestbutton";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import ContactForm from "@/components/forms/ContactForm";
+import Reviews from "@/components/Review";
+import FAQ from "@/components/FAQ";
 const Home: NextPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
 
@@ -37,7 +40,17 @@ const Home: NextPage = () => {
       >
         <Navbar />
         <RepairRequestButton />
-        <Toaster />
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+          toastOptions={{
+            style: {
+              background: isDarkMode ? "#333" : "#fff",
+              color: isDarkMode ? "#fff" : "#000",
+              fontSize: "14px",
+            },
+          }}
+        />
         <ChatBotButton />
         <section className="bg-blue-500 text-white py-20 hero">
           <div className="container mx-auto px-4 text-center">
@@ -67,43 +80,19 @@ const Home: NextPage = () => {
             </p>
           </div>
         </section>
+        <section>
+          {/* Reviews Section */}
+          <Reviews />
+        </section>
         {/* Contact Section */}
-        <section id="contact" className="py-20 ">
-          <div
-            className={`container mx-auto px-4 text-center  ${
-              isDarkMode ? "bg-gray-800 text-light" : "bg-blue-200 text-black"
-            }`}
-          >
-            <h3 className="text-3xl font-semibold text-center mb-8">
-              Get In Touch
-            </h3>
-            <form className="max-w-lg mx-auto">
-              <div className="mb-4">
-                <label className="block text-gray-700">Name</label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Email</label>
-                <input
-                  type="email"
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Message</label>
-                <textarea
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
-                  rows={5}
-                ></textarea>
-              </div>
-              <button className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
-                Send Message
-              </button>
-            </form>
-          </div>
+        <section
+          id="contact"
+          className={`py-20 my-5 ${
+            isDarkMode ? "bg-gray-800 text-light" : "bg-blue-200 text-black"
+          }`}
+        >
+          <ContactForm />
+          <FAQ />
         </section>
         {/* Footer */}
         <footer className="bg-gray-800 text-white py-6">

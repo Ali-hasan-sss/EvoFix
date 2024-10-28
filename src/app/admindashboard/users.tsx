@@ -293,7 +293,7 @@ const Users: React.FC = () => {
   ];
 
   return (
-    <div className={`p-5 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+    <div className={`p-5 mt-5 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
       <ToastContainer />
       <h2 className="text-2xl font-semibold mb-4">إدارة المستخدمين</h2>
 

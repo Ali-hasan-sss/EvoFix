@@ -65,8 +65,8 @@ const AdminDashboard: React.FC = () => {
     window.location.href = "/";
   };
   // تقسيم المصفوفة إلى صفوف
-  const firstRow = navigationOptions.slice(0, 3);
-  const secondRow = navigationOptions.slice(3, 6);
+  const firstRow = navigationOptions.slice(0, 4);
+  const secondRow = navigationOptions.slice(4, 8);
 
   // دالة رندر المحتوى بناءً على التبويب النشط
   const renderContent = () => {
