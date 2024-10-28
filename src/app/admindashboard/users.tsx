@@ -37,7 +37,8 @@ const Users: React.FC = () => {
   const [togglingUserId, setTogglingUserId] = useState<number | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const isMobile = useMediaQuery({ query: "(max-width: 768px)" }); // تحديد إذا كان العرض من موبايل
+  const [selectedTab, setSelectedTab] = useState("users"); // التبويب الحالي
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
   const openEditModal = (user: User) => {
     setSelectedUser(user);
@@ -50,22 +51,36 @@ const Users: React.FC = () => {
   };
 
   const fetchUsers = async () => {
+    setLoading(true);
     try {
       const token = document.cookie
         .split("; ")
         .find((row) => row.startsWith("token="));
       const authToken = token ? token.split("=")[1] : "";
+      const endpoint =
+        selectedTab === "technicians"
+          ? "/users/technicians"
+          : selectedTab === "subAdmins"
+          ? "/users/subAdmins"
+          : "/users";
 
-      const response = await axios.get(`${API_BASE_URL}/users`, {
+      const response = await axios.get(`${API_BASE_URL}${endpoint}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
       });
 
-      setUsers(response.data);
+      // تحديد المصفوفة المناسبة بناءً على التبويب المحدد
+      if (selectedTab === "technicians") {
+        setUsers(response.data.adminTechnicians || []);
+      } else if (selectedTab === "subAdmins") {
+        setUsers(response.data.adminSubAdmins || []);
+      } else {
+        setUsers(response.data || []);
+      }
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
-        setError(err.response.data.message || "فشل في جلب المستخدمين");
+        setError(err.response.data.message || "فشل في جلب البيانات");
       } else {
         setError("حدث خطأ غير معروف");
       }
@@ -76,7 +91,7 @@ const Users: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [selectedTab, fetchUsers]);
 
   const handleToggleActive = (userId: number, currentStatus: boolean) => {
     confirmAlert({
@@ -197,40 +212,39 @@ const Users: React.FC = () => {
     return <div className="text-red-500">{error}</div>;
   }
 
-  const tableData = users.map((user, index) => ({
-    displayId: index + 1,
-    id: user.id,
-    fullName: user.fullName,
-    governorate: user.governorate,
-    role: user.role,
-    email: user.email,
-    phoneNO: user.phoneNO,
-    address: user.address,
-    isActive: user.isActive,
-    actions: (
-      <div className="flex space-x-2 justify-center">
-        <button
-          onClick={() => console.log(`تعديل المستخدم برقم المعرف: ${user.id}`)}
-        >
-          <FaEdit className="text-blue-500 hover:text-blue-700" />
-        </button>
-        <button onClick={() => handleDeleteUser(user.id)} disabled={isDeleting}>
-          {isDeleting ? (
-            <ClipLoader color="#FF6347" size={15} />
-          ) : (
-            <FaTrash
-              className={`ms-2 ${
-                isDeleting ? "text-gray-400" : "text-red-500 hover:text-red-700"
-              }`}
-            />
-          )}
-        </button>
-        <button onClick={() => handleViewUser(user)}>
-          <FaEye className="text-green-500 hover:text-green-700" />
-        </button>
-      </div>
-    ),
-  }));
+  const tableData = Array.isArray(users)
+    ? users.map((user, index) => ({
+        displayId: index + 1,
+        id: user.id,
+        fullName: user.fullName,
+        governorate: user.governorate,
+        role: user.role,
+        email: user.email,
+        phoneNO: user.phoneNO,
+        address: user.address,
+        isActive: user.isActive,
+        actions: (
+          <div className="flex space-x-2 justify-center">
+            <button onClick={() => openEditModal(user)}>
+              <FaEdit className="text-blue-500 hover:text-blue-700" />
+            </button>
+            <button
+              onClick={() => handleDeleteUser(user.id)}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <ClipLoader color="#FF6347" size={15} />
+              ) : (
+                <FaTrash className="text-red-500 hover:text-red-700" />
+              )}
+            </button>
+            <button onClick={() => handleViewUser(user)}>
+              <FaEye className="text-green-500 hover:text-green-700" />
+            </button>
+          </div>
+        ),
+      }))
+    : [];
 
   const tableColumns: Column<User>[] = [
     { title: "#", accessor: "displayId" },
@@ -243,25 +257,15 @@ const Users: React.FC = () => {
     {
       title: "الحالة",
       render: (item: User) => (
-        <div className="flex items-center justify-center">
-          <span
-            className={`inline-block w-3 h-3 rounded-full mr-2 ${
-              item.isActive ? "bg-green-500" : "bg-red-500"
-            }`}
-          ></span>
-          <Switch
-            onChange={() => handleToggleActive(item.id, item.isActive)}
-            checked={item.isActive}
-            onColor="#4A90E2"
-            offColor="#FF6347"
-            height={20}
-            width={40}
-            disabled={togglingUserId === item.id || isDeleting}
-          />
-          {togglingUserId === item.id && (
-            <ClipLoader color="#4A90E2" size={15} className="ml-2" />
-          )}
-        </div>
+        <Switch
+          onChange={() => handleToggleActive(item.id, item.isActive)}
+          checked={item.isActive}
+          onColor="#4A90E2"
+          offColor="#FF6347"
+          height={20}
+          width={40}
+          disabled={togglingUserId === item.id || isDeleting}
+        />
       ),
     },
     {
@@ -275,13 +279,7 @@ const Users: React.FC = () => {
             {isDeleting ? (
               <ClipLoader color="#FF6347" size={15} />
             ) : (
-              <FaTrash
-                className={`ms-2 ${
-                  isDeleting
-                    ? "text-gray-400"
-                    : "text-red-500 hover:text-red-700"
-                }`}
-              />
+              <FaTrash className="text-red-500 hover:text-red-700" />
             )}
           </button>
           <button onClick={() => handleViewUser(item)}>
@@ -297,18 +295,56 @@ const Users: React.FC = () => {
       <ToastContainer />
       <h2 className="text-2xl font-semibold mb-4">إدارة المستخدمين</h2>
 
+      {/* التبويبات */}
+      <div className="flex justify-center mb-4">
+        <button
+          onClick={() => setSelectedTab("users")}
+          className={`px-4 py-2 ${
+            selectedTab === "users" ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
+        >
+          المستخدمين
+        </button>
+        <button
+          onClick={() => setSelectedTab("technicians")}
+          className={`px-4 py-2 ${
+            selectedTab === "technicians"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200"
+          }`}
+        >
+          التقنيين
+        </button>
+        <button
+          onClick={() => setSelectedTab("subAdmins")}
+          className={`px-4 py-2 ${
+            selectedTab === "subAdmins"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200"
+          }`}
+        >
+          مدراء المحافظات
+        </button>
+      </div>
+
       {isMobile ? (
         <div className="grid grid-cols-1 gap-4">
-          {users.map((user) => (
-            <UserCard
-              key={user.id}
-              user={user}
-              onEdit={() => openEditModal(user)} // تمرير الدالة مع userId
-              onDelete={() => handleDeleteUser(user.id)} // تمرير دالة الحذف
-              onView={() => handleViewUser(user)} // تمرير دالة العرض
-              onToggleActive={() => handleToggleActive(user.id, user.isActive)} // تمرير دالة التبديل
-            />
-          ))}
+          {Array.isArray(users) ? (
+            users.map((user) => (
+              <UserCard
+                key={user.id}
+                user={user}
+                onEdit={() => openEditModal(user)}
+                onDelete={() => handleDeleteUser(user.id)}
+                onView={() => handleViewUser(user)}
+                onToggleActive={() =>
+                  handleToggleActive(user.id, user.isActive)
+                }
+              />
+            ))
+          ) : (
+            <p>لا يوجد مستخدمون لعرضهم.</p>
+          )}
         </div>
       ) : (
         <GenericTable data={tableData} columns={tableColumns} />

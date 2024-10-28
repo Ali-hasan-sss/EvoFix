@@ -6,7 +6,6 @@ import Navbar from "@/components/navBar";
 import { ThemeContext } from "../ThemeContext";
 import Notifications from "./notification";
 import Users from "./users";
-import Technicians from "./technicians";
 import { toast } from "react-toastify";
 import DashboardHome from "./DashboardHome";
 import RepairRequestsPage from "./RepairRequests";
@@ -27,7 +26,6 @@ import {
   FaConciergeBell,
   FaPhoneAlt,
 } from "react-icons/fa"; // استيراد الأيقونات
-import TechniciansTable from "./technicians";
 import ServicesComponent from "./services";
 import DevicesModels from "./DevicesModels";
 import ContactMessages from "./ContactUsAndFAQ";
@@ -65,7 +63,6 @@ const AdminDashboard: React.FC = () => {
     { name: "موديلات الأجهزة", icon: <FaMobileAlt />, key: "device_models" },
     { name: "التقييمات", icon: <FaStar />, key: "review" },
     { name: "المستخدمين", icon: <FaUsers />, key: "users" },
-    { name: "التقنيين", icon: <FaTools />, key: "technicians" },
     { name: "الإعدادات", icon: <FaCogs />, key: "settings" },
   ];
   const handleLogout = () => {
@@ -84,8 +81,6 @@ const AdminDashboard: React.FC = () => {
         return <DashboardHome />;
       case "users":
         return <Users />;
-      case "technicians":
-        return <Technicians />;
       case "repairRequests":
         return <RepairRequestsPage />;
       case "notifications":
