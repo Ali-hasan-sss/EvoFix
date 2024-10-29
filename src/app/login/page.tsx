@@ -22,6 +22,11 @@ const LoginForm = () => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(e.target.checked);
+  };
 
   useEffect(() => {
     Modal.setAppElement(document.body);
@@ -176,12 +181,13 @@ const LoginForm = () => {
             </div>
           </div>
 
-          <div className="flex space-between w-full">
-            <p className="m-2">
-              <a className="text-blue-200 p-1" href="register">
+          <div className="flex p-1 mb-2 items-center justify-between w-full">
+            <p className="m-2 ">
+              <a className="text-blue-500 m-0 p-0 " href="register">
                 ليس لدي حساب
               </a>
             </p>
+
             <button
               type="button"
               onClick={toggleModal}
@@ -190,12 +196,26 @@ const LoginForm = () => {
               نسيت كلمة المرور
             </button>
           </div>
+          <div className="flex items-center w-full mb-2">
+            <input
+              type="checkbox"
+              className="ml-2"
+              id="x"
+              onChange={handleCheckboxChange}
+            />
 
+            <label htmlFor="#x">
+              اوافق علي سياسة الخصوصية و{" "}
+              <a href="/privacy-and-terms" className="text-blue-500 m-0 p-0">
+                شروط الاستخدام
+              </a>
+            </label>
+          </div>
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !isChecked}
             className={`w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
+              loading || !isChecked ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             {loading ? "جارٍ تسجيل الدخول..." : "تسجيل الدخول"}

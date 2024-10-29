@@ -1,4 +1,3 @@
-// components/forms/UserForm.tsx
 "use client";
 
 import React, { useState, useContext } from "react";
@@ -64,7 +63,11 @@ const UserForm: React.FC<UserFormProps> = ({
   const [showPassword, setShowPassword] = useState(false); // لإظهار كلمة المرور
   const [showPasswordR, setShowPasswordR] = useState(false); // لإظهار تأكيد كلمة المرور
   const [isLoading, setIsLoading] = useState(false); // حالة التحميل
+  const [isChecked, setIsChecked] = useState(false);
 
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(e.target.checked);
+  };
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -417,6 +420,24 @@ const UserForm: React.FC<UserFormProps> = ({
               {errors.confirmPassword && (
                 <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
               )}
+              <div className="flex items-center w-full mt-4">
+                <input
+                  type="checkbox"
+                  className="ml-2"
+                  id="x"
+                  onChange={handleCheckboxChange}
+                />
+
+                <label htmlFor="#x">
+                  اوافق علي سياسة الخصوصية و{" "}
+                  <a
+                    href="/privacy-and-terms"
+                    className="text-blue-500 m-0 p-0"
+                  >
+                    شروط الاستخدام
+                  </a>
+                </label>
+              </div>
             </div>
           </>
         );
@@ -455,10 +476,9 @@ const UserForm: React.FC<UserFormProps> = ({
         ) : (
           <button
             type="submit"
-            disabled={isLoading} // تعطيل الزر عند التحميل
-            className={`px-4 py-2 bg-green-500 text-white rounded ${
-              isDarkMode ? "hover:bg-green-600" : "hover:bg-green-600"
-            }`}
+            disabled={isLoading || !isChecked}
+            className={`px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600
+            ${isLoading || !isChecked ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {submitButtonLabel}
             {isLoading && " ..."} {/* إضافة ثلاث نقاط عند التحميل */}
