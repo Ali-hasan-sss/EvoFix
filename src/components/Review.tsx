@@ -10,6 +10,9 @@ interface Review {
   id: number;
   rating: number;
   comment: string;
+  user: {
+    fullName: string;
+  };
 }
 
 const Reviews = () => {
@@ -24,7 +27,9 @@ const Reviews = () => {
   const fetchReviews = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/review`);
-      setReviews(Array.isArray(response.data) ? response.data : []);
+      setReviews(
+        Array.isArray(response.data.allReviews) ? response.data.allReviews : []
+      );
     } catch (error) {
       console.error("فشل في جلب التقييمات:", error);
       toast.error("حدث خطأ أثناء جلب التقييمات.");
@@ -45,7 +50,6 @@ const Reviews = () => {
 
     setIsLoading(true);
 
-    // جلب التوكن من الكوكيز
     const token = Cookies.get("token");
 
     try {
@@ -59,12 +63,8 @@ const Reviews = () => {
         }
       );
       toast.success("تم إضافة التقييم بنجاح!");
-
-      // إعادة تعيين الحقول بعد الإرسال
       setRating(0);
       setComment("");
-
-      // جلب التقييمات المحدثة
       fetchReviews();
     } catch (error) {
       console.error("فشل في إضافة التقييم:", error);
@@ -92,7 +92,6 @@ const Reviews = () => {
               <details>
                 <summary className="cursor-pointer font-semibold">
                   <div className="flex items-center">
-                    {/* عرض التقييم بنجوم */}
                     {[...Array(5)].map((_, i) => (
                       <FaStar
                         key={i}
@@ -104,6 +103,7 @@ const Reviews = () => {
                       />
                     ))}
                   </div>
+                  <p>{review.user.fullName}</p>
                 </summary>
                 <p className="mt-2">{review.comment}</p>
               </details>

@@ -1,31 +1,45 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Switch from "react-switch";
+import Cookies from "js-cookie";
 import { API_BASE_URL } from "@/utils/api";
 import { ClipLoader } from "react-spinners";
 
 // تعريف نوع المراجعة لتحديد شكل البيانات القادمة من الـ API
 interface Review {
   id: number;
-  reviewerName: string;
-  rating: number; // يمكن تغييره إلى string إذا كانت النجوم تستخدم كالتقييم
+  rating: number;
   comment: string;
   isActive: boolean;
+  user: {
+    fullName: string;
+    email: string;
+    phoneNO: string;
+  };
 }
 
 const Review: React.FC = () => {
   // حالات خاصة بالبيانات
-  const [reviews, setReviews] = useState<Review[]>([]); // حفظ التقييمات
-  const [loading, setLoading] = useState<boolean>(true); // حالة التحميل
-  const [error, setError] = useState<string | null>(null); // حالة الخطأ
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   // جلب التقييمات عند تحميل المكون
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/review`);
-        console.log(response.data); // تحقق من شكل البيانات هنا
-        setReviews(Array.isArray(response.data) ? response.data : []); // تأكد من أن البيانات مصفوفة
+        const token = Cookies.get("token");
+        const response = await axios.get(`${API_BASE_URL}/review`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response.data);
+        setReviews(
+          Array.isArray(response.data.adminReviews)
+            ? response.data.adminReviews
+            : []
+        );
       } catch (err) {
         setError("حدث خطأ أثناء جلب التقييمات.");
       } finally {
@@ -39,11 +53,19 @@ const Review: React.FC = () => {
   // التعامل مع تبديل حالة التفعيل للمراجعة
   const handleToggleActive = async (id: number) => {
     try {
-      await axios.put(`${API_BASE_URL}/review/${id}`, { isActive: true }); // تحديث حالة التفعيل في الخادم
+      const token = Cookies.get("token");
+      await axios.put(
+        `${API_BASE_URL}/review/${id}`,
+        { isActive: true },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setReviews((prevReviews) =>
-        prevReviews.map(
-          (review) =>
-            review.id === id ? { ...review, isActive: true } : review // تحديث الحالة محليًا
+        prevReviews.map((review) =>
+          review.id === id ? { ...review, isActive: true } : review
         )
       );
     } catch (err) {
@@ -71,14 +93,15 @@ const Review: React.FC = () => {
   return (
     <div>
       <h2>التقييمات</h2>
-      {/* عرض رسالة في حال عدم وجود تقييمات */}
       {reviews.length === 0 ? (
         <p>لا توجد تقييمات.</p>
       ) : (
         <ul>
           {reviews.map((review) => (
             <li key={review.id} className="mb-4 border-b pb-2">
-              <h3>{review.reviewerName}</h3>
+              <h3>{review.user.fullName}</h3>
+              <p>البريد الإلكتروني: {review.user.email}</p>
+              <p>رقم الهاتف: {review.user.phoneNO}</p>
               <p>تقييم: {review.rating}</p>
               <p>{review.comment}</p>
               <label>
