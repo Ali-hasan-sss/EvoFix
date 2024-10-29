@@ -13,6 +13,7 @@ import "slick-carousel/slick/slick-theme.css";
 import ContactForm from "@/components/forms/ContactForm";
 import Reviews from "@/components/Review";
 import FAQ from "@/components/FAQ";
+import { ToastContainer } from "react-toastify";
 const Home: NextPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
 
@@ -40,6 +41,17 @@ const Home: NextPage = () => {
       >
         {/********************************/}
         <Navbar />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
         <RepairRequestButton />
         <Toaster
           position="top-right"

@@ -47,30 +47,12 @@ const FAQ = () => {
       return;
     }
 
-    // التحقق من وجود توكن
-    const token = Cookies.get("token");
-    const email = localStorage.getItem("email");
-    const userId = localStorage.getItem("userId");
-
-    if (!token || !email || !userId) {
-      toast.error("يجب تسجيل الدخول لإرسال سؤالك."); // إظهار رسالة التوست هنا
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      await axios.post(
-        `${API_BASE_URL}/fAQ`,
-        {
-          question: newQuestion, // إرسال السؤال فقط
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // تضمين التوكن في الهيدر
-          },
-        }
-      );
+      await axios.post(`${API_BASE_URL}/fAQ`, {
+        question: newQuestion, // إرسال السؤال فقط
+      });
       toast.success("تم إرسال السؤال بنجاح!");
 
       // إعادة تحميل الأسئلة بعد الإرسال

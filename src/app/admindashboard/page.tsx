@@ -8,6 +8,7 @@ import Notifications from "../../components/dashboard/notification";
 import Users from "./users";
 import { toast } from "react-toastify";
 import DashboardHome from "./DashboardHome";
+import TermsOfUseAdmin from "./TermsOfUseAdmin";
 import RepairRequestsPage from "./RepairRequests";
 import { ClipLoader } from "react-spinners";
 import { AuthContext } from "@/app/context/AuthContext";
@@ -94,7 +95,7 @@ const AdminDashboard: React.FC = () => {
       case "review":
         return <Review />;
       case "settings":
-        return <div>الإعدادات</div>;
+        return <TermsOfUseAdmin />;
       default:
         return <div>الرئيسية</div>;
     }

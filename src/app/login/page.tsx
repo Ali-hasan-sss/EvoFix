@@ -204,9 +204,12 @@ const LoginForm = () => {
               onChange={handleCheckboxChange}
             />
 
-            <label htmlFor="#x" className="text-small">
+            <label htmlFor="#x" className="text-sm">
               اوافق علي سياسة الخصوصية و
-              <a href="/privacy-and-terms" className="text-blue-500 m-0 p-0">
+              <a
+                href="/privacy-and-terms"
+                className="text-sm text-blue-500 m-0 p-0"
+              >
                 شروط الاستخدام
               </a>
             </label>

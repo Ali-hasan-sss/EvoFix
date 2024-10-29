@@ -1,63 +1,67 @@
 "use client";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Navbar from "@/components/navBar";
+import axios from "axios";
 import { ThemeContext } from "../ThemeContext";
+import { API_BASE_URL } from "@/utils/api";
+
+// تعريف واجهة TermPolicy
+interface TermPolicy {
+  id: number;
+  version: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+}
+
 export default function PrivacyAndTerms() {
   const { isDarkMode } = useContext(ThemeContext);
+  const [termsPolicy, setTermsPolicy] = useState<TermPolicy[]>([]); // تحديد نوع البيانات هنا
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch the terms and policies data
+    const fetchTermsAndPolicy = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/termsOfUsePolicy`);
+        setTermsPolicy(response.data.TermsPolicy); // استخدام البيانات من الاستجابة
+      } catch (error) {
+        console.error("Error fetching terms and policies:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTermsAndPolicy();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center mt-20">جاري التحميل...</div>;
+  }
+
   return (
     <>
       <Navbar />
       <div
-        className={` mx-auto mt-20 px-4 py-8 text-right
-      ${isDarkMode ? "bg-gray-200 text-black" : "bg-gray-900 text-white"}
-      `}
-        style={{ minHeight: "100vh" }}
+        className={`mx-auto mt-20 px-4 py-8 text-center ${
+          isDarkMode ? "bg-gray-900 text-white" : "bg-gray-200 text-black"
+        }`}
+        style={{ minHeight: "100vh", marginTop: "75px" }}
       >
-        <h1 className="text-3xl font-bold mb-4">
+        <h1 className="text-3xl text-center font-bold mb-4">
           سياسة الخصوصية وشروط الاستخدام
         </h1>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-2">سياسة الخصوصية</h2>
-          <p className="mb-4">
-            تحترم منصة EVOFIX خصوصيتك وتهتم بحماية بياناتك. سيتم جمع واستخدام
-            بياناتك فقط لتحسين تجربتك على المنصة ولتقديم خدماتنا بشكل أفضل.
-            المعلومات التي يتم جمعها تشمل البيانات الأساسية مثل الاسم، عنوان
-            البريد الإلكتروني، ومعلومات الاتصال.
-          </p>
-          <p className="mb-4">
-            نحن نستخدم البيانات التي تقدمها لتسهيل عملية طلب الإصلاح، وضمان
-            التواصل الفعال بينك وبين مقدمي خدمات الإصلاح. كما قد يتم استخدام
-            بياناتك لتحسين أداء الموقع وتحليل السلوك العام للمستخدمين.
-          </p>
-          <p className="mb-4">
-            لن نقوم بمشاركة بياناتك الشخصية مع أي طرف ثالث بدون موافقتك المسبقة،
-            إلا إذا كان ذلك مطلوباً بموجب القانون.
-          </p>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-2">شروط الاستخدام</h2>
-          <p className="mb-4">
-            عند استخدامك لمنصة EVOFIX، فإنك توافق على الالتزام بجميع الشروط
-            والأحكام الواردة هنا. يتم تقديم خدماتنا لأغراض شخصية وغير تجارية
-            فقط، ويجب أن تكون جميع المعلومات التي تقدمها دقيقة وصحيحة.
-          </p>
-          <p className="mb-4">
-            يُحظر استخدام المنصة لأي أغراض غير قانونية أو غير أخلاقية. كما يجب
-            الالتزام بعدم إساءة استخدام المنصة أو نشر محتوى مضلل أو مضر أو محتوى
-            ينتهك حقوق الملكية الفكرية للآخرين.
-          </p>
-          <p className="mb-4">
-            تحتفظ المنصة بحقها في تعديل أو إيقاف الخدمات أو المحتوى دون إشعار
-            مسبق. كما قد يتم تحديث شروط الاستخدام وسياسة الخصوصية بين الحين
-            والآخر، لذا ننصحك بمراجعتها بانتظام.
-          </p>
-          <p className="mb-4">
-            يعتبر استخدامك المستمر للمنصة بعد إجراء أي تغييرات على هذه الشروط
-            موافقةً منك على هذه التغييرات.
-          </p>
-        </section>
+        {termsPolicy.map(
+          (policy) =>
+            policy.title && ( // تأكد من أن العنوان ليس فارغًا
+              <section key={policy.id} className="mb-8">
+                <h2 className="text-2xl font-semibold mb-2">{policy.title}</h2>
+                <p className="mb-4">{policy.content}</p>
+              </section>
+            )
+        )}
 
         <section>
           <h2 className="text-2xl font-semibold mb-2">اتصل بنا</h2>

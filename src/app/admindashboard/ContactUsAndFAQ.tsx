@@ -7,6 +7,7 @@ import { ThemeContext } from "../ThemeContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Switch from "react-switch";
+import { FaTrash } from "react-icons/fa"; // استيراد أيقونة الحذف
 
 interface ContactMessage {
   id: number;
@@ -30,7 +31,7 @@ const ContactUsAndFAQ: React.FC = () => {
   const [loadingFAQ, setLoadingFAQ] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<"contact" | "faq">("contact");
   const [error, setError] = useState<string | null>(null);
-  const [selectedFaq, setSelectedFaq] = useState<number | null>(null); // لحفظ معرف السؤال المحدد لإضافة الجواب
+  const [selectedFaq, setSelectedFaq] = useState<number | null>(null);
   const [answer, setAnswer] = useState<string>("");
 
   const { isDarkMode } = useContext(ThemeContext);
@@ -119,6 +120,29 @@ const ContactUsAndFAQ: React.FC = () => {
     }
   };
 
+  const handleDelete = async (id: number, type: "contact" | "faq") => {
+    try {
+      await axios.delete(
+        `${API_BASE_URL}/${type === "contact" ? "contact-us" : "fAQ"}/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (type === "contact") {
+        setContactMessages((prevMessages) =>
+          prevMessages.filter((message) => message.id !== id)
+        );
+      } else {
+        setFaqs((prevFaqs) => prevFaqs.filter((faq) => faq.id !== id));
+      }
+      toast.success("تم حذف العنصر بنجاح.");
+    } catch (error) {
+      toast.error("حدث خطأ أثناء الحذف.");
+    }
+  };
+
   return (
     <div
       className={`mt-5 p-5 border rounded-lg shadow-md ${
@@ -144,28 +168,22 @@ const ContactUsAndFAQ: React.FC = () => {
           الأسئلة الشائعة
         </button>
       </div>
-      {/*   contact us    */}
-      {activeTab === "contact" && loadingContact && (
-        <div className="flex items-center">
-          <ClipLoader size={30} color={"#000"} loading={loadingContact} />
-          <p className="ml-2">جارٍ تحميل رسائل اتصل بنا...</p>
-        </div>
-      )}
-      {activeTab === "contact" && error && (
-        <p className="text-red-500">{error}</p>
-      )}
-      {activeTab === "contact" &&
-        !loadingContact &&
-        contactMessages.length === 0 && <p>لا توجد رسائل اتصل بنا.</p>}
+
+      {/* Contact Messages */}
       {activeTab === "contact" &&
         !loadingContact &&
         contactMessages.length > 0 && (
           <ul className="space-y-4">
             {contactMessages.map((message) => (
               <li key={message.id} className="border rounded-lg p-4 shadow">
-                <h3 className="font-semibold">
-                  {message.subject} ({message.email})
-                </h3>
+                <div className="flex justify-between">
+                  <h3 className="font-semibold">
+                    {message.subject} ({message.email})
+                  </h3>
+                  <button onClick={() => handleDelete(message.id, "contact")}>
+                    <FaTrash className="text-red-500 cursor-pointer" />
+                  </button>
+                </div>
                 <p>{message.content}</p>
                 <p className="text-gray-500 text-small">
                   {new Date(message.sentAt).toLocaleString()}
@@ -174,28 +192,18 @@ const ContactUsAndFAQ: React.FC = () => {
             ))}
           </ul>
         )}
-      {/*   FAQ    */}
-      {activeTab === "faq" && loadingFAQ && (
-        <div className="flex items-center">
-          <ClipLoader size={30} color={"#000"} loading={loadingFAQ} />
-        </div>
-      )}
-      {activeTab === "faq" && error && <p className="text-red-500">{error}</p>}
-      {activeTab === "faq" && !loadingFAQ && faqs.length === 0 && (
-        <p>لا توجد أسئلة شائعة.</p>
-      )}
+
+      {/* FAQs */}
       {activeTab === "faq" && !loadingFAQ && faqs.length > 0 && (
         <ul className="space-y-4">
           {faqs.map((faq) => (
-            <li
-              key={faq.id}
-              className={`border rounded-lg p-4 shadow${
-                isDarkMode
-                  ? "bg-gray-700 text-white border-gray-600"
-                  : "bg-gray-200 text-gray-800 border-gray-400"
-              }`}
-            >
-              <h3 className="font-semibold">{faq.question}</h3>
+            <li key={faq.id} className="border rounded-lg p-4 shadow">
+              <div className="flex justify-between">
+                <h3 className="font-semibold">{faq.question}</h3>
+                <button onClick={() => handleDelete(faq.id, "faq")}>
+                  <FaTrash className="text-red-500 cursor-pointer" />
+                </button>
+              </div>
               <p className="text-sm text-gray-500">
                 {faq.isPublished ? "منشور" : "غير منشور"}
               </p>
@@ -207,10 +215,6 @@ const ContactUsAndFAQ: React.FC = () => {
                 height={20}
                 width={40}
               />
-              <span className="mr-2">تفعيل / إلغاء تفعيل</span>
-              {faq.answer && (
-                <p className="mt-2 text-green-600">الإجابة: {faq.answer}</p>
-              )}
               {selectedFaq === faq.id ? (
                 <div className="mt-2 flex items-center">
                   <input

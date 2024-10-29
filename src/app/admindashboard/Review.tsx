@@ -4,6 +4,7 @@ import Switch from "react-switch";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "@/utils/api";
 import { ClipLoader } from "react-spinners";
+import { FaTrash } from "react-icons/fa";
 
 // تعريف نوع المراجعة لتحديد شكل البيانات القادمة من الـ API
 interface Review {
@@ -34,7 +35,6 @@ const Review: React.FC = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log(response.data);
         setReviews(
           Array.isArray(response.data.adminReviews)
             ? response.data.adminReviews
@@ -73,6 +73,23 @@ const Review: React.FC = () => {
     }
   };
 
+  // التعامل مع حذف التقييم
+  const handleDelete = async (id: number) => {
+    try {
+      const token = Cookies.get("token");
+      await axios.delete(`${API_BASE_URL}/review/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setReviews((prevReviews) =>
+        prevReviews.filter((review) => review.id !== id)
+      );
+    } catch (err) {
+      console.error("خطأ أثناء حذف التقييم:", err);
+    }
+  };
+
   // عرض مؤشر التحميل أثناء انتظار البيانات
   if (loading)
     return (
@@ -91,30 +108,44 @@ const Review: React.FC = () => {
 
   // العرض الأساسي للمكون
   return (
-    <div>
-      <h2>التقييمات</h2>
+    <div className="mt-5">
+      <h2 className="text-xl text-center">التقييمات</h2>
       {reviews.length === 0 ? (
         <p>لا توجد تقييمات.</p>
       ) : (
         <ul>
           {reviews.map((review) => (
-            <li key={review.id} className="mb-4 border-b pb-2">
-              <h3>{review.user.fullName}</h3>
-              <p>البريد الإلكتروني: {review.user.email}</p>
-              <p>رقم الهاتف: {review.user.phoneNO}</p>
-              <p>تقييم: {review.rating}</p>
-              <p>{review.comment}</p>
-              <label>
-                <Switch
-                  checked={review.isActive}
-                  onChange={() => handleToggleActive(review.id)}
-                  onColor="#86d3ff"
-                  offColor="#ccc"
-                  uncheckedIcon={false}
-                  checkedIcon={false}
-                />
-                {review.isActive ? "مفعل" : "غير مفعل"}
-              </label>
+            <li
+              key={review.id}
+              className="mb-4 border-b pb-2 flex items-center justify-between"
+            >
+              <div>
+                <h3>{review.user.fullName}</h3>
+                <p>البريد الإلكتروني: {review.user.email}</p>
+                <p>رقم الهاتف: {review.user.phoneNO}</p>
+                <p>تقييم: {review.rating}</p>
+                <p>{review.comment}</p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <label className="ml-4">
+                  <Switch
+                    checked={review.isActive}
+                    onChange={() => handleToggleActive(review.id)}
+                    onColor="#86d3ff"
+                    offColor="#ccc"
+                    width={40}
+                    height={20}
+                    uncheckedIcon={false}
+                    checkedIcon={false}
+                  />
+                </label>
+                <button
+                  onClick={() => handleDelete(review.id)}
+                  className="text-red-500"
+                >
+                  <FaTrash />
+                </button>
+              </div>
             </li>
           ))}
         </ul>

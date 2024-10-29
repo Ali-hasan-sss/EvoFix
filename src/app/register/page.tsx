@@ -56,6 +56,12 @@ const RegisterPage = () => {
         localStorage.setItem("userRole", userRole);
 
         toast.success("تم إنشاء الحساب بنجاح!");
+        toast.success(
+          "تم ارسال بريد تحقق الى بريدك الالكتروني الرجاء تاكيد حسابك",
+          {
+            duration: 10000, // المدة بالمللي ثانية (10000 = 10 ثواني)
+          }
+        );
 
         // تسجيل الدخول تلقائيًا
         login(email, userId);
@@ -63,7 +69,7 @@ const RegisterPage = () => {
         // إعادة توجيه المستخدم بعد التسجيل
         setTimeout(() => {
           router.push("/dashboard");
-        }, 500);
+        }, 1000);
       } else {
         toast.error("حدث خطأ أثناء إنشاء الحساب.");
       }
