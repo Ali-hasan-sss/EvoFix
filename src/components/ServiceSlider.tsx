@@ -1,4 +1,3 @@
-// ServiceSlider.tsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
@@ -26,16 +25,16 @@ const ServiceSlider: React.FC = () => {
   }, []);
 
   const settings = {
-    dots: true, // عرض النقاط
-    infinite: true, // التمرير اللانهائي
-    speed: 500, // سرعة الانتقال
-    slidesToShow: 1, // عدد الشرائح المعروضة
-    slidesToScroll: 1, // عدد الشرائح التي يتم تمريرها عند النقر
-    autoplay: true, // التمرير التلقائي
-    autoplaySpeed: 3000, // سرعة التمرير التلقائي
-    swipeToSlide: true, // دعم السحب
-    nextArrow: null, // إخفاء زر التالي
-    prevArrow: null, // إخفاء زر السابق
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    swipeToSlide: true,
+    nextArrow: null,
+    prevArrow: null,
   };
 
   if (loading) return <div>جارٍ تحميل الخدمات...</div>;
@@ -48,9 +47,9 @@ const ServiceSlider: React.FC = () => {
             <Image
               src={service.serviceImage}
               alt={service.title}
-              width={640} // استخدم العرض المطلوب للصورة
-              height={256} // استخدم الارتفاع المطلوب للصورة
-              className="rounded-lg object-cover"
+              width={800} // عرض ثابت للصورة
+              height={400} // ارتفاع ثابت للصورة
+              className="rounded-lg object-cover w-full h-[400px]" // ضمان تغطية الصورة للمساحة بشكل كامل
             />
             <div className="absolute bottom-0 left-0 w-full bg-gray-800 bg-opacity-60 p-4 rounded-b-lg">
               <h2 className="text-lg font-bold text-white text-center">

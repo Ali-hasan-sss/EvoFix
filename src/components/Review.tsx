@@ -132,7 +132,7 @@ const Reviews = () => {
               className={
                 i < (hover || rating)
                   ? "text-yellow-500 cursor-pointer"
-                  : "text-gray-300 cursor-pointer"
+                  : "text-gray-500 cursor-pointer"
               }
               onClick={() => setRating(i + 1)}
               onMouseEnter={() => setHover(i + 1)}
@@ -146,12 +146,11 @@ const Reviews = () => {
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="w-full p-2 border rounded pr-10"
+            className="w-full p-2 border rounded pr-10 text-black"
             rows={3}
-            placeholder="اكتب تعليقك هنا..."
+            placeholder="اكتب تعليقك هنا...."
             required
           />
-
           <button
             type="submit"
             className="absolute left-2 top-5 text-blue-500 hover:text-blue-700"

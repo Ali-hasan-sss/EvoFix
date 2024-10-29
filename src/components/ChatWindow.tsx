@@ -17,7 +17,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
       className={`fixed bottom-20  right-5 w-80  rounded-lg shadow-lg z-50
         ${
           isDarkMode
-            ? "bg-gray-700 text-white border-gray-600"
+            ? "bg-gray-700 text-white border-gray-600 tett"
             : "bg-gray-400 text-blach"
         }
     `}

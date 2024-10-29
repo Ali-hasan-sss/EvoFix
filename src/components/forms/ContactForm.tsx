@@ -63,7 +63,7 @@ const ContactForm = () => {
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border rounded text-black"
           required
         />
       </div>
@@ -77,7 +77,7 @@ const ContactForm = () => {
           id="subject"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border rounded text-black"
           required
         />
       </div>
@@ -90,7 +90,7 @@ const ContactForm = () => {
           id="content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border rounded text-black"
           rows={4}
           required
         ></textarea>

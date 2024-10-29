@@ -38,6 +38,7 @@ const Home: NextPage = () => {
           isDarkMode ? "bg-gray-900 text-light" : "bg-gray-100 text-black"
         }`}
       >
+        {/********************************/}
         <Navbar />
         <RepairRequestButton />
         <Toaster

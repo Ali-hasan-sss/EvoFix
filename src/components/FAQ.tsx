@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaChevronDown, FaChevronUp } from "react-icons/fa"; // استيراد الأيقونات المطلوبة
 import { toast } from "react-toastify";
 import Cookies from "js-cookie"; // استيراد مكتبة js-cookie
 import { API_BASE_URL } from "@/utils/api";
-
+import { ThemeContext } from "@/app/ThemeContext";
 // تعريف نوع الأسئلة الشائعة
 interface FAQItem {
   id: number; // معرف السؤال
@@ -17,12 +17,15 @@ const FAQ = () => {
   const [newQuestion, setNewQuestion] = useState(""); // سؤال جديد
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false); // لإدارة تحميل الطلب
-
+  const { isDarkMode } = useContext(ThemeContext);
   // جلب الأسئلة الشائعة عند التحميل
   const fetchFAQs = async () => {
     try {
-      const response = await axios.get<FAQItem[]>(`${API_BASE_URL}/fAQ`);
-      setFaqs(response.data); // تأكد أن البيانات من API تتوافق مع نوع FAQItem
+      const response = await axios.get<{ faqs: FAQItem[] }>(
+        `${API_BASE_URL}/fAQ`
+      );
+      setFaqs(response.data.faqs); // الحصول على البيانات داخل خاصية `faqs`
+      console.log(response.data.faqs);
     } catch (error) {
       console.error("خطأ في جلب الأسئلة:", error);
       toast.error("حدث خطأ أثناء جلب الأسئلة الشائعة.");
@@ -93,33 +96,37 @@ const FAQ = () => {
       <h2 className="text-2xl font-bold mb-4">الأسئلة الشائعة</h2>
 
       {/* عرض الأسئلة الشائعة */}
-      <div className="space-y-4">
-        {Array.isArray(faqs) &&
-          faqs.map((faq, index) => (
-            <div
-              key={faq.id}
-              className="border rounded-lg p-4 bg-gray-100 dark:bg-gray-700"
+      <div
+        className={`space-y-1 ${
+          isDarkMode ? "bg-gray-800 text-light" : "bg-blue-200 text-black"
+        }`}
+      >
+        {faqs.map((faq, index) => (
+          <div key={faq.id} className="border border-yellow-500 rounded-lg p-4">
+            <button
+              onClick={() => toggleExpand(index)}
+              className="w-full text-right font-semibold flex justify-between items-center"
             >
-              <button
-                onClick={() => toggleExpand(index)}
-                className="w-full text-right font-semibold flex justify-between"
-              >
-                {faq.question}
-                {expandedIndex === index ? "-" : "+"}
-              </button>
-              {expandedIndex === index && (
-                <div className="mt-2 text-right">
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    {faq.answer || "لم تتم الإجابة بعد"}
-                  </p>
-                </div>
+              {faq.question}
+              {expandedIndex === index ? (
+                <FaChevronUp className="ml-2" />
+              ) : (
+                <FaChevronDown className="ml-2" />
               )}
-            </div>
-          ))}
+            </button>
+            {expandedIndex === index && (
+              <div className=" text-right">
+                <p className="text-sm text-green-500">
+                  {faq.answer || "لم تتم الإجابة بعد"}
+                </p>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
       {/* إضافة سؤال جديد */}
-      <div className="mt-6 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800">
+      <div className="mt-2 p-4 border border-yellow-500 rounded-lg ">
         <h3 className="text-lg font-bold mb-2">طرح سؤال جديد</h3>
         <form onSubmit={handleNewQuestionSubmit}>
           <div className="mb-2">
@@ -128,7 +135,7 @@ const FAQ = () => {
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}
               placeholder="أدخل السؤال هنا"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded text-black"
               required
             />
           </div>
@@ -141,7 +148,7 @@ const FAQ = () => {
               "جاري الإرسال..."
             ) : (
               <>
-                <FaPlus className="mr-2" /> إرسال السؤال
+                <FaChevronUp className="ml-3" /> إرسال السؤال
               </>
             )}
           </button>

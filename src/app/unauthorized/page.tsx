@@ -1,4 +1,3 @@
-// في صفحة UnauthorizedPage
 import Navbar from "@/components/navBar";
 import Link from "next/link";
 
@@ -12,7 +11,7 @@ const UnauthorizedPage = () => {
             ليس لديك صلاحية للوصول إلى هذه الصفحة
           </h1>
           <p className="text-lg mb-4">
-            يرجى التحقق من صلاحياتك أو تسجيل الدخول بحساب آخر.
+            يرجى التحقق من صلاحياتك أو تاكد من تسجيل الدخول .
           </p>
           <Link href="/" className="text-blue-500 hover:underline">
             العودة إلى الصفحة الرئيسية
