@@ -32,6 +32,7 @@ import ServicesComponent from "./services";
 import DevicesModels from "./DevicesModels";
 import ContactMessages from "./ContactUsAndFAQ";
 import Review from "./Review";
+import Invoices from "@/components/Invoices";
 import ContactUsAndFAQ from "./ContactUsAndFAQ";
 import { API_BASE_URL } from "@/utils/api";
 import axios from "axios";
@@ -131,6 +132,7 @@ const AdminDashboard: React.FC = () => {
         ]
       : []),
     { name: "المستخدمين", icon: <FaUsers />, key: "users" },
+    { name: "الفواتير", icon: <FaUsers />, key: "Invoices" },
   ];
 
   const handleLogout = () => {
@@ -170,6 +172,8 @@ const AdminDashboard: React.FC = () => {
         return <Review />;
       case "settings":
         return <TermsOfUseAdmin />;
+      case "Invoices":
+        return <Invoices />;
       default:
         return <div>الرئيسية</div>;
     }
@@ -293,13 +297,33 @@ const AdminDashboard: React.FC = () => {
                 {userRole === "ADMIN" && (
                   <button
                     onClick={() => handleTabChange("users")}
-                    className="flex flex-col items-center flex-1 py-1 text-yellow-800"
+                    className={`flex flex-col items-center flex-1 py-1 ${
+                      activeTab === "users"
+                        ? "text-yellow-800"
+                        : isDarkMode
+                        ? "text-gray-300"
+                        : "text-white"
+                    } transition-colors duration-200`}
                     aria-label="المستخدمين"
                   >
                     <FaUsers />
                     <span className="text-sm mt-1">المستخدمين</span>
                   </button>
                 )}
+                <button
+                  onClick={() => handleTabChange("Invoices")}
+                  className={`flex flex-col items-center flex-1 py-1 ${
+                    activeTab === "Invoices"
+                      ? "text-yellow-800"
+                      : isDarkMode
+                      ? "text-gray-300"
+                      : "text-white"
+                  } transition-colors duration-200`}
+                  aria-label="الفواتير"
+                >
+                  <FaUsers />
+                  <span className="text-sm mt-1">الفواتير</span>
+                </button>
                 <button
                   onClick={handleLogout}
                   className="flex flex-col items-center flex-1 py-1 text-red-600"

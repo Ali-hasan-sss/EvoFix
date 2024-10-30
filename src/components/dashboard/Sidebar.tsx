@@ -117,6 +117,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
       icon: <FaClipboardList className="text-2xl" />,
     },
     {
+      key: "Invoices",
+      name: "الفواتير",
+      icon: <FaClipboardList className="text-2xl" />,
+    },
+    {
       key: "notifications",
       name: "الإشعارات",
       icon: (

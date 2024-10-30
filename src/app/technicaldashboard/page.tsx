@@ -10,6 +10,7 @@ import { ThemeContext } from "../ThemeContext";
 import { useRouter } from "next/navigation";
 import RepairRequests from "./RepairRequests/RepairRequests";
 import Notifications from "../../components/dashboard/notification";
+import Invoices from "@/components/Invoices";
 const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");
   const { isDarkMode } = useContext(ThemeContext);
@@ -35,6 +36,12 @@ const Dashboard = () => {
         return (
           <div>
             <Notifications />
+          </div>
+        );
+      case "Invoices":
+        return (
+          <div>
+            <Invoices />
           </div>
         );
       case "profile":

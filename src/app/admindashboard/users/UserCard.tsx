@@ -34,33 +34,29 @@ const UserCard: React.FC<UserCardProps> = ({
 
   return (
     <div
-      className={`border rounded-lg p-4 shadow-md mb-4 ${
+      className={`border rounded-lg p-4 shadow-md mb-4 w-full sm:w-auto ${
         isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
       } transition duration-300 ease-in-out`}
     >
-      <h3
-        className={`text-lg font-semibold mb-2 ${
-          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
-        }`}
-      >
+      <h3 className="text-lg font-semibold mb-2 break-words">
         {user.fullName}
       </h3>
-      <p className="mb-1">
+      <p className="mb-1 break-words">
         <strong>البريد الالكتروني:</strong> {user.email}
       </p>
-      <p className="mb-1">
+      <p className="mb-1 break-words">
         <strong>رقم الهاتف:</strong> {user.phoneNO}
       </p>
-      <p className="mb-1">
+      <p className="mb-1 break-words">
         <strong>العنوان:</strong> {user.address}
       </p>
-      <p className="mb-1">
+      <p className="mb-1 break-words">
         <strong>المحافظة:</strong> {user.governorate}
       </p>
-      <p className="mb-1">
+      <p className="mb-1 break-words">
         <strong>نوع المستخدم:</strong> {user.role}
       </p>
-      <div className="mb-1 item-center">
+      <div className="mb-1 flex items-center">
         <Switch
           className="mr-5"
           onChange={onToggleActive}
@@ -71,17 +67,16 @@ const UserCard: React.FC<UserCardProps> = ({
           width={40}
         />
       </div>
-      <div className="flex gap-4 m-4">
+      <div className="flex flex-wrap gap-4 mt-4">
         <button
           onClick={onView}
           className="text-green-500 hover:text-green-700 font-semibold transition-colors duration-200"
         >
           <FaEye />
         </button>
-
         <button
           onClick={onDelete}
-          className=" text-red-500 hover:text-red-700 font-semibold transition-colors duration-200"
+          className="text-red-500 hover:text-red-700 font-semibold transition-colors duration-200"
         >
           <FaTrash />
         </button>

@@ -33,9 +33,13 @@ export const getData = async <T>(endpoint: string): Promise<T> => {
     const response = await axiosInstance.get<ApiResponse<T>>(endpoint);
     const data = response.data.data;
 
-    // تأكد من أن البيانات ليست null أو undefined
+    // تأكد من أن البيانات تتطابق مع النوع T
     if (data !== null && data !== undefined) {
-      return data;
+      if (typeof data === "object" || typeof data === "string") {
+        return data as T; // استخدم type assertion هنا
+      } else {
+        throw new Error("البيانات غير صحيحة أو غير موجودة.");
+      }
     } else {
       throw new Error("البيانات غير صحيحة أو غير موجودة.");
     }

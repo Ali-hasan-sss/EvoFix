@@ -219,17 +219,17 @@ const ContactUsAndFAQ: React.FC = () => {
                 width={40}
               />
               {selectedFaq === faq.id ? (
-                <div className="mt-2 flex items-center">
+                <div className="mt-2 flex flex-col sm:flex-row items-center">
                   <input
                     type="text"
                     value={answer}
                     onChange={(e) => setAnswer(e.target.value)}
                     placeholder="أدخل الإجابة"
-                    className="p-2 border rounded mr-2 flex-1 text-black"
+                    className="p-2 border rounded mb-2 sm:mb-0 sm:mr-2 flex-grow text-black"
                   />
                   <button
                     onClick={() => handleAddAnswer(faq.id)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    className="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded"
                   >
                     إرسال
                   </button>
