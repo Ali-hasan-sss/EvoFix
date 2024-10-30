@@ -2,8 +2,8 @@
 
 import React, { useContext, useState } from "react";
 import axios from "axios";
-import { API_BASE_URL } from "../../utils/api";
-import { ThemeContext } from "../ThemeContext";
+import { API_BASE_URL } from "../../../utils/api";
+import { ThemeContext } from "../../ThemeContext";
 import { toast } from "react-toastify";
 import UserForm from "@/components/forms/UserForm";
 import { UserFormInput } from "@/utils/types"; // Import the UserFormInput type

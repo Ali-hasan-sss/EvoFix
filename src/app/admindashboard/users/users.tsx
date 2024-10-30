@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { API_BASE_URL } from "../../utils/api";
-import { ThemeContext } from "../ThemeContext";
+import { API_BASE_URL } from "../../../utils/api";
+import { ThemeContext } from "../../ThemeContext";
 import { FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
 import GenericTable, { Column } from "@/components/dashboard/GenericTable";
 import { toast, ToastContainer } from "react-toastify";
@@ -52,6 +52,7 @@ const Users: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("users"); // التبويب الحالي
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
   const [isAddingUser, setIsAddingUser] = useState(false); // حالة إضافة مستخدم جديد
+  const userRole = localStorage.getItem("userRole");
 
   const openEditModal = (user: User) => {
     setSelectedUser(user);
@@ -350,7 +351,7 @@ const Users: React.FC = () => {
         <button
           onClick={() => setSelectedTab("users")}
           className={`px-4 py-2  ${
-            selectedTab === "users" ? "bg-blue-500 text-white" : "bg-gray-200"
+            selectedTab === "users" ? "bg-blue-700 text-white" : "bg-blue-500"
           }`}
         >
           المستخدمين
@@ -359,22 +360,24 @@ const Users: React.FC = () => {
           onClick={() => setSelectedTab("technicians")}
           className={`px-4 py-2 mx-2 ${
             selectedTab === "technicians"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
+              ? "bg-blue-700 text-white"
+              : "bg-blue-500"
           }`}
         >
           التقنيين
         </button>
-        <button
-          onClick={() => setSelectedTab("subAdmins")}
-          className={`px-4 py-2 ${
-            selectedTab === "subAdmins"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
-          }`}
-        >
-          مدراء المحافظات
-        </button>
+        {userRole === "ADMIN" && (
+          <button
+            onClick={() => setSelectedTab("subAdmins")}
+            className={`px-4 py-2 ${
+              selectedTab === "subAdmins"
+                ? "bg-blue-700 text-white"
+                : "bg-blue-500"
+            }`}
+          >
+            مدراء المحافظات
+          </button>
+        )}
       </div>
 
       {isMobile ? (

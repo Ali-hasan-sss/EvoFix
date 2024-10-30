@@ -6,11 +6,11 @@ import toast, { Toaster } from "react-hot-toast";
 import { ThemeContext } from "../ThemeContext";
 import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
-import axios, { AxiosError } from "axios"; // استيراد AxiosError
+import axios, { AxiosError } from "axios";
 import UserForm from "../../components/forms/UserForm";
-import Cookies from "js-cookie"; // استيراد مكتبة js-cookie لحفظ التوكن في الكوكيز
-import { API_BASE_URL } from "../../utils/api"; // استيراد الدومين من الملف الخارجي
-import { RegisterTechnicianData } from "../../utils/types"; // استيراد الواجهة المشتركة
+import Cookies from "js-cookie";
+import { API_BASE_URL } from "../../utils/api";
+import { RegisterTechnicianData } from "../../utils/types";
 
 const RegisterTechnicianPage = () => {
   const { isDarkMode } = useContext(ThemeContext);

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify"; // تأكد من أنك قد قمت بتثبيت مكتبة react-toastify
 import { API_BASE_URL } from "@/utils/api";
-import { ThemeContext } from "../ThemeContext";
+import { ThemeContext } from "../../ThemeContext";
 
 interface AddUserFormProps {
   onSubmit: (data: UserFormData) => Promise<void>;
@@ -39,6 +39,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
   const [specializations, setSpecializations] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false); // حالة التحميل
   const { isDarkMode } = useContext(ThemeContext);
+  const userRole = localStorage.getItem("userRole");
 
   // Fetch specializations from the API
   useEffect(() => {
@@ -179,8 +180,11 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
             className="mt-1 text-black p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="USER">مستخدم</option>
-            <option value="SUB_ADMIN">مدير محافظة</option>
             <option value="TECHNICAL">تقني</option>
+            {userRole === "ADMIN" && <option value="ADMIN">مدير</option>}
+            {userRole === "ADMIN" && (
+              <option value="SUBADMIN">مدير محافظة </option>
+            )}
           </select>
         </div>
 

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/navBar";
 import { ThemeContext } from "../ThemeContext";
 import Notifications from "../../components/dashboard/notification";
-import Users from "./users";
+import Users from "./users/users";
 import { toast } from "react-toastify";
 import DashboardHome from "./DashboardHome";
 import TermsOfUseAdmin from "./TermsOfUseAdmin";
@@ -44,6 +44,7 @@ const AdminDashboard: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(true); // حالة الطي
   const { logout } = useContext(AuthContext); // استخدام isLoggedIn و logout من AuthContext
   const [notificationsCount, setNotificationsCount] = useState<number>(0); // حالة لعدد الإشعارات
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   // دالة للتحقق من صلاحيات المستخدم
   useEffect(() => {
@@ -92,6 +93,13 @@ const AdminDashboard: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
+  useEffect(() => {
+    // التحقق من بيئة المتصفح
+    if (typeof window !== "undefined") {
+      const role = localStorage.getItem("userRole");
+      setUserRole(role);
+    }
+  }, []);
   const navigationOptions = [
     { name: "الرئيسية", icon: <FaHome />, key: "home" },
     { name: "طلبات الإصلاح", icon: <FaWrench />, key: "repairRequests" },
@@ -109,12 +117,20 @@ const AdminDashboard: React.FC = () => {
         </div>
       ),
     },
-    { name: "اتصل بنا", icon: <FaPhoneAlt />, key: "contact-us" },
-    { name: "الخدمات", icon: <FaConciergeBell />, key: "services" },
-    { name: "موديلات الأجهزة", icon: <FaMobileAlt />, key: "device_models" },
-    { name: "التقييمات", icon: <FaStar />, key: "review" },
+    ...(userRole === "ADMIN"
+      ? [
+          { name: "اتصل بنا", icon: <FaPhoneAlt />, key: "contact-us" },
+          { name: "الخدمات", icon: <FaConciergeBell />, key: "services" },
+          {
+            name: "موديلات الأجهزة",
+            icon: <FaMobileAlt />,
+            key: "device_models",
+          },
+          { name: "التقييمات", icon: <FaStar />, key: "review" },
+          { name: "الشروط والسياسات", icon: <FaCogs />, key: "settings" },
+        ]
+      : []),
     { name: "المستخدمين", icon: <FaUsers />, key: "users" },
-    { name: "الشروط والسياسات", icon: <FaCogs />, key: "settings" },
   ];
 
   const handleLogout = () => {

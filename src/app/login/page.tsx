@@ -22,11 +22,6 @@ const LoginForm = () => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsChecked(e.target.checked);
-  };
 
   useEffect(() => {
     Modal.setAppElement(document.body);
@@ -87,7 +82,7 @@ const LoginForm = () => {
         toast.success(response.data.message || "تم تسجيل الدخول بنجاح!");
         login(userEmail, userId);
 
-        if (userRole === "ADMIN") {
+        if (userRole === "ADMIN" || userRole === "SUBADMIN") {
           router.push("/admindashboard");
         } else if (userRole === "TECHNICAL") {
           router.push("/technicaldashboard");
@@ -196,29 +191,12 @@ const LoginForm = () => {
               نسيت كلمة المرور
             </button>
           </div>
-          <div className="flex items-center w-full mb-2">
-            <input
-              type="checkbox"
-              className="ml-2"
-              id="x"
-              onChange={handleCheckboxChange}
-            />
 
-            <label htmlFor="#x" className="text-sm">
-              اوافق علي سياسة الخصوصية و
-              <a
-                href="/privacy-and-terms"
-                className="text-sm text-blue-500 m-0 p-0"
-              >
-                شروط الاستخدام
-              </a>
-            </label>
-          </div>
           <button
             type="submit"
-            disabled={loading || !isChecked}
+            disabled={loading}
             className={`w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 ${
-              loading || !isChecked ? "opacity-50 cursor-not-allowed" : ""
+              loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             {loading ? "جارٍ تسجيل الدخول..." : "تسجيل الدخول"}
