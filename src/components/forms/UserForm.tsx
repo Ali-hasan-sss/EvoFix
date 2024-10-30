@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import toast from "react-hot-toast";
 import { ThemeContext } from "@/app/ThemeContext";
 import { AiOutlineArrowRight, AiOutlineArrowLeft } from "react-icons/ai";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { UserFormInput } from "../../utils/types"; // تأكد من مسار الاستيراد الصحيح
+import axios from "axios";
+import { API_BASE_URL } from "@/utils/api";
 
 // تعريف نوع props
 
@@ -29,7 +31,9 @@ interface FormErrors {
   specialization?: string;
   services?: string;
 }
-
+interface Service {
+  title: string;
+}
 const UserForm: React.FC<UserFormProps> = ({
   initialData = {
     fullName: "",
@@ -45,6 +49,7 @@ const UserForm: React.FC<UserFormProps> = ({
   onSubmit,
   submitButtonLabel = "التسجيل",
   isUser = true,
+  isNew,
 }) => {
   const { isDarkMode } = useContext(ThemeContext);
   const [currentStep, setCurrentStep] = useState(1);
@@ -64,6 +69,22 @@ const UserForm: React.FC<UserFormProps> = ({
   const [showPasswordR, setShowPasswordR] = useState(false); // لإظهار تأكيد كلمة المرور
   const [isLoading, setIsLoading] = useState(false); // حالة التحميل
   const [isChecked, setIsChecked] = useState(false);
+  const [specializations, setSpecializations] = useState<string[]>([]);
+
+  // Fetch specializations from the API
+  useEffect(() => {
+    axios
+      .get(`${API_BASE_URL}/services`)
+      .then((response) => {
+        if (response.data.services && Array.isArray(response.data.services)) {
+          const titles = response.data.services.map(
+            (service: Service) => service.title
+          );
+          setSpecializations(titles);
+        }
+      })
+      .catch((error) => console.error("فشل في جلب الخدمات:", error));
+  }, []);
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(e.target.checked);
@@ -266,6 +287,7 @@ const UserForm: React.FC<UserFormProps> = ({
                 <option value="دير الزور">دير الزور</option>
                 <option value="ادلب">ادلب</option>
               </select>
+
               {errors.governorate && (
                 <p className="text-red-500 text-sm">{errors.governorate}</p>
               )}
@@ -313,12 +335,13 @@ const UserForm: React.FC<UserFormProps> = ({
                     required
                   >
                     <option value="">اختر الاختصاص</option>
-                    <option value="الشاشات الالكترونية">
-                      الشاشات الالكترونية
-                    </option>
-                    <option value="موبايل">موبايل</option>
-                    <option value="لابتوب">لابتوب</option>
+                    {specializations.map((specialization, index) => (
+                      <option key={index} value={specialization}>
+                        {specialization}
+                      </option>
+                    ))}
                   </select>
+
                   {errors.specialization && (
                     <p className="text-red-500 text-sm">
                       {errors.specialization}
@@ -420,24 +443,26 @@ const UserForm: React.FC<UserFormProps> = ({
               {errors.confirmPassword && (
                 <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
               )}
-              <div className="flex items-center w-full mt-4">
-                <input
-                  type="checkbox"
-                  className="ml-2"
-                  id="x"
-                  onChange={handleCheckboxChange}
-                />
+              {isNew && (
+                <div className="flex items-center w-full mt-4">
+                  <input
+                    type="checkbox"
+                    className="ml-2"
+                    id="x"
+                    onChange={handleCheckboxChange}
+                  />
 
-                <label htmlFor="#x">
-                  اوافق علي سياسة الخصوصية و{" "}
-                  <a
-                    href="/privacy-and-terms"
-                    className="text-blue-500 m-0 p-0"
-                  >
-                    شروط الاستخدام
-                  </a>
-                </label>
-              </div>
+                  <label htmlFor="#x">
+                    اوافق علي سياسة الخصوصية و{" "}
+                    <a
+                      href="/privacy-and-terms"
+                      className="text-blue-500 m-0 p-0"
+                    >
+                      شروط الاستخدام
+                    </a>
+                  </label>
+                </div>
+              )}
             </div>
           </>
         );
@@ -476,9 +501,15 @@ const UserForm: React.FC<UserFormProps> = ({
         ) : (
           <button
             type="submit"
-            disabled={isLoading || !isChecked}
+            disabled={
+              (isNew && (isLoading || !isChecked)) || (!isNew && isLoading)
+            }
             className={`px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600
-            ${isLoading || !isChecked ? "opacity-50 cursor-not-allowed" : ""}`}
+          ${
+            (isLoading && isNew) || (!isChecked && isNew)
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+          }`}
           >
             {submitButtonLabel}
             {isLoading && " ..."} {/* إضافة ثلاث نقاط عند التحميل */}

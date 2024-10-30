@@ -1,5 +1,3 @@
-// src/pages/RegisterPage.tsx
-
 "use client";
 
 import React, { useContext } from "react";
@@ -59,7 +57,7 @@ const RegisterPage = () => {
         toast.success(
           "تم ارسال بريد تحقق الى بريدك الالكتروني الرجاء تاكيد حسابك",
           {
-            duration: 10000, // المدة بالمللي ثانية (10000 = 10 ثواني)
+            duration: 10000,
           }
         );
 
@@ -69,7 +67,7 @@ const RegisterPage = () => {
         // إعادة توجيه المستخدم بعد التسجيل
         setTimeout(() => {
           router.push("/dashboard");
-        }, 1000);
+        }, 5000);
       } else {
         toast.error("حدث خطأ أثناء إنشاء الحساب.");
       }

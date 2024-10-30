@@ -1,5 +1,3 @@
-// src/pages/RegisterTechnicianPage.tsx
-
 "use client";
 
 import React, { useContext } from "react";
@@ -61,14 +59,19 @@ const RegisterTechnicianPage = () => {
         localStorage.setItem("userRole", userRole);
 
         toast.success("تم إنشاء حساب تقني بنجاح!");
-
+        toast.success(
+          "تم ارسال بريد تحقق الى بريدك الالكتروني الرجاء تاكيد حسابك",
+          {
+            duration: 10000,
+          }
+        );
         // تسجيل الدخول تلقائيًا
         login(email, userId);
 
         // إعادة توجيه المستخدم بعد التسجيل
         setTimeout(() => {
           router.push("/dashboard");
-        }, 1500);
+        }, 5000);
       } else {
         toast.error("حدث خطأ أثناء إنشاء الحساب");
       }

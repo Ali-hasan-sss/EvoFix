@@ -11,6 +11,7 @@ import DashboardHome from "./DashboardHome";
 import TermsOfUseAdmin from "./TermsOfUseAdmin";
 import RepairRequestsPage from "./RepairRequests";
 import { ClipLoader } from "react-spinners";
+import Cookies from "js-cookie";
 import { AuthContext } from "@/app/context/AuthContext";
 import {
   FaHome,
@@ -32,6 +33,8 @@ import DevicesModels from "./DevicesModels";
 import ContactMessages from "./ContactUsAndFAQ";
 import Review from "./Review";
 import ContactUsAndFAQ from "./ContactUsAndFAQ";
+import { API_BASE_URL } from "@/utils/api";
+import axios from "axios";
 
 const AdminDashboard: React.FC = () => {
   const router = useRouter();
@@ -40,6 +43,7 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(true); // حالة الطي
   const { logout } = useContext(AuthContext); // استخدام isLoggedIn و logout من AuthContext
+  const [notificationsCount, setNotificationsCount] = useState<number>(0); // حالة لعدد الإشعارات
 
   // دالة للتحقق من صلاحيات المستخدم
   useEffect(() => {
@@ -55,25 +59,79 @@ const AdminDashboard: React.FC = () => {
     checkAdminRole();
   }, [router]); // Include `router` if it's not stable across renders
 
+  // استرجاع الخيار النشط من الـ local storage عند تحميل المكون
+  useEffect(() => {
+    const storedActiveTab = localStorage.getItem("activeTab");
+    if (storedActiveTab) {
+      setActiveTab(storedActiveTab);
+    }
+  }, []);
+  const fetchNotificationsCount = async () => {
+    const token = Cookies.get("token");
+    if (token) {
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/notifications/count`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setNotificationsCount(response.data.count); // تحديث حالة عدد الإشعارات
+      } catch (error: unknown) {
+        console.error("خطأ في جلب عدد الإشعارات", error);
+      }
+    }
+  };
+  useEffect(() => {
+    fetchNotificationsCount();
+
+    const intervalId = setInterval(fetchNotificationsCount, 60000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   const navigationOptions = [
     { name: "الرئيسية", icon: <FaHome />, key: "home" },
     { name: "طلبات الإصلاح", icon: <FaWrench />, key: "repairRequests" },
-    { name: "الإشعارات", icon: <FaBell />, key: "notifications" },
+    {
+      key: "notifications",
+      name: "الإشعارات",
+      icon: (
+        <div className="relative">
+          <FaBell className="text-2xl" />
+          {notificationsCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5">
+              {notificationsCount}
+            </span>
+          )}
+        </div>
+      ),
+    },
     { name: "اتصل بنا", icon: <FaPhoneAlt />, key: "contact-us" },
     { name: "الخدمات", icon: <FaConciergeBell />, key: "services" },
     { name: "موديلات الأجهزة", icon: <FaMobileAlt />, key: "device_models" },
     { name: "التقييمات", icon: <FaStar />, key: "review" },
     { name: "المستخدمين", icon: <FaUsers />, key: "users" },
-    { name: "الإعدادات", icon: <FaCogs />, key: "settings" },
+    { name: "الشروط والسياسات", icon: <FaCogs />, key: "settings" },
   ];
+
   const handleLogout = () => {
     logout();
     toast.success("تم تسجيل الخروج بنجاح!");
     window.location.href = "/";
   };
+
   // تقسيم المصفوفة إلى صفوف
   const firstRow = navigationOptions.slice(0, 4);
   const secondRow = navigationOptions.slice(4, 8);
+
+  // دالة لتحديث الخيار النشط وتخزينه في الـ local storage
+  const handleTabChange = (key: string) => {
+    setActiveTab(key);
+    localStorage.setItem("activeTab", key); // تخزين الخيار النشط في الـ local storage
+  };
 
   // دالة رندر المحتوى بناءً على التبويب النشط
   const renderContent = () => {
@@ -132,7 +190,7 @@ const AdminDashboard: React.FC = () => {
               className={`flex items-center cursor-pointer p-3 rounded-lg ${
                 activeTab === option.key ? "bg-gray-700" : ""
               }`}
-              onClick={() => setActiveTab(option.key)}
+              onClick={() => handleTabChange(option.key)}
               aria-label={option.name}
             >
               {option.icon}
@@ -180,11 +238,9 @@ const AdminDashboard: React.FC = () => {
             {firstRow.map((option) => (
               <button
                 key={option.key}
-                onClick={() => setActiveTab(option.key)}
+                onClick={() => handleTabChange(option.key)}
                 className={`flex flex-col items-center flex-1 py-1 ${
-                  activeTab === option.key
-                    ? "text-yellow-800" // اللون النشط
-                    : "text-white" // جعل اللون أبيض في كلا الوضعين
+                  activeTab === option.key ? "text-yellow-500" : "text-white"
                 } transition-colors duration-200`}
                 aria-label={option.name}
               >
@@ -201,7 +257,7 @@ const AdminDashboard: React.FC = () => {
                 {secondRow.map((option) => (
                   <button
                     key={option.key}
-                    onClick={() => setActiveTab(option.key)}
+                    onClick={() => handleTabChange(option.key)}
                     className={`flex flex-col items-center flex-1 py-1 ${
                       activeTab === option.key
                         ? "text-yellow-800"
@@ -216,16 +272,14 @@ const AdminDashboard: React.FC = () => {
                   </button>
                 ))}
               </div>
-
-              {/* زر تسجيل الخروج في الشريط السفلي */}
-              <div className="flex justify-center p-1 border-t border-yellow-500">
+              <div className="flex justify-around p-1 border-t border-yellow-500">
                 <button
                   onClick={handleLogout}
-                  className={`flex flex-col items-center text-red-500 hover:text-red-700 transition-colors duration-200`}
+                  className="flex flex-col items-center flex-1 py-1 text-red-600"
                   aria-label="تسجيل الخروج"
                 >
-                  <FaSignOutAlt className="text-2xl" />
-                  <span className="text-sm mt-1">خروج</span>
+                  <FaSignOutAlt />
+                  <span className="text-sm mt-1">تسجيل الخروج</span>
                 </button>
               </div>
             </>

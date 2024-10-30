@@ -6,6 +6,8 @@ import Head from "next/head";
 import ChatBotButton from "@/components/ChatbotButton";
 import ServiceSlider from "@/components/ServiceSlider";
 import { Toaster } from "react-hot-toast";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { ThemeContext } from "./ThemeContext";
 import RepairRequestButton from "@/components/requestbutton";
 import "slick-carousel/slick/slick.css";
@@ -13,7 +15,6 @@ import "slick-carousel/slick/slick-theme.css";
 import ContactForm from "@/components/forms/ContactForm";
 import Reviews from "@/components/Review";
 import FAQ from "@/components/FAQ";
-import { ToastContainer } from "react-toastify";
 const Home: NextPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
 
@@ -40,7 +41,6 @@ const Home: NextPage = () => {
         }`}
       >
         {/********************************/}
-        <Navbar />
         <ToastContainer
           position="top-right"
           autoClose={5000}
@@ -52,6 +52,7 @@ const Home: NextPage = () => {
           draggable
           pauseOnHover
         />
+        <Navbar />
         <RepairRequestButton />
         <Toaster
           position="top-right"

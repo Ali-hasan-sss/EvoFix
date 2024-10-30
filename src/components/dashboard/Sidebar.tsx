@@ -32,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeOption, setActiveOption] = useState<string>("viewRequests");
-  const [notificationsCount, setNotificationsCount] = useState<number>(0); // حالة لعدد الإشعارات
+  const [notificationsCount, setNotificationsCount] = useState<number>(0);
 
   useEffect(() => {
     const token = localStorage.getItem("email");
@@ -100,7 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
   useEffect(() => {
     fetchNotificationsCount();
 
-    const intervalId = setInterval(fetchNotificationsCount, 10000);
+    const intervalId = setInterval(fetchNotificationsCount, 60000);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -137,7 +137,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
     },
   ];
 
-  // نسخة مخصصة للـ Sidebar بدون خيار "الرئيسية"
   const sidebarRow = mainRow.filter((option) => option.key !== "viewHome");
 
   return (

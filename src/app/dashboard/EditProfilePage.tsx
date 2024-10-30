@@ -1,5 +1,3 @@
-// pages/edit-profile.tsx
-"use client";
 import React, { useContext, useEffect, useState } from "react";
 import Navbar from "@/components/navBar";
 import toast, { Toaster } from "react-hot-toast";
@@ -7,9 +5,20 @@ import { ThemeContext } from "../ThemeContext";
 import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import axios from "axios";
 import UserForm from "../../components/forms/UserForm";
-import { API_BASE_URL } from "@/utils/api";
+import { getData, putData } from "@/utils/axiosInstance"; // استيراد الدوال من ملف axiosInstance
+import axios, { AxiosError } from "axios";
+
+// تعريف واجهة لبيانات المستخدم
+interface UserData {
+  fullName: string;
+  email: string;
+  governorate: string;
+  phoneNO: string;
+  address: string;
+}
+
+// تعريف واجهة لبيانات النموذج
 interface FormData {
   fullName: string;
   email: string;
@@ -34,17 +43,13 @@ const EditProfilePage = () => {
     phoneNO: "",
     address: "",
   });
+
   const token = Cookies.get("token");
+
   useEffect(() => {
-    // جلب بيانات المستخدم الحالية من الخادم
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/users/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const user = response.data;
+        const user = await getData<UserData>("/users/me"); // استدعاء الدالة مع نوع UserData
         setInitialData({
           fullName: user.fullName,
           email: user.email,
@@ -54,19 +59,16 @@ const EditProfilePage = () => {
           phoneNO: user.phoneNO,
           address: user.address,
         });
-      } catch (error: unknown) {
+      } catch (error) {
         toast.error("تعذر جلب بيانات المستخدم");
-
-        // تحقق مما إذا كان الخطأ هو من نوع AxiosError
-        if (axios.isAxiosError(error)) {
-          if (error.response?.status === 401) {
+        // هنا نتحقق من نوع الخطأ
+        if (axios.isAxiosError(error) && error.response) {
+          if (error.response.status === 401) {
             logout();
             router.push("/login");
           }
-        } else {
-          // هنا يمكنك التعامل مع الأخطاء الأخرى التي ليست من Axios إذا لزم الأمر
-          console.error("Unexpected error:", error);
         }
+        console.error("Unexpected error:", error);
       }
     };
 
@@ -80,36 +82,16 @@ const EditProfilePage = () => {
   const handleEditProfile = async (data: FormData) => {
     try {
       const updateData: Partial<FormData> = { ...data };
-      // إزالة كلمات المرور إذا لم يتم تغييرها
+
       if (!data.password) {
         delete updateData.password;
         delete updateData.confirmPassword;
       }
 
-      const response = await axios.put(
-        "https://evo-fix-api.vercel.app/api/users/me",
-        updateData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        toast.success("تم تحديث البيانات بنجاح!");
-        // يمكن تحديث البيانات المحلية أو إعادة جلبها حسب الحاجة
-      } else {
-        toast.error("حدث خطأ أثناء تحديث البيانات");
-      }
-    } catch (error: unknown) {
-      // تغيير any إلى unknown
-      if (axios.isAxiosError(error) && error.response) {
-        toast.error(`حدث خطأ: ${error.response.data.message || "غير معروف"}`);
-      } else {
-        toast.error("تعذر الاتصال بالخادم");
-      }
+      await putData("/users/me", updateData); // استدعاء الدالة الجديدة
+      toast.success("تم تحديث البيانات بنجاح!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
     }
   };
 

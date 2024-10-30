@@ -95,15 +95,15 @@ export interface FormErrors {
 
 // واجهة بيانات التسجيل الفني
 export interface RegisterTechnicianData {
-  fullName: string;
   email: string;
-  phoneNO: string;
+  fullName: string;
   governorate: string;
-  address: string;
   password: string;
-  confirmPassword: string;
-  specialization?: string; // يمكن أن تكون اختيارية إذا لزم الأمر
-  services?: string; // يمكن أن تكون اختيارية إذا لزم الأمر
+  phoneNO: string;
+  address: string;
+  specialization?: string;
+  services?: string;
+  role?: string;
 }
 
 // واجهة بيانات تحرير الملف الشخصي

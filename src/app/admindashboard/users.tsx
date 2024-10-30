@@ -4,7 +4,7 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../../utils/api";
 import { ThemeContext } from "../ThemeContext";
-import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import { FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
 import GenericTable, { Column } from "@/components/dashboard/GenericTable";
 import { toast, ToastContainer } from "react-toastify";
 import { confirmAlert } from "react-confirm-alert";
@@ -15,6 +15,7 @@ import "react-toastify/dist/ReactToastify.css";
 import UserDetails from "./UserDetails";
 import UserCard from "./UserCard";
 import { useMediaQuery } from "react-responsive";
+import AddUserForm from "./AddUserForm";
 
 interface User {
   displayId: number;
@@ -26,6 +27,17 @@ interface User {
   governorate: string;
   role: string;
   isActive: boolean;
+}
+interface UserFormData {
+  // إعادة تسمية هنا
+  fullName: string;
+  phoneNO: string;
+  email: string;
+  governorate: string;
+  address: string;
+  role: "USER" | "SUB_ADMIN" | "TECHNICAL";
+  specialization?: string;
+  services?: string;
 }
 
 const Users: React.FC = () => {
@@ -39,17 +51,48 @@ const Users: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("users"); // التبويب الحالي
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const [isAddingUser, setIsAddingUser] = useState(false); // حالة إضافة مستخدم جديد
 
   const openEditModal = (user: User) => {
     setSelectedUser(user);
     setIsModalOpen(true);
+  };
+  const openAddUserModal = () => {
+    setSelectedUser(null);
+    setIsModalOpen(true);
+    setIsAddingUser(true); // تفعيل حالة إضافة مستخدم جديد
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedUser(null);
   };
+  const handleAddUser = async (data: UserFormData) => {
+    try {
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("token="));
+      const authToken = token ? token.split("=")[1] : "";
 
+      const response = await axios.post(`${API_BASE_URL}/users`, data, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      console.log("تم إضافة المستخدم بنجاح:", response.data);
+
+      // إضافة Toast عند النجاح
+      toast.success("تم إضافة المستخدم بنجاح!");
+
+      // أغلق المودال
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("خطأ أثناء إضافة المستخدم:", error);
+      // يمكنك إضافة Toast خطأ أيضًا
+      toast.error("حدث خطأ أثناء إضافة المستخدم. يرجى المحاولة مرة أخرى.");
+    }
+  };
   const fetchUsers = async () => {
     setLoading(true);
     try {
@@ -294,7 +337,14 @@ const Users: React.FC = () => {
     <div className={`p-5 mt-5 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
       <ToastContainer />
       <h2 className="text-2xl font-semibold mb-4">إدارة المستخدمين</h2>
-
+      <div className="flex justify-between items-center mb-4">
+        <button
+          onClick={openAddUserModal}
+          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center space-x-2"
+        >
+          <FaPlus /> <span>إضافة مستخدم جديد</span>
+        </button>
+      </div>
       {/* التبويبات */}
       <div className="flex justify-center  mb-4">
         <button
@@ -352,6 +402,39 @@ const Users: React.FC = () => {
 
       {selectedUser && (
         <UserDetails user={selectedUser} onClose={handleCloseDetails} />
+      )}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+          <div
+            className={`rounded-lg shadow-lg w-3/4 md:w-1/2 ${
+              isDarkMode ? "bg-gray-800 text-light" : "bg-gray-200 text-black"
+            } p-4 relative`}
+            style={{ overflowY: "auto" }}
+          >
+            <button
+              onClick={closeModal}
+              className="absolute top-3 left-3 text-gray-500 hover:text-gray-700 "
+              aria-label="Close"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            <AddUserForm onSubmit={handleAddUser} onClose={closeModal} />
+          </div>
+        </div>
       )}
     </div>
   );

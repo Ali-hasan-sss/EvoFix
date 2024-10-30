@@ -30,7 +30,7 @@ const VerifyEmail: React.FC = () => {
         verifyToken: token,
         id: parseInt(id, 10),
       });
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       console.error("Verification failed:", error);
       setErrorMessage("حدث خطأ أثناء التحقق.");
