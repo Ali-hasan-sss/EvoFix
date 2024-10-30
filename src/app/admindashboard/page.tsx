@@ -191,7 +191,6 @@ const AdminDashboard: React.FC = () => {
       }`}
     >
       <Navbar />
-
       {/* الشريط الجانبي للشاشات الكبيرة */}
       <div
         className={`hidden md:flex p-6 mt-16 flex-col w-1/5  ${
@@ -223,13 +222,12 @@ const AdminDashboard: React.FC = () => {
           </li>
         </ul>
       </div>
-
       {/* الحاوية الرئيسية للمحتوى */}
       <div className={`flex-grow p-6 mt-16 w-full md:w-4/5 pb-20 md:pb-0`}>
         {renderContent()}
       </div>
 
-      {/* شريط التنقل السفلي للشاشات الصغيرة */}
+      {/* الشريط السفلي للشاشات الصغيرة */}
       <div
         className={`fixed bottom-0 left-0 w-full md:hidden z-20 ${
           isDarkMode ? "bg-gray-900 text-white" : "bg-gray-700 text-black"
@@ -249,6 +247,7 @@ const AdminDashboard: React.FC = () => {
               )}
             </button>
           </div>
+
           {/* الصف الأول من شريط التنقل السفلي */}
           <div className="flex justify-around p-1 border-t border-yellow-500">
             {firstRow.map((option) => (
@@ -288,7 +287,19 @@ const AdminDashboard: React.FC = () => {
                   </button>
                 ))}
               </div>
+
               <div className="flex justify-around p-1 border-t border-yellow-500">
+                {/* زر المستخدمين يظهر فقط للأدمن */}
+                {userRole === "ADMIN" && (
+                  <button
+                    onClick={() => handleTabChange("users")}
+                    className="flex flex-col items-center flex-1 py-1 text-yellow-800"
+                    aria-label="المستخدمين"
+                  >
+                    <FaUsers />
+                    <span className="text-sm mt-1">المستخدمين</span>
+                  </button>
+                )}
                 <button
                   onClick={handleLogout}
                   className="flex flex-col items-center flex-1 py-1 text-red-600"

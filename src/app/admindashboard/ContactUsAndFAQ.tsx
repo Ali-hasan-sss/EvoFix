@@ -204,9 +204,12 @@ const ContactUsAndFAQ: React.FC = () => {
                   <FaTrash className="text-red-500 cursor-pointer" />
                 </button>
               </div>
+              <p className="text-sm text-green-500">{faq.answer}</p>
+
               <p className="text-sm text-gray-500">
                 {faq.isPublished ? "منشور" : "غير منشور"}
               </p>
+
               <Switch
                 checked={faq.isPublished}
                 onChange={() => handleTogglePublish(faq.id, faq.isPublished)}
@@ -236,7 +239,7 @@ const ContactUsAndFAQ: React.FC = () => {
                   onClick={() => setSelectedFaq(faq.id)}
                   className="mt-2 py-2 px-4 bg-blue-500 rounded hover:bg-blue-400 block"
                 >
-                  إضافة إجابة
+                  {faq.answer ? "تعديل الاجابة" : "اضافة اجابة"}
                 </button>
               )}
             </li>

@@ -85,17 +85,17 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
 
   return (
     <div
-      className={`overflow-y-auto ${
+      className={`overflow-y-auto max-h-screen ${
         isDarkMode ? "bg-gray-800" : "bg-gray-200"
       }`}
     >
       <form
         onSubmit={handleSubmit}
-        className={`p-4 rounded-lg shadow-md flex flex-col md:grid md:grid-cols-2 gap-4 ${
+        className={`p-4 rounded-lg shadow-md flex flex-col gap-y-2 md:grid md:grid-cols-2 gap-x-4 ${
           isDarkMode ? "text-light" : "text-black"
         }`}
       >
-        <div className="mb-4">
+        <div className="mb-2">
           <label className="block">الاسم الكامل:</label>
           <input
             type="text"
@@ -107,7 +107,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
           />
         </div>
 
-        <div className="mb-4">
+        <div className="mb-2">
           <label className="block">رقم الهاتف:</label>
           <input
             type="text"

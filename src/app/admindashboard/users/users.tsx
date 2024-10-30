@@ -116,7 +116,11 @@ const Users: React.FC = () => {
 
       // تحديد المصفوفة المناسبة بناءً على التبويب المحدد
       if (selectedTab === "technicians") {
-        setUsers(response.data.adminTechnicians || []);
+        setUsers(
+          userRole === "SUBADMIN"
+            ? response.data.subAdminTechnicians || []
+            : response.data.adminTechnicians || []
+        );
       } else if (selectedTab === "subAdmins") {
         setUsers(response.data.adminSubAdmins || []);
       } else {
