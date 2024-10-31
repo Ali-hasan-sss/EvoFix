@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { toast } from "react-toastify"; // تأكد من أنك قد قمت بتثبيت مكتبة react-toastify
+import { toast } from "react-toastify";
 import { API_BASE_URL } from "@/utils/api";
 import { ThemeContext } from "../../context/ThemeContext";
 
@@ -27,6 +27,7 @@ interface Service {
 
 const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
   const [formData, setFormData] = useState<UserFormData>({
+    // State to hold user form data
     fullName: "",
     phoneNO: "",
     email: "",
@@ -35,12 +36,14 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
     role: "USER",
     password: "",
   });
-
+  // State to store specializations fetched from the API
   const [specializations, setSpecializations] = useState<string[]>([]);
-  const [loading, setLoading] = useState<boolean>(false); // حالة التحميل
+  // Loading state to indicate when form submission is processing
+  const [loading, setLoading] = useState<boolean>(false);
+  // Retrieve theme context to set dark/light mode styles
   const { isDarkMode } = useContext(ThemeContext);
+  // Get user role from localStorage, used to determine role options
   const userRole = localStorage.getItem("userRole");
-
   // Fetch specializations from the API
   useEffect(() => {
     axios
@@ -70,16 +73,16 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); // بدء التحميل
+    setLoading(true);
     try {
       await onSubmit(formData);
       toast.success("تم إضافة المستخدم بنجاح!");
-      onClose(); // أغلق المودال بعد الإضافة الناجحة
+      onClose();
     } catch (error) {
       console.error("خطأ أثناء إضافة المستخدم:", error);
       toast.error("حدث خطأ أثناء إضافة المستخدم. يرجى المحاولة مرة أخرى.");
     } finally {
-      setLoading(false); // انتهاء التحميل
+      setLoading(false);
     }
   };
 
@@ -89,6 +92,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
         isDarkMode ? "bg-gray-800" : "bg-gray-200"
       }`}
     >
+      {/* Main form structure */}
       <form
         onSubmit={handleSubmit}
         className={`p-4 rounded-lg shadow-md flex flex-col gap-y-2 md:grid md:grid-cols-2 gap-x-4 ${
@@ -191,7 +195,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
         <div className="mb-4">
           <label className="block">كلمة المرور:</label>
           <input
-            type="password" // تأكد من نوع الحقل هو password
+            type="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
@@ -236,7 +240,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
 
         <button
           type="submit"
-          disabled={loading} // تعطيل الزر أثناء التحميل
+          disabled={loading}
           className={`mt-4 w-full p-2 text-white rounded-md ${
             loading ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
           } focus:outline-none`}

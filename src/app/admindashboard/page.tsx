@@ -27,7 +27,7 @@ import {
   FaMobileAlt,
   FaConciergeBell,
   FaPhoneAlt,
-} from "react-icons/fa"; // استيراد الأيقونات
+} from "react-icons/fa";
 import ServicesComponent from "./services";
 import DevicesModels from "./DevicesModels";
 import ContactMessages from "./ContactUsAndFAQ";
@@ -36,18 +36,21 @@ import Invoices from "@/components/Invoices";
 import ContactUsAndFAQ from "./ContactUsAndFAQ";
 import { API_BASE_URL } from "@/utils/api";
 import axios from "axios";
+import { useDataCounts } from "../context/DataCountsContext";
 
+// Main Admin Dashboard component
 const AdminDashboard: React.FC = () => {
   const router = useRouter();
+  const stats = useDataCounts();
   const { isDarkMode } = useContext(ThemeContext);
   const [activeTab, setActiveTab] = useState("home");
   const [loading, setLoading] = useState(true);
-  const [isCollapsed, setIsCollapsed] = useState(true); // حالة الطي
-  const { logout } = useContext(AuthContext); // استخدام isLoggedIn و logout من AuthContext
-  const [notificationsCount, setNotificationsCount] = useState<number>(0); // حالة لعدد الإشعارات
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const { logout } = useContext(AuthContext);
+  const [notificationsCount, setNotificationsCount] = useState<number>(0);
   const [userRole, setUserRole] = useState<string | null>(null);
 
-  // دالة للتحقق من صلاحيات المستخدم
+  // Check if the user has admin privileges
   useEffect(() => {
     const checkAdminRole = () => {
       const userRole = localStorage.getItem("userRole");
@@ -59,15 +62,17 @@ const AdminDashboard: React.FC = () => {
     };
 
     checkAdminRole();
-  }, [router]); // Include `router` if it's not stable across renders
+  }, [router]);
 
-  // استرجاع الخيار النشط من الـ local storage عند تحميل المكون
+  // Retrieve active tab from local storage on load
   useEffect(() => {
     const storedActiveTab = localStorage.getItem("activeTab");
     if (storedActiveTab) {
       setActiveTab(storedActiveTab);
     }
   }, []);
+
+  // Fetch the notifications count from API
   const fetchNotificationsCount = async () => {
     const token = Cookies.get("token");
     if (token) {
@@ -80,12 +85,14 @@ const AdminDashboard: React.FC = () => {
             },
           }
         );
-        setNotificationsCount(response.data.count); // تحديث حالة عدد الإشعارات
+        setNotificationsCount(response.data.count);
       } catch (error: unknown) {
         console.error("خطأ في جلب عدد الإشعارات", error);
       }
     }
   };
+
+  // Set up periodic refresh of notifications count every minute
   useEffect(() => {
     fetchNotificationsCount();
 
@@ -94,13 +101,15 @@ const AdminDashboard: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
+  // Retrieve user role from local storage
   useEffect(() => {
-    // التحقق من بيئة المتصفح
     if (typeof window !== "undefined") {
       const role = localStorage.getItem("userRole");
       setUserRole(role);
     }
   }, []);
+
+  // Define dashboard navigation options
   const navigationOptions = [
     { name: "الرئيسية", icon: <FaHome />, key: "home" },
     { name: "طلبات الإصلاح", icon: <FaWrench />, key: "repairRequests" },
@@ -135,23 +144,24 @@ const AdminDashboard: React.FC = () => {
     { name: "الفواتير", icon: <FaUsers />, key: "Invoices" },
   ];
 
+  // Handle logout action
   const handleLogout = () => {
     logout();
     toast.success("تم تسجيل الخروج بنجاح!");
     window.location.href = "/";
   };
 
-  // تقسيم المصفوفة إلى صفوف
+  // Split navigation options into two rows for mobile display
   const firstRow = navigationOptions.slice(0, 4);
   const secondRow = navigationOptions.slice(4, 8);
 
-  // دالة لتحديث الخيار النشط وتخزينه في الـ local storage
+  // Handle tab change and store active tab in local storage
   const handleTabChange = (key: string) => {
     setActiveTab(key);
-    localStorage.setItem("activeTab", key); // تخزين الخيار النشط في الـ local storage
+    localStorage.setItem("activeTab", key);
   };
 
-  // دالة رندر المحتوى بناءً على التبويب النشط
+  // Render content based on active tab
   const renderContent = () => {
     switch (activeTab) {
       case "home":
@@ -179,7 +189,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // عرض رسالة تحميل أثناء التحقق من الصلاحيات
+  // Show loading message while checking auth
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen min-w-screen">
@@ -195,7 +205,7 @@ const AdminDashboard: React.FC = () => {
       }`}
     >
       <Navbar />
-      {/* الشريط الجانبي للشاشات الكبيرة */}
+      {/* Sidebar for large screens */}
       <div
         className={`hidden md:flex p-6 mt-16 flex-col w-1/5  ${
           isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
@@ -207,7 +217,7 @@ const AdminDashboard: React.FC = () => {
             <li
               key={option.key}
               className={`flex items-center cursor-pointer p-3 rounded-lg ${
-                activeTab === option.key ? "bg-gray-700" : ""
+                activeTab === option.key ? "bg-gray-700 text-white" : ""
               }`}
               onClick={() => handleTabChange(option.key)}
               aria-label={option.name}
@@ -226,19 +236,19 @@ const AdminDashboard: React.FC = () => {
           </li>
         </ul>
       </div>
-      {/* الحاوية الرئيسية للمحتوى */}
+      {/* Main content container */}
       <div className={`flex-grow p-6 mt-16 w-full md:w-4/5 pb-20 md:pb-0`}>
         {renderContent()}
       </div>
 
-      {/* الشريط السفلي للشاشات الصغيرة */}
+      {/* Bottom bar for small screens */}
       <div
         className={`fixed bottom-0 left-0 w-full md:hidden z-20 ${
           isDarkMode ? "bg-gray-900 text-white" : "bg-gray-700 text-black"
         }`}
       >
         <div className="flex flex-col">
-          {/* زر الطي/التوسيع */}
+          {/* Collapse/expand button */}
           <div className="flex justify-center p-1 border-t border-yellow-500 ">
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
@@ -252,7 +262,7 @@ const AdminDashboard: React.FC = () => {
             </button>
           </div>
 
-          {/* الصف الأول من شريط التنقل السفلي */}
+          {/* First row of navigation options */}
           <div className="flex justify-around p-1 border-t border-yellow-500">
             {firstRow.map((option) => (
               <button
@@ -269,7 +279,7 @@ const AdminDashboard: React.FC = () => {
             ))}
           </div>
 
-          {/* الصف الثاني من شريط التنقل السفلي وزر تسجيل الخروج */}
+          {/* Conditional rendering for second row */}
           {!isCollapsed && (
             <>
               <div className="flex justify-around p-1 border-t border-yellow-500">
@@ -293,7 +303,6 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="flex justify-around p-1 border-t border-yellow-500">
-                {/* زر المستخدمين يظهر فقط للأدمن */}
                 {userRole === "ADMIN" && (
                   <button
                     onClick={() => handleTabChange("users")}

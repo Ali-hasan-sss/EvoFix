@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 import Modal from "react-modal";
 import { API_BASE_URL } from "@/utils/api";
 import DeviceModelForm from "@/components/forms/DeviceModelForm";
-import { FaEdit, FaTrash } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
 import { Switch } from "@mui/material";
 import { FiEdit, FiTrash } from "react-icons/fi";
@@ -15,11 +14,16 @@ import { confirmAlert } from "react-confirm-alert";
 import { DeviceModel } from "@/utils/types";
 
 const DevicesModels: React.FC = () => {
+  // State to hold the list of device models
   const [deviceModels, setDeviceModels] = useState<DeviceModel[]>([]);
+  // Loading state for data fetching and actions
   const [loading, setLoading] = useState(false);
+  // State to manage modal visibility
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedModel, setSelectedModel] = useState<DeviceModel | null>(null); // لتمرير البيانات إلى النموذج عند التعديل
+  // State for the currently selected model for editing
+  const [selectedModel, setSelectedModel] = useState<DeviceModel | null>(null);
 
+  // Function to fetch device models from the API
   const fetchDeviceModels = useCallback(async () => {
     setLoading(true);
     try {
@@ -29,9 +33,8 @@ const DevicesModels: React.FC = () => {
           Authorization: `Bearer ${authToken}`,
         },
       });
-      console.log("Fetched Device Models:", response.data.DeviceModel); // تحقق من البيانات
-      setDeviceModels(response.data.DeviceModel || []); // تحديث الحالة هنا
-      // قم بإزالة console.log الخاص بـ deviceModels
+      console.log("Fetched Device Models:", response.data.DeviceModel);
+      setDeviceModels(response.data.DeviceModel || []); // Update state with fetched data
     } catch (error) {
       const axiosError = error as AxiosError;
       const errorMessage =
@@ -40,22 +43,24 @@ const DevicesModels: React.FC = () => {
         typeof axiosError.response.data === "object" &&
         "message" in axiosError.response.data
           ? (axiosError.response.data as { message: string }).message
-          : "حدث خطأ أثناء جلب موديلات الأجهزة.";
-      toast.error(errorMessage);
+          : "Error occurred while fetching device models.";
+      toast.error(errorMessage); // Display error message
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // Fetch device models on component mount
   useEffect(() => {
     fetchDeviceModels();
   }, [fetchDeviceModels]);
 
+  // Function to save or update a device model
   const handleSaveModel = async (data: DeviceModel) => {
     try {
       const authToken = Cookies.get("token");
       if (selectedModel) {
-        // تعديل الموديل الحالي باستخدام PUT
+        // Update existing model with PUT request
         await axios.put(
           `${API_BASE_URL}/device-models/${selectedModel.id}`,
           data,
@@ -65,44 +70,47 @@ const DevicesModels: React.FC = () => {
             },
           }
         );
-        toast.success("تم تعديل الموديل بنجاح!");
+        toast.success("Model updated successfully!");
       } else {
-        // إضافة موديل جديد باستخدام POST
+        // Add new model with POST request
         await axios.post(`${API_BASE_URL}/device-models`, data, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
         });
-        toast.success("تمت إضافة موديل جديد بنجاح!");
+        toast.success("New model added successfully!");
       }
-      setIsModalOpen(false);
-      fetchDeviceModels(); // تحديث قائمة الموديلات بعد التعديل أو الإضافة
+      setIsModalOpen(false); // Close modal after save
+      fetchDeviceModels(); // Refresh device models list
     } catch (error) {
-      toast.error("حدث خطأ أثناء حفظ الموديل.");
+      toast.error("Error occurred while saving the model.");
     }
   };
 
+  // Open the edit modal with selected model data
   const handleEditModel = (model: DeviceModel) => {
     setSelectedModel(model);
     setIsModalOpen(true);
   };
 
+  // Show confirmation dialog before deleting a model
   const confirmDeleteModel = (id: number) => {
     confirmAlert({
-      title: "تأكيد الحذف",
-      message: "هل أنت متأكد أنك تريد حذف هذه الخدمة؟",
+      title: "Confirm Deletion",
+      message: "Are you sure you want to delete this service?",
       buttons: [
         {
-          label: "نعم",
+          label: "Yes",
           onClick: () => handleDeleteModel(id),
         },
         {
-          label: "إلغاء",
+          label: "Cancel",
         },
       ],
     });
   };
 
+  // Function to delete a device model
   const handleDeleteModel = async (id: number) => {
     try {
       const authToken = Cookies.get("token");
@@ -111,13 +119,14 @@ const DevicesModels: React.FC = () => {
           Authorization: `Bearer ${authToken}`,
         },
       });
-      toast.success("تم حذف الموديل بنجاح!");
-      fetchDeviceModels(); // تحديث قائمة الموديلات بعد الحذف
+      toast.success("Model deleted successfully!");
+      fetchDeviceModels(); // Refresh list after deletion
     } catch (error) {
-      toast.error("حدث خطأ أثناء حذف الموديل.");
+      toast.error("Error occurred while deleting the model.");
     }
   };
 
+  // Toggle active status of a device model
   const handleToggleActive = async (model: DeviceModel) => {
     setLoading(true);
     try {
@@ -133,10 +142,10 @@ const DevicesModels: React.FC = () => {
           },
         }
       );
-      toast.success("تم تغيير حالة الخدمة بنجاح!");
+      toast.success("Service status updated successfully!");
       fetchDeviceModels();
     } catch (error) {
-      toast.error("حدث خطأ أثناء تغيير حالة الخدمة.");
+      toast.error("Error occurred while updating the service status.");
     } finally {
       setLoading(false);
     }
@@ -144,24 +153,26 @@ const DevicesModels: React.FC = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold">موديلات الأجهزة</h2>
+      <h2 className="text-xl font-bold">Device Models</h2>
 
       <button
         onClick={() => {
           setSelectedModel(null);
-          setIsModalOpen(true);
+          setIsModalOpen(true); // Open modal for adding a new model
         }}
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
       >
-        إضافة موديل جديد
+        Add New Model
       </button>
 
+      {/* Display loading spinner while fetching data */}
       {loading ? (
         <div className="flex justify-center items-center">
           <ClipLoader color="#4A90E2" loading={loading} size={50} />
         </div>
       ) : (
         <ul className="mt-4">
+          {/* Map through device models list */}
           {deviceModels.length > 0 ? (
             deviceModels.map((model) => (
               <li
@@ -171,13 +182,13 @@ const DevicesModels: React.FC = () => {
                 <div>
                   <h3 className="text-lg font-semibold">{model.title}</h3>
                   <p className="text-sm text-gray-600">
-                    الحالة: {model.isActive ? "نشط" : "غير نشط"}
+                    Status: {model.isActive ? "Active" : "Inactive"}
                   </p>
                   <p className="text-sm text-gray-500">
-                    تاريخ الإنشاء:{" "}
+                    Created At:{" "}
                     {model.createAt
                       ? new Date(model.createAt).toLocaleDateString()
-                      : "غير متوفر"}
+                      : "Not available"}
                   </p>
                   <div className="flex items-center mt-2">
                     <span
@@ -210,12 +221,14 @@ const DevicesModels: React.FC = () => {
               </li>
             ))
           ) : (
-            <p className="text-gray-500">لا توجد موديلات متاحة حاليا.</p>
+            <p className="text-gray-500">
+              No device models available currently.
+            </p>
           )}
         </ul>
       )}
 
-      {/* نافذة النموذج */}
+      {/* Modal for adding or editing a device model */}
       {isModalOpen && (
         <Modal
           isOpen={isModalOpen}
@@ -227,8 +240,8 @@ const DevicesModels: React.FC = () => {
           <DeviceModelForm
             onSubmit={handleSaveModel}
             onClose={() => setIsModalOpen(false)}
-            initialData={selectedModel} // يمكنك تمرير selectedModel مباشرة
-            services={selectedModel?.services || []} // هنا نقوم بتمرير الخدمات
+            initialData={selectedModel} // Pass selected model data if editing
+            services={selectedModel?.services || []} // Pass services data
           />
         </Modal>
       )}

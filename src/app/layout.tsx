@@ -7,6 +7,7 @@ import "react-confirm-alert/src/react-confirm-alert.css";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
+import DataCountsProvider from "./context/DataCountsContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -46,7 +47,9 @@ export default function RootLayout({
           pauseOnHover
         />
         <AuthProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <DataCountsProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </DataCountsProvider>
         </AuthProvider>
       </body>
     </html>

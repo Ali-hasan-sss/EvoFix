@@ -7,6 +7,7 @@ import { ClipLoader } from "react-spinners";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import { toast } from "react-toastify";
 
+// Define the Policy interface
 interface Policy {
   id: number;
   title: string;
@@ -16,6 +17,7 @@ interface Policy {
 }
 
 const TermsOfUseAdmin: React.FC = () => {
+  // Define state variables
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false);
@@ -23,14 +25,16 @@ const TermsOfUseAdmin: React.FC = () => {
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null);
   const { isDarkMode } = useContext(ThemeContext);
 
-  // الحقول لعملية الإضافة
+  // Fields for adding a new policy
   const [newTitle, setNewTitle] = useState<string>("");
   const [newContent, setNewContent] = useState<string>("");
 
+  // Fetch policies on component mount
   useEffect(() => {
     fetchPolicies();
   }, []);
 
+  // Function to retrieve policies
   const fetchPolicies = async () => {
     setLoading(true);
     try {
@@ -50,6 +54,7 @@ const TermsOfUseAdmin: React.FC = () => {
     }
   };
 
+  // Function to add a new policy
   const addPolicy = async () => {
     setLoadingSubmit(true);
     try {
@@ -62,7 +67,7 @@ const TermsOfUseAdmin: React.FC = () => {
       setPolicies([...policies, response.data]);
       toast.success("تمت إضافة السياسة بنجاح!");
 
-      // إعادة تعيين القيم
+      // Reset the fields after adding
       setNewTitle("");
       setNewContent("");
     } catch (err) {
@@ -73,6 +78,7 @@ const TermsOfUseAdmin: React.FC = () => {
     }
   };
 
+  // Function to update an existing policy
   const updatePolicy = async (id: number, updatedData: Partial<Policy>) => {
     setLoadingSubmit(true);
     try {
@@ -95,6 +101,7 @@ const TermsOfUseAdmin: React.FC = () => {
     }
   };
 
+  // Function to delete a policy
   const deletePolicy = async (id: number) => {
     try {
       const token = Cookies.get("token");
@@ -109,6 +116,7 @@ const TermsOfUseAdmin: React.FC = () => {
     }
   };
 
+  // Function to close the modal
   const closeModal = () => setSelectedPolicy(null);
 
   return (
@@ -153,6 +161,7 @@ const TermsOfUseAdmin: React.FC = () => {
         ))}
       </ul>
 
+      {/* Modal for adding or editing policy */}
       {(selectedPolicy || newTitle || newContent) && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black opacity-50"></div>{" "}

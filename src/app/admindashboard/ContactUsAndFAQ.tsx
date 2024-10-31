@@ -7,8 +7,9 @@ import { ThemeContext } from "../context/ThemeContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Switch from "react-switch";
-import { FaTrash } from "react-icons/fa"; // استيراد أيقونة الحذف
+import { FaTrash } from "react-icons/fa";
 
+// Define the types for contact messages and FAQs
 interface ContactMessage {
   id: number;
   content: string;
@@ -25,6 +26,7 @@ interface FAQ {
 }
 
 const ContactUsAndFAQ: React.FC = () => {
+  // State variables to manage contact messages, FAQs, loading states, and error messages
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [loadingContact, setLoadingContact] = useState<boolean>(true);
@@ -33,10 +35,11 @@ const ContactUsAndFAQ: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedFaq, setSelectedFaq] = useState<number | null>(null);
   const [answer, setAnswer] = useState<string>("");
-
+  // Access the theme context and get the token from cookies
   const { isDarkMode } = useContext(ThemeContext);
   const token = Cookies.get("token");
 
+  // Effect to fetch contact messages and FAQs when the component mounts
   useEffect(() => {
     const fetchContactMessages = async () => {
       try {
@@ -72,10 +75,12 @@ const ContactUsAndFAQ: React.FC = () => {
     fetchFAQs();
   }, [token]);
 
+  // Function to handle tab change between contact messages and FAQs
   const handleTabChange = (tab: "contact" | "faq") => {
     setActiveTab(tab);
   };
 
+  // Function to toggle the publish status of a FAQ
   const handleTogglePublish = async (faqId: number, isPublished: boolean) => {
     try {
       await axios.put(
@@ -87,6 +92,7 @@ const ContactUsAndFAQ: React.FC = () => {
           },
         }
       );
+      // Update the FAQ list in state
       setFaqs((prevFaqs) =>
         prevFaqs.map((faq) =>
           faq.id === faqId ? { ...faq, isPublished: !isPublished } : faq
@@ -98,6 +104,7 @@ const ContactUsAndFAQ: React.FC = () => {
     }
   };
 
+  // Function to add an answer to a FAQ
   const handleAddAnswer = async (faqId: number) => {
     try {
       await axios.put(
@@ -109,6 +116,7 @@ const ContactUsAndFAQ: React.FC = () => {
           },
         }
       );
+      // Update the FAQ list in state
       setFaqs((prevFaqs) =>
         prevFaqs.map((faq) => (faq.id === faqId ? { ...faq, answer } : faq))
       );
@@ -120,6 +128,7 @@ const ContactUsAndFAQ: React.FC = () => {
     }
   };
 
+  // Function to delete a contact message or FAQ
   const handleDelete = async (id: number, type: "contact" | "faq") => {
     try {
       await axios.delete(
@@ -151,6 +160,7 @@ const ContactUsAndFAQ: React.FC = () => {
     >
       <h2 className="text-xl font-semibold mb-4">اتصل بنا والأسئلة الشائعة</h2>
       <div className="flex space-x-2 mb-4">
+        {/* Button for Contact Messages tab */}
         <button
           onClick={() => handleTabChange("contact")}
           className={`px-4 py-2 rounded-lg border transition-all duration-300 ${
@@ -159,6 +169,7 @@ const ContactUsAndFAQ: React.FC = () => {
         >
           رسائل اتصل بنا
         </button>
+        {/* Button for FAQs tab */}
         <button
           onClick={() => handleTabChange("faq")}
           className={`px-4 py-2 rounded-lg border transition-all duration-300 ${
@@ -209,7 +220,7 @@ const ContactUsAndFAQ: React.FC = () => {
               <p className="text-sm text-gray-500">
                 {faq.isPublished ? "منشور" : "غير منشور"}
               </p>
-
+              {/* Switch for toggling FAQ publish status */}
               <Switch
                 checked={faq.isPublished}
                 onChange={() => handleTogglePublish(faq.id, faq.isPublished)}

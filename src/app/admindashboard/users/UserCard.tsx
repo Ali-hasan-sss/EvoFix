@@ -4,6 +4,7 @@ import { ThemeContext } from "../../context/ThemeContext";
 import Switch from "react-switch";
 import { FaTrash, FaEye } from "react-icons/fa";
 
+// Define the User interface to structure user data
 interface User {
   displayId?: number;
   fullName: string;
@@ -14,7 +15,7 @@ interface User {
   role: string;
   isActive: boolean;
 }
-
+// Define the properties passed to UserCard
 interface UserCardProps {
   user: User;
   onEdit: () => void;

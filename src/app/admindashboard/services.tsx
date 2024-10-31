@@ -27,10 +27,11 @@ interface Service {
   serviceImage: string;
   isActive: boolean;
   createAt: string;
-  DevicesModels: DeviceModel[]; // استخدم DeviceModel بدلاً من any
+  DevicesModels: DeviceModel[];
 }
 
 const ServicesComponent: React.FC = () => {
+  // State hooks for managing services data, modal visibility, loading, etc.
   const [services, setServices] = useState<Service[]>([]);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [showServiceForm, setShowServiceForm] = useState(false);
@@ -38,6 +39,7 @@ const ServicesComponent: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
 
+  // Function to retrieve the authorization token from cookies
   const getAuthToken = () => {
     const token = document.cookie
       .split("; ")
@@ -45,6 +47,7 @@ const ServicesComponent: React.FC = () => {
     return token ? token.split("=")[1] : "";
   };
 
+  // Fetch all services from the API
   const fetchServices = useCallback(async () => {
     setFetching(true);
     try {
@@ -68,12 +71,13 @@ const ServicesComponent: React.FC = () => {
     } finally {
       setFetching(false);
     }
-  }, []); // أضف مصفوفة الاعتماديات هنا
+  }, []);
 
   useEffect(() => {
     fetchServices();
-  }, [fetchServices]); // أضف fetchServices كاعتمادية للـ useEffect
+  }, [fetchServices]);
 
+  // Handler for adding a new service
   const handleAddService = async (data: {
     title: string;
     description: string;
@@ -105,6 +109,7 @@ const ServicesComponent: React.FC = () => {
     }
   };
 
+  // Handler for editing an existing service
   const handleEditService = async (data: {
     title: string;
     description: string;
@@ -141,6 +146,7 @@ const ServicesComponent: React.FC = () => {
     }
   };
 
+  // Handler for deleting a service with confirmation
   const handleDeleteService = async (id: number) => {
     const authToken = getAuthToken();
     await axios.delete(`${API_BASE_URL}/services/${id}`, {
@@ -151,7 +157,7 @@ const ServicesComponent: React.FC = () => {
     toast.success("تم حذف الخدمة بنجاح!");
     fetchServices();
   };
-
+  // Confirmation before deletion
   const confirmDeleteService = (id: number) => {
     confirmAlert({
       title: "تأكيد الحذف",
@@ -168,6 +174,7 @@ const ServicesComponent: React.FC = () => {
     });
   };
 
+  // Toggle active state of a service
   const handleToggleActive = async (service: Service) => {
     setLoading(true);
     try {
@@ -192,11 +199,12 @@ const ServicesComponent: React.FC = () => {
     }
   };
 
+  // Open modal for adding/editing a service
   const handleOpenModal = () => {
     setIsModalOpen(true);
     setShowServiceForm(true);
   };
-
+  // Close modal and reset state
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setShowServiceForm(false);
@@ -233,8 +241,8 @@ const ServicesComponent: React.FC = () => {
                 <Image
                   src={service.serviceImage}
                   alt={service.title}
-                  width={64} // عرض الصورة (يمكنك ضبطه بناءً على حاجتك)
-                  height={64} // ارتفاع الصورة
+                  width={64}
+                  height={64}
                   className="rounded"
                 />
                 <div className="mr-4">
@@ -292,6 +300,7 @@ const ServicesComponent: React.FC = () => {
         <p>لا توجد خدمات متاحة حاليا.</p>
       )}
 
+      {/* Modal for add/edit form */}
       {showServiceForm && (
         <Modal
           isOpen={isModalOpen}

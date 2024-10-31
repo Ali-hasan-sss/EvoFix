@@ -1,17 +1,13 @@
-// pages/dashboard/index.tsx
+"use client";
 import React from "react";
 import { Doughnut } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-} from "chart.js";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import DataCountsProvider, {
+  useDataCounts,
+} from "@/app/context/DataCountsContext";
 
 // تفعيل مكونات Chart.js اللازمة
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale);
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 // واجهة بيانات الطلبات
 interface RequestStats {
@@ -23,9 +19,13 @@ interface RequestStats {
   rejectedRequests: number;
 }
 
-// المكون الرئيسي للداشبورد
-const DashboardHome: React.FC<{ stats: RequestStats }> = ({ stats }) => {
-  // بيانات المخطط الدائري
+const DashboardHome: React.FC = () => {
+  const stats = useDataCounts();
+
+  if (!stats) {
+    return <div>Loading...</div>;
+  }
+
   const data = {
     labels: ["مكتملة", "معلقة", "قيد التنفيذ", "مرفوضة"],
     datasets: [
@@ -42,23 +42,21 @@ const DashboardHome: React.FC<{ stats: RequestStats }> = ({ stats }) => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
+    <div className="p-2 pt-5 bg-gray-100 dark:bg-gray-900 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
         لوحة التحكم
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* مربع الإشعارات غير المقروءة */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             الإشعارات غير المقروءة
           </h2>
           <p className="text-2xl font-bold text-blue-500">
-            {stats.unreadNotifications}
+            {stats.notifications}
           </p>
         </div>
 
-        {/* مربعات الطلبات حسب الحالة */}
         <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             جميع الطلبات
@@ -106,11 +104,10 @@ const DashboardHome: React.FC<{ stats: RequestStats }> = ({ stats }) => {
       </div>
 
       {/* منحنى بياني دائري لتوزيع حالات الطلبات */}
-      <div className="mt-6 bg-white dark:bg-gray-800 shadow-lg p-6 rounded-lg">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-          توزيع حالات الطلبات
-        </h2>
-        <Doughnut data={data} />
+      <div className="mt-6 bg-white dark:bg-gray-800 shadow-lg  p-6 rounded-lg">
+        <div className="flex item-center " style={{ width: "40vw" }}>
+          <Doughnut data={data} width={2000} height={2000} />
+        </div>
       </div>
 
       {/* معلومات إضافية للإدمن */}
@@ -128,18 +125,4 @@ const DashboardHome: React.FC<{ stats: RequestStats }> = ({ stats }) => {
   );
 };
 
-// البيانات الافتراضية (لأغراض الاختبار)
-const statsData: RequestStats = {
-  unreadNotifications: 10,
-  totalRequests: 100,
-  completedRequests: 30,
-  pendingRequests: 20,
-  inProgressRequests: 15,
-  rejectedRequests: 5,
-};
-
-const DashboardPage = () => {
-  return <DashboardHome stats={statsData} />;
-};
-
-export default DashboardPage;
+export default DashboardHome;

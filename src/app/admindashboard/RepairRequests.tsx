@@ -19,7 +19,7 @@ import RepairRequestCard from "@/components/RepairRequestCard";
 import { RepairRequest, Technician } from "../../utils/types"; // استيراد الواجهة المشتركة
 import { useMediaQuery } from "react-responsive";
 
-// تعريف statusMap خارج المكون لضمان عدم إعادة إنشائه في كل render
+// Define the status map outside of the component to avoid re-creation on each render
 const statusMap: { [key: string]: string } = {
   PENDING: "قيد الانتظار",
   ASSIGNED: "تم التعيين",
@@ -29,6 +29,7 @@ const statusMap: { [key: string]: string } = {
 };
 
 const RepairRequestsPage: React.FC = () => {
+  // State variables to manage data, loading states, and media queries
   const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -36,6 +37,7 @@ const RepairRequestsPage: React.FC = () => {
 
   const { isDarkMode } = useContext(ThemeContext);
 
+  // Handle delete action with confirmation and toast notifications
   const handleDelete = useCallback(async (id: number) => {
     confirmAlert({
       title: "تأكيد الحذف",
@@ -73,6 +75,7 @@ const RepairRequestsPage: React.FC = () => {
     });
   }, []);
 
+  // Define columns for the GenericTable, with render functions where necessary
   const columns = useMemo(
     () => [
       {
@@ -125,6 +128,7 @@ const RepairRequestsPage: React.FC = () => {
     [handleDelete, isDeleting]
   );
 
+  // Fetch repair requests data from the API on component mount
   useEffect(() => {
     const fetchRepairRequests = async () => {
       setLoading(true);
@@ -161,10 +165,12 @@ const RepairRequestsPage: React.FC = () => {
 
     fetchRepairRequests();
   }, []);
+
+  // Callback for handling request updates, e.g., refetching data
   const handleRequestUpdated = () => {
-    // يمكنك إعادة جلب الطلبات هنا أو تحديث الحالة
-    console.log("done"); // تأكد من أن لديك هذه الدالة متاحة
+    console.log("done");
   };
+
   return (
     <div
       className={`p-6 ${

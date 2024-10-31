@@ -17,6 +17,7 @@ import UserCard from "./UserCard";
 import { useMediaQuery } from "react-responsive";
 import AddUserForm from "./AddUserForm";
 
+// User interface defining the structure of user data
 interface User {
   displayId: number;
   id: number;
@@ -28,8 +29,9 @@ interface User {
   role: string;
   isActive: boolean;
 }
+
+// Interface for the data used in the user form
 interface UserFormData {
-  // إعادة تسمية هنا
   fullName: string;
   phoneNO: string;
   email: string;
@@ -41,59 +43,60 @@ interface UserFormData {
 }
 
 const Users: React.FC = () => {
-  const { isDarkMode } = useContext(ThemeContext);
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [togglingUserId, setTogglingUserId] = useState<number | null>(null);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useState("users"); // التبويب الحالي
-  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
-  const [isAddingUser, setIsAddingUser] = useState(false); // حالة إضافة مستخدم جديد
-  const userRole = localStorage.getItem("userRole");
+  const { isDarkMode } = useContext(ThemeContext); // Get dark mode state from context
+  const [users, setUsers] = useState<User[]>([]); // State for user list
+  const [loading, setLoading] = useState(true); // State for loading spinner
+  const [error, setError] = useState<string | null>(null); // State for error messages
+  const [isDeleting, setIsDeleting] = useState(false); // State for deletion status
+  const [togglingUserId, setTogglingUserId] = useState<number | null>(null); // State for user ID being toggled
+  const [selectedUser, setSelectedUser] = useState<User | null>(null); // State for currently selected user
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+  const [selectedTab, setSelectedTab] = useState("users"); // Current selected tab for filtering users
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" }); // Check if the screen is mobile size
+  const [isAddingUser, setIsAddingUser] = useState(false); // State for adding a new user
+  const userRole = localStorage.getItem("userRole"); // Get user role from local storage
 
+  // Function to open the edit modal for a selected user
   const openEditModal = (user: User) => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
+
+  // Function to open the modal for adding a new user
   const openAddUserModal = () => {
     setSelectedUser(null);
     setIsModalOpen(true);
-    setIsAddingUser(true); // تفعيل حالة إضافة مستخدم جديد
+    setIsAddingUser(true);
   };
 
+  // Function to close the modal
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedUser(null);
   };
+
+  // Function to handle adding a new user
   const handleAddUser = async (data: UserFormData) => {
     try {
       const token = document.cookie
         .split("; ")
         .find((row) => row.startsWith("token="));
       const authToken = token ? token.split("=")[1] : "";
-
       const response = await axios.post(`${API_BASE_URL}/users`, data, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
       });
-
-      console.log("تم إضافة المستخدم بنجاح:", response.data);
-
-      // إضافة Toast عند النجاح
+      //console.log("تم إضافة المستخدم بنجاح:", response.data);
       toast.success("تم إضافة المستخدم بنجاح!");
-
-      // أغلق المودال
       setIsModalOpen(false);
     } catch (error) {
       console.error("خطأ أثناء إضافة المستخدم:", error);
-      // يمكنك إضافة Toast خطأ أيضًا
       toast.error("حدث خطأ أثناء إضافة المستخدم. يرجى المحاولة مرة أخرى.");
     }
   };
+
+  // Function to fetch the list of users based on the selected tab
   const fetchUsers = async () => {
     setLoading(true);
     try {
@@ -114,17 +117,17 @@ const Users: React.FC = () => {
         },
       });
 
-      // تحديد المصفوفة المناسبة بناءً على التبويب المحدد
+      // Set the user list based on the selected tab
       if (selectedTab === "technicians") {
         setUsers(
           userRole === "SUBADMIN"
-            ? response.data.subAdminTechnicians || []
-            : response.data.adminTechnicians || []
+            ? response.data.subAdminTechnicians || [] // Sub-admins see only their technicians
+            : response.data.adminTechnicians || [] // Admins see all technicians
         );
       } else if (selectedTab === "subAdmins") {
-        setUsers(response.data.adminSubAdmins || []);
+        setUsers(response.data.adminSubAdmins || []); // Admins see all sub-admins
       } else {
-        setUsers(response.data || []);
+        setUsers(response.data || []); // Default to regular users
       }
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
@@ -137,10 +140,12 @@ const Users: React.FC = () => {
     }
   };
 
+  // useEffect to fetch users when the selected tab changes
   useEffect(() => {
     fetchUsers();
   }, [selectedTab]);
 
+  // Function to handle toggling the active status of a user
   const handleToggleActive = (userId: number, currentStatus: boolean) => {
     confirmAlert({
       title: "تأكيد التغيير",
@@ -168,6 +173,7 @@ const Users: React.FC = () => {
                 }
               );
 
+              // Update the user list with the new active status
               setUsers((prevUsers) =>
                 prevUsers.map((user) =>
                   user.id === userId
@@ -197,6 +203,7 @@ const Users: React.FC = () => {
     });
   };
 
+  // Function to handle deleting a user
   const handleDeleteUser = async (userId: number) => {
     confirmAlert({
       title: "تأكيد الحذف",
@@ -240,6 +247,7 @@ const Users: React.FC = () => {
     });
   };
 
+  // Function to handle view a user
   const handleViewUser = (user: User) => {
     setSelectedUser(user);
   };

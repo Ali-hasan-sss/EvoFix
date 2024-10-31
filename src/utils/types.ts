@@ -11,7 +11,14 @@ export interface User {
   role: string;
   [key: string]: unknown;
 }
-
+export interface RequestStats {
+  unreadNotifications: number;
+  totalRequests: number;
+  completedRequests: number;
+  pendingRequests: number;
+  inProgressRequests: number;
+  rejectedRequests: number;
+}
 export interface UserFormInput {
   fullName: string;
   email: string;

@@ -6,8 +6,10 @@ import { API_BASE_URL } from "../../../utils/api";
 import { ThemeContext } from "../../context/ThemeContext";
 import { toast } from "react-toastify";
 import UserForm from "@/components/forms/UserForm";
-import { UserFormInput } from "@/utils/types"; // Import the UserFormInput type
+import { UserFormInput } from "@/utils/types";
 import { Technician } from "@/utils/types";
+
+// Interface defining user properties
 interface User {
   id: number;
   fullName: string;
@@ -23,11 +25,13 @@ interface User {
   };
 }
 
+// Props interface for UserDetails component
 interface UserDetailsProps {
   user: User | Technician | null;
   onClose: () => void;
 }
 
+// Function to get the user role label in Arabic
 const getUserRoleLabel = (role: string): string => {
   switch (role) {
     case "ADMIN":
@@ -39,10 +43,11 @@ const getUserRoleLabel = (role: string): string => {
     case "TECHNICAL":
       return "فني";
     default:
-      return "غير محدد"; // أو أي قيمة افتراضية تفضلها
+      return "غير محدد";
   }
 };
 
+// Initial data for the form, populating with user details if available
 const UserDetails: React.FC<UserDetailsProps> = ({ user, onClose }) => {
   const { isDarkMode } = useContext(ThemeContext);
   const [isEditing, setIsEditing] = useState(false);
@@ -60,6 +65,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user, onClose }) => {
     confirmPassword: "",
   };
 
+  // Function to handle form submission and update user data
   const handleEditSubmit = async (data: UserFormInput) => {
     try {
       const token = document.cookie
@@ -73,6 +79,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user, onClose }) => {
         },
       });
 
+      // Reset editing mode and close view, show success message
       setIsEditing(false);
       onClose();
       toast.success("تم تعديل معلومات المستخدم بنجاح!");
@@ -82,6 +89,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user, onClose }) => {
     }
   };
 
+  // Enable edit mode and set initial form data for editing
   const handleEditClick = () => {
     setIsEditing(true);
     setOriginalData(initialFormData);
@@ -93,6 +101,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user, onClose }) => {
 
   return (
     <>
+      {/* Modal for editing user details */}
       {isEditing && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 z-50 flex items-center justify-center">
           <div
@@ -121,7 +130,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user, onClose }) => {
           </div>
         </div>
       )}
-
+      {/* Display user details modal */}
       <div className="fixed inset-0 bg-gray-800 bg-opacity-75 z-30 flex items-center justify-center">
         <div
           className={`p-6 rounded shadow-lg w-10/12 md:w-1/2 max-h-full overflow-auto ${
@@ -166,7 +175,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user, onClose }) => {
                 }`}
               ></span>
             </div>
-
+            {/* Show technician-specific details if user is a technician */}
             {user?.role === "TECHNICAL" && user?.technician && (
               <>
                 <div className="border p-4 rounded sm:col-span-2">
