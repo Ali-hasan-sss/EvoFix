@@ -2,14 +2,17 @@ import React, { useState, useContext, useEffect } from "react";
 import Image from "next/image";
 import "./dashboard.css";
 import BottomNavbar from "./BottomNavbar"; // استيراد المكون الجديد
-import { ThemeContext } from "@/app/ThemeContext";
+import { ThemeContext } from "@/app/context/ThemeContext";
 import { AuthContext } from "@/app/context/AuthContext";
+import technicalImage from "@/components/assets/images/technicalImage.png";
+import userImage from "@/components/assets/images/userImage.png";
 import {
-  FaClipboardList,
   FaBell,
   FaUser,
   FaSignOutAlt,
   FaHome,
+  FaTools,
+  FaFileInvoice,
 } from "react-icons/fa";
 import { API_BASE_URL } from "../../utils/api";
 import Cookies from "js-cookie";
@@ -49,6 +52,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
     setActiveOption(option);
     localStorage.setItem("activeOption", option);
     onSelectOption(option);
+  };
+  const handleProfile = () => {
+    setActiveOption("profile");
+    onSelectOption("profile");
   };
 
   const handleLogout = () => {
@@ -114,12 +121,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
     {
       key: "viewRequests",
       name: "طلبات الإصلاح",
-      icon: <FaClipboardList className="text-2xl" />,
+      icon: <FaTools className="text-2xl" />,
     },
     {
       key: "Invoices",
       name: "الفواتير",
-      icon: <FaClipboardList className="text-2xl" />,
+      icon: <FaFileInvoice className="text-2xl" />,
     },
     {
       key: "notifications",
@@ -157,8 +164,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
             <Image
               src={
                 userData && userData.role === "TECHNICAL"
-                  ? "/images/technicalImage.png"
-                  : "/images/userImage.png"
+                  ? technicalImage
+                  : userImage
               }
               alt="Profile"
               width={40}
@@ -204,6 +211,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
         activeOption={activeOption}
         handleOptionSelect={handleOptionSelect}
         handleLogout={handleLogout}
+        handleProfile={handleProfile} // تمرير الدالة هنا
         isDarkMode={isDarkMode}
       />
     </div>

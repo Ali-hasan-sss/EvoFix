@@ -5,11 +5,12 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import Profile from "../../components/dashboard/profile";
 import { AuthContext } from "@/app/context/AuthContext";
 import "../../components/dashboard/dashboard.css";
-import { ThemeContext } from "../ThemeContext";
+import { ThemeContext } from "../context/ThemeContext";
 import { useRouter } from "next/navigation";
 import RepairRequests from "./RepairRequests/RepairRequests";
 import Notifications from "../../components/dashboard/notification";
 import Home from "../page";
+import Invoices from "@/components/Invoices";
 const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");
   const { isDarkMode } = useContext(ThemeContext);
@@ -21,8 +22,8 @@ const Dashboard = () => {
   useEffect(() => {
     const checkAuth = async () => {
       setTimeout(() => {
-        setLoading(false); // انتهاء التحميل بعد التحقق
-      }, 1000); // يمكنك تعديل المهلة
+        setLoading(false);
+      }, 1000);
     };
 
     checkAuth();
@@ -68,6 +69,12 @@ const Dashboard = () => {
             <RepairRequests />
           </div>
         );
+      case "Invoices":
+        return (
+          <div>
+            <Invoices />
+          </div>
+        );
       case "notifications":
         return (
           <div>
@@ -75,12 +82,15 @@ const Dashboard = () => {
           </div>
         );
       case "profile":
-        return <Profile />;
+        return (
+          <div>
+            <Profile />
+          </div>
+        );
       default:
         return null;
     }
   };
-
   // عرض لوحة التحكم إذا كان المستخدم مسجلاً للدخول
   return (
     <>

@@ -4,7 +4,7 @@ import React, { useContext, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "@/utils/api";
-import { ThemeContext } from "../../app/ThemeContext";
+import { ThemeContext } from "../../app/context/ThemeContext";
 const ContactForm = () => {
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");

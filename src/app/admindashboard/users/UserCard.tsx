@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import React from "react";
-import { ThemeContext } from "../../ThemeContext";
+import { ThemeContext } from "../../context/ThemeContext";
 import Switch from "react-switch";
 import { FaTrash, FaEye } from "react-icons/fa";
 

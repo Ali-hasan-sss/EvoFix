@@ -3,7 +3,7 @@
 import React, { useContext } from "react";
 import Navbar from "@/components/navBar";
 import toast, { Toaster } from "react-hot-toast";
-import { ThemeContext } from "../ThemeContext";
+import { ThemeContext } from "../context/ThemeContext";
 import { AuthContext } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";

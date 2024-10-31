@@ -1,14 +1,13 @@
-// components/RepairRequests.tsx
-
 import React, { useEffect, useState, useContext } from "react";
 import { toast } from "react-toastify";
-import { ThemeContext } from "@/app/ThemeContext";
+import { ThemeContext } from "@/app/context/ThemeContext";
 import Tabs from "@/components/Tabs";
 import { ClipLoader } from "react-spinners";
 import RepairRequestCard from "@/components/RepairRequestCard";
 import RepairRequestButton from "@/components/requestbutton";
 import { RepairRequest } from "@/utils/types";
-import { getData } from "@/utils/axiosInstance";
+import axios from "axios";
+import { API_BASE_URL } from "@/utils/api";
 
 const RepairRequests: React.FC = () => {
   const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
@@ -25,41 +24,26 @@ const RepairRequests: React.FC = () => {
     QUOTED: "انتظار القبول",
   };
 
-  useEffect(() => {
-    const fetchRepairRequests = async () => {
-      setLoading(true);
-      try {
-        const response = await getData<RepairRequest[]>(
-          "/maintenance-requests/all/user"
-        );
-        // console.log( response);
-        if (Array.isArray(response)) {
-          setRepairRequests(response);
-          toast.success("تم تحديث الطلبات بنجاح.");
-        } else {
-          console.warn("البيانات المستلمة ليست مصفوفة.");
-          toast.warn("البيانات المستلمة غير صحيحة.");
-        }
-      } catch (error) {
-        console.error("حدث خطأ أثناء جلب البيانات:", error);
-        toast.error("حدث خطأ أثناء جلب البيانات.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRepairRequests();
-  }, []);
-
-  const onRequestUpdated = async () => {
+  // تعريف دالة fetchRepairRequests لجلب البيانات
+  const fetchRepairRequests = async () => {
     setLoading(true);
     try {
-      const response = await getData<RepairRequest[]>(
-        "/maintenance-requests/all/user"
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("token="))
+        ?.split("=")[1];
+
+      const response = await axios.get<RepairRequest[]>(
+        `${API_BASE_URL}/maintenance-requests/all/user`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
-      if (Array.isArray(response)) {
-        setRepairRequests(response);
+      if (Array.isArray(response.data)) {
+        setRepairRequests(response.data);
         toast.success("تم تحديث الطلبات بنجاح.");
       } else {
         console.warn("البيانات المستلمة ليست مصفوفة.");
@@ -73,6 +57,15 @@ const RepairRequests: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    fetchRepairRequests(); // استدعاء دالة جلب البيانات عند التحميل الأول
+  }, []);
+
+  // تحديث الطلبات عند حذف أو تعديل البيانات
+  const onRequestUpdated = async () => {
+    await fetchRepairRequests();
+  };
+
   const tabs = [
     { label: "جميع الطلبات", key: "available" },
     { label: "قيد التسعير", key: "pending" },
@@ -81,17 +74,24 @@ const RepairRequests: React.FC = () => {
     { label: "الطلبات المرفوضة", key: "rejected" },
   ];
 
-  // دالة لتصفية الطلبات حسب التبويب
   const getFilteredRequests = (): RepairRequest[] => {
     switch (activeTab) {
       case "pending":
-        return repairRequests.filter((req) => req.status === "PENDING");
+        return repairRequests.filter(
+          (req) => req.status.toUpperCase() === "PENDING"
+        );
       case "in_progress":
-        return repairRequests.filter((req) => req.status === "IN_PROGRESS");
+        return repairRequests.filter(
+          (req) => req.status.toUpperCase() === "IN_PROGRESS"
+        );
       case "completed":
-        return repairRequests.filter((req) => req.status === "COMPLETED");
+        return repairRequests.filter(
+          (req) => req.status.toUpperCase() === "COMPLETED"
+        );
       case "rejected":
-        return repairRequests.filter((req) => req.status === "REJECTED");
+        return repairRequests.filter(
+          (req) => req.status.toUpperCase() === "REJECTED"
+        );
       case "available":
       default:
         return repairRequests;
@@ -115,7 +115,6 @@ const RepairRequests: React.FC = () => {
           <RepairRequestButton />
           <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
-          {/* عرض الطلبات المفلترة على شكل بطاقات */}
           <div className="p-2 grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {filteredRequests.length === 0 ? (
               <p>لا توجد طلبات في هذا التبويب.</p>
@@ -126,7 +125,7 @@ const RepairRequests: React.FC = () => {
                   key={request.id}
                   request={request}
                   statusMap={statusMap}
-                  onRequestUpdated={onRequestUpdated} // تمرير الدالة
+                  onRequestUpdated={onRequestUpdated} // تمرير الدالة للتحديث
                 />
               ))
             )}

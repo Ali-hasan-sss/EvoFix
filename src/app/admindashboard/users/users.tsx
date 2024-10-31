@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../../../utils/api";
-import { ThemeContext } from "../../ThemeContext";
+import { ThemeContext } from "../../context/ThemeContext";
 import { FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
 import GenericTable, { Column } from "@/components/dashboard/GenericTable";
 import { toast, ToastContainer } from "react-toastify";

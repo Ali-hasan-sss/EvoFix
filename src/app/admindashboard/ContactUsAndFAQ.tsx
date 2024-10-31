@@ -3,7 +3,7 @@ import axios from "axios";
 import ClipLoader from "react-spinners/ClipLoader";
 import { API_BASE_URL } from "@/utils/api";
 import Cookies from "js-cookie";
-import { ThemeContext } from "../ThemeContext";
+import { ThemeContext } from "../context/ThemeContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Switch from "react-switch";

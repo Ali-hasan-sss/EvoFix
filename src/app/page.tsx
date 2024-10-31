@@ -8,7 +8,7 @@ import ServiceSlider from "@/components/ServiceSlider";
 import { Toaster } from "react-hot-toast";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ThemeContext } from "./ThemeContext";
+import { ThemeContext } from "./context/ThemeContext";
 import RepairRequestButton from "@/components/requestbutton";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";

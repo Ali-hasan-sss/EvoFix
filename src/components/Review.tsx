@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { FaPaperPlane, FaStar } from "react-icons/fa";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "@/utils/api";
-import { ThemeContext } from "../app/ThemeContext";
+import { ThemeContext } from "../app/context/ThemeContext";
 
 interface Review {
   id: number;

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useContext } from "react";
-import { ThemeContext } from "@/app/ThemeContext";
+import { ThemeContext } from "@/app/context/ThemeContext";
 import { toast } from "react-toastify";
 
 interface FormData {

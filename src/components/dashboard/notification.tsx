@@ -4,7 +4,7 @@ import { API_BASE_URL } from "../../utils/api";
 import { ClipLoader } from "react-spinners";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ThemeContext } from "@/app/ThemeContext";
+import { ThemeContext } from "@/app/context/ThemeContext";
 import Modal from "react-modal";
 import PaymentForm from "@/components/forms/PaymentForm";
 

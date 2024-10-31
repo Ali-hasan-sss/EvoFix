@@ -1,7 +1,7 @@
 "use client";
 import React, { useContext, Suspense } from "react";
 import Navbar from "@/components/navBar";
-import { ThemeContext } from "../ThemeContext";
+import { ThemeContext } from "../context/ThemeContext";
 
 const PrivacyAndTerms: React.FC = () => {
   const { isDarkMode } = useContext(ThemeContext);

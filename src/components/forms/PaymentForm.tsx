@@ -5,7 +5,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import "react-toastify/dist/ReactToastify.css";
 import { API_BASE_URL } from "@/utils/api";
-import { ThemeContext } from "@/app/ThemeContext"; // استيراد سياق الدارك مود
+import { ThemeContext } from "@/app/context/ThemeContext"; // استيراد سياق الدارك مود
 
 // استيراد الصور
 import SyriatelImage from "../assets/images/syriatel.jpeg";

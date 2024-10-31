@@ -11,7 +11,7 @@ import "react-toastify/dist/ReactToastify.css"; // استيراد CSS الخاص
 import { FaEdit, FaTrash, FaSpinner } from "react-icons/fa"; // استيراد الأيقونات
 import { confirmAlert } from "react-confirm-alert"; // استيراد مكتبة التأكيد
 import "react-confirm-alert/src/react-confirm-alert.css"; // استيراد CSS الخاص بـ react-confirm-alert
-import { ThemeContext } from "../../app/ThemeContext";
+import { ThemeContext } from "../../app/context/ThemeContext";
 import { EditProfileData } from "@/utils/types";
 import { AuthContext } from "@/app/context/AuthContext";
 

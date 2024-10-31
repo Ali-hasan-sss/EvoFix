@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navBar";
-import { ThemeContext } from "../ThemeContext";
+import { ThemeContext } from "../context/ThemeContext";
 import Notifications from "../../components/dashboard/notification";
 import Users from "./users/users";
 import { toast } from "react-toastify";

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import Link from "next/link";
 import { AuthContext } from "@/app/context/AuthContext";
-import { ThemeContext } from "@/app/ThemeContext";
+import { ThemeContext } from "@/app/context/ThemeContext";
 import { usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import "./assets/navbar.css";

@@ -2,7 +2,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import Navbar from "@/components/navBar";
 import axios from "axios";
-import { ThemeContext } from "../ThemeContext";
+import { ThemeContext } from "../context/ThemeContext";
 import { API_BASE_URL } from "@/utils/api";
 
 // تعريف واجهة TermPolicy

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "@/utils/api";
-import { ThemeContext } from "../ThemeContext";
+import { ThemeContext } from "../context/ThemeContext";
 import { ClipLoader } from "react-spinners";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import { toast } from "react-toastify";

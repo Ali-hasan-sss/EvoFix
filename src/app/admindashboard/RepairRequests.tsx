@@ -9,7 +9,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "../../utils/api";
 import GenericTable from "@/components/dashboard/GenericTable";
-import { ThemeContext } from "@/app/ThemeContext";
+import { ThemeContext } from "@/app/context/ThemeContext";
 import { FaTrash } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
 import { toast, ToastContainer } from "react-toastify";

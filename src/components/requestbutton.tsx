@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { API_BASE_URL } from "../utils/api";
 import { AuthContext } from "@/app/context/AuthContext";
-import { ThemeContext } from "@/app/ThemeContext";
+import { ThemeContext } from "@/app/context/ThemeContext";
 import Image from "next/image";
 import toast from "react-hot-toast";
 

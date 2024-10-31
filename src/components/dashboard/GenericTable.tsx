@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useContext, useState, useEffect } from "react";
-import { ThemeContext } from "@/app/ThemeContext";
+import { ThemeContext } from "@/app/context/ThemeContext";
 
 // Define columns based on having an accessor or render
 interface ColumnWithAccessor<T> {

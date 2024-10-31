@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "@/utils/api";
-import { ThemeContext } from "@/app/ThemeContext";
+import { ThemeContext } from "@/app/context/ThemeContext";
 import { ClipLoader } from "react-spinners"; // استيراد السبينر
 
 interface PricingFormProps {

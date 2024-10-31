@@ -4,7 +4,7 @@ import { FaPlus, FaChevronDown, FaChevronUp } from "react-icons/fa"; // استي
 import { toast } from "react-toastify";
 import Cookies from "js-cookie"; // استيراد مكتبة js-cookie
 import { API_BASE_URL } from "@/utils/api";
-import { ThemeContext } from "@/app/ThemeContext";
+import { ThemeContext } from "@/app/context/ThemeContext";
 // تعريف نوع الأسئلة الشائعة
 interface FAQItem {
   id: number; // معرف السؤال

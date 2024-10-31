@@ -6,7 +6,7 @@ import Profile from "../../components/dashboard/profile";
 import Home from "../page";
 import { AuthContext } from "@/app/context/AuthContext";
 import "../../components/dashboard/dashboard.css";
-import { ThemeContext } from "../ThemeContext";
+import { ThemeContext } from "../context/ThemeContext";
 import { useRouter } from "next/navigation";
 import RepairRequests from "./RepairRequests/RepairRequests";
 import Notifications from "../../components/dashboard/notification";
@@ -92,8 +92,8 @@ const Dashboard = () => {
         <Sidebar onSelectOption={setSelectedOption} />
 
         <div
-          className={`flex-1 flex justify-center items-center p-6 ${
-            isDarkMode ? "bg-gray-700" : "bg-gray-400"
+          className={`flex-1 flex justify-center items-center  ${
+            isDarkMode ? "bg-gray-700" : "bg-gray-200"
           }`}
           style={{
             minHeight: "100%",
@@ -102,8 +102,13 @@ const Dashboard = () => {
           }}
         >
           <div
-            className="flex flex-col py-4 mb-8"
-            style={{ width: "100%", minHeight: "100%", overflowY: "auto" }}
+            className="flex flex-col mb-8"
+            style={{
+              width: "100%",
+              minHeight: "100%",
+              overflowY: "auto",
+              marginTop: "40px",
+            }}
           >
             {renderContent()}
           </div>

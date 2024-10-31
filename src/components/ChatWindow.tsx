@@ -3,7 +3,7 @@
 import React from "react";
 import { useContext } from "react";
 import { AiOutlineClose } from "react-icons/ai";
-import { ThemeContext } from "@/app/ThemeContext";
+import { ThemeContext } from "@/app/context/ThemeContext";
 
 interface ChatWindowProps {
   onClose: () => void;

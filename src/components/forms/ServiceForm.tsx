@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import Image from "next/image";
-import { ThemeContext } from "@/app/ThemeContext";
+import { ThemeContext } from "@/app/context/ThemeContext";
 interface ServiceFormProps {
   initialData?: {
     title: string;

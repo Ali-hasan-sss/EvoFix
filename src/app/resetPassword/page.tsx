@@ -5,7 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { API_BASE_URL } from "@/utils/api";
-import { ThemeContext } from "../ThemeContext";
+import { ThemeContext } from "../context/ThemeContext";
 
 export default function ResetPassword() {
   const [token, setToken] = useState<string | null>(null);
