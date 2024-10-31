@@ -4,7 +4,6 @@ import React, { useEffect, useState, createContext, useContext } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "@/utils/api";
-
 // Define the type for the counts object
 interface DataCounts {
   totalRequests: number;
@@ -17,14 +16,22 @@ interface DataCounts {
   faqCount: number;
   notifications: number;
 }
-
-// Create a context to hold the counts with the defined type
+// Create a context to hold the counts
 const DataCountsContext = createContext<DataCounts | null>(null);
-
 export const DataCountsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [counts, setCounts] = useState<DataCounts>({
+  const [counts, setCounts] = useState<{
+    totalRequests: number;
+    pendingRequests: number;
+    assignedRequests: number;
+    completedRequests: number;
+    inProgressRequests: number;
+    rejectedRequests: number;
+    quotedRequests: number;
+    faqCount: number;
+    notifications: number;
+  }>({
     totalRequests: 0,
     pendingRequests: 0,
     assignedRequests: 0,
@@ -60,16 +67,35 @@ export const DataCountsProvider: React.FC<{ children: React.ReactNode }> = ({
         )
       );
 
+      // Update counts based on the responses
       setCounts({
-        totalRequests: responses[0].data.count,
-        pendingRequests: responses[1].data.count,
-        assignedRequests: responses[2].data.count,
-        completedRequests: responses[3].data.count,
-        inProgressRequests: responses[4].data.count,
-        rejectedRequests: responses[5].data.count,
-        quotedRequests: responses[6].data.count,
-        faqCount: responses[7].data.count,
-        notifications: responses[8].data.count,
+        totalRequests: responses[0].data.count?.message
+          ? 0
+          : responses[0].data.count,
+        pendingRequests: responses[1].data.count?.message
+          ? 0
+          : responses[1].data.count,
+        assignedRequests: responses[2].data.count?.message
+          ? 0
+          : responses[2].data.count,
+        completedRequests: responses[3].data.count?.message
+          ? 0
+          : responses[3].data.count,
+        inProgressRequests: responses[4].data.count?.message
+          ? 0
+          : responses[4].data.count,
+        rejectedRequests: responses[5].data.count?.message
+          ? 0
+          : responses[5].data.count,
+        quotedRequests: responses[6].data.count?.message
+          ? 0
+          : responses[6].data.count,
+        faqCount: responses[7].data.count?.message
+          ? 0
+          : responses[7].data.count,
+        notifications: responses[8].data.count?.message
+          ? 0
+          : responses[8].data.count,
       });
     } catch (error) {
       console.error("Error fetching counts:", error);
