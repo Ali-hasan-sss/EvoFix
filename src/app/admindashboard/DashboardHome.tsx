@@ -1,118 +1,145 @@
+// pages/dashboard/index.tsx
 import React from "react";
-import { Line } from "react-chartjs-2";
+import { Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
-  LineElement,
+  ArcElement,
+  Tooltip,
+  Legend,
   CategoryScale,
   LinearScale,
-  PointElement,
 } from "chart.js";
 
-// تفعيل المكونات المطلوبة من Chart.js
-ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
+// تفعيل مكونات Chart.js اللازمة
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale);
 
-const DashboardHome = () => {
-  // إعداد البيانات لمنحنى بياني
+// واجهة بيانات الطلبات
+interface RequestStats {
+  unreadNotifications: number;
+  totalRequests: number;
+  completedRequests: number;
+  pendingRequests: number;
+  inProgressRequests: number;
+  rejectedRequests: number;
+}
+
+// المكون الرئيسي للداشبورد
+const DashboardHome: React.FC<{ stats: RequestStats }> = ({ stats }) => {
+  // بيانات المخطط الدائري
   const data = {
-    labels: ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو"],
+    labels: ["مكتملة", "معلقة", "قيد التنفيذ", "مرفوضة"],
     datasets: [
       {
-        label: "الطلبات المكتملة",
-        data: [10, 20, 15, 30, 25, 35],
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        fill: true,
+        data: [
+          stats.completedRequests,
+          stats.pendingRequests,
+          stats.inProgressRequests,
+          stats.rejectedRequests,
+        ],
+        backgroundColor: ["#4CAF50", "#FFC107", "#03A9F4", "#F44336"],
       },
     ],
-  };
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: true,
-        labels: {
-          color: "#ffffff", // نص الأسطورة للتكيف مع الدارك مود
-        },
-      },
-    },
-    scales: {
-      x: {
-        ticks: {
-          color: "#ffffff", // النص على المحور x للتكيف مع الدارك مود
-        },
-      },
-      y: {
-        ticks: {
-          color: "#ffffff", // النص على المحور y للتكيف مع الدارك مود
-        },
-      },
-    },
   };
 
   return (
     <div className="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
-        مرحباً بعودتك!
+        لوحة التحكم
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* ملخص الحساب */}
+        {/* مربع الإشعارات غير المقروءة */}
         <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            ملخص الحساب
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            الإشعارات غير المقروءة
           </h2>
-          <p className="text-gray-700 dark:text-gray-300">الاسم: أحمد</p>
-          <p className="text-gray-700 dark:text-gray-300">
-            البريد الإلكتروني: ahmed@example.com
-          </p>
-          <p className="text-gray-700 dark:text-gray-300">الدور: مستخدم</p>
-          <p className="text-gray-700 dark:text-gray-300">
-            الحالة: <span className="text-green-500">مفعل</span>
+          <p className="text-2xl font-bold text-blue-500">
+            {stats.unreadNotifications}
           </p>
         </div>
 
-        {/* إحصائيات */}
+        {/* مربعات الطلبات حسب الحالة */}
         <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            إحصائيات الطلبات
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            جميع الطلبات
           </h2>
-          <p className="text-gray-700 dark:text-gray-300">
-            الطلبات المفتوحة: 5
-          </p>
-          <p className="text-gray-700 dark:text-gray-300">
-            الطلبات المكتملة: 12
+          <p className="text-2xl font-bold text-gray-700 dark:text-gray-300">
+            {stats.totalRequests}
           </p>
         </div>
 
-        {/* إشعارات */}
         <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            الإشعارات
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            الطلبات المكتملة
           </h2>
-          <ul className="text-gray-700 dark:text-gray-300">
-            <li>إشعار جديد: لديك طلب مفتوح</li>
-            <li>تم تحديث طلبك</li>
-          </ul>
+          <p className="text-2xl font-bold text-green-500">
+            {stats.completedRequests}
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            الطلبات المعلقة
+          </h2>
+          <p className="text-2xl font-bold text-yellow-500">
+            {stats.pendingRequests}
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            الطلبات قيد التنفيذ
+          </h2>
+          <p className="text-2xl font-bold text-blue-500">
+            {stats.inProgressRequests}
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            الطلبات المرفوضة
+          </h2>
+          <p className="text-2xl font-bold text-red-500">
+            {stats.rejectedRequests}
+          </p>
         </div>
       </div>
 
-      {/* منحنى بياني */}
-      <div className="mt-6 bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
+      {/* منحنى بياني دائري لتوزيع حالات الطلبات */}
+      <div className="mt-6 bg-white dark:bg-gray-800 shadow-lg p-6 rounded-lg">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-          الطلبات المكتملة (آخر 6 شهور)
+          توزيع حالات الطلبات
         </h2>
-        <Line data={data} options={options} />
+        <Doughnut data={data} />
       </div>
 
-      {/* روابط سريعة */}
-      <div className="mt-6">
-        <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-          إضافة طلب جديد
-        </button>
+      {/* معلومات إضافية للإدمن */}
+      <div className="mt-6 bg-white dark:bg-gray-800 shadow-lg p-6 rounded-lg">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          معلومات إضافية
+        </h2>
+        <ul className="text-gray-700 dark:text-gray-300">
+          <li>عدد المستخدمين النشطين: 150</li>
+          <li>آخر تحديث للنظام: 15 أكتوبر 2024</li>
+          <li>الإحصائيات محدثة يوميًا</li>
+        </ul>
       </div>
     </div>
   );
 };
 
-export default DashboardHome;
+// البيانات الافتراضية (لأغراض الاختبار)
+const statsData: RequestStats = {
+  unreadNotifications: 10,
+  totalRequests: 100,
+  completedRequests: 30,
+  pendingRequests: 20,
+  inProgressRequests: 15,
+  rejectedRequests: 5,
+};
+
+const DashboardPage = () => {
+  return <DashboardHome stats={statsData} />;
+};
+
+export default DashboardPage;

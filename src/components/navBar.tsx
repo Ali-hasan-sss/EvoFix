@@ -7,7 +7,7 @@ import { ThemeContext } from "@/app/context/ThemeContext";
 import { usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import "./assets/navbar.css";
-import { FaUser } from "react-icons/fa";
+import { FaList } from "react-icons/fa";
 import Image from "next/image";
 import EVOFIX from "./assets/images/EVOFIX.png";
 
@@ -23,7 +23,13 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null); // إنشاء مرجع للقائمة المنسدلة
-
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDarkMode]);
   // قراءة دور المستخدم من localStorage عند تحميل المكون
   useEffect(() => {
     const role = localStorage.getItem("userRole");
@@ -113,7 +119,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
             onClick={toggleMenu}
           >
             {isLoggedIn ? (
-              <FaUser className="text-2xl" />
+              <FaList className="text-2xl" />
             ) : (
               <span className="text-bold btn">التسجيل</span>
             )}
