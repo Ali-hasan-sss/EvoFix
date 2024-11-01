@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ThemeContext } from "@/app/context/ThemeContext";
 import Modal from "react-modal";
 import PaymentForm from "@/components/forms/PaymentForm";
+import Switch from "react-switch";
 
 interface APINotification {
   id: number;
@@ -39,7 +40,9 @@ const NotificationComponent: React.FC = () => {
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
     null
   );
-  const FETCH_INTERVAL = 10000; // 10 دقائق بالمللي ثانية
+  const [isActivating, setIsActivating] = useState(false);
+
+  const FETCH_INTERVAL = 60000;
 
   useEffect(() => {
     Modal.setAppElement(document.body);
@@ -145,6 +148,38 @@ const NotificationComponent: React.FC = () => {
       toast.error("حدث خطأ أثناء رفض الطلب. يرجى المحاولة مرة أخرى.");
     } finally {
       setLoadingAction(null);
+    }
+  };
+
+  const handleActivationToggle = async (
+    checked: boolean,
+    notification: MappedNotification
+  ) => {
+    setIsActivating(true);
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("token="));
+    const authToken = token ? token.split("=")[1] : "";
+    try {
+      await axios.put(
+        `${API_BASE_URL}/users/${notification.senderId}`,
+        {
+          isActive: checked,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      toast.success(
+        checked ? "تم تفعيل حساب التقني بنجاح" : "تم تعطيل حساب التقني بنجاح"
+      );
+    } catch (error) {
+      console.error("خطأ في تفعيل الحساب:", error);
+      toast.error("حدث خطأ أثناء تحديث حالة حساب التقني");
+    } finally {
+      setIsActivating(false);
     }
   };
 
@@ -372,6 +407,23 @@ const NotificationComponent: React.FC = () => {
                       "رفض"
                     )}
                   </button>
+                </div>
+              )}
+              {notification.title === "طلب تفعيل حساب تقني" && (
+                <div className="mt-2 flex items-center">
+                  <label htmlFor="activate-switch" className="mr-2">
+                    تفعيل الحساب
+                  </label>
+                  <Switch
+                    id="activate-switch"
+                    onChange={() => handleActivationToggle(true, notification)}
+                    checked={isActivating}
+                    disabled={isActivating}
+                    width={40}
+                    height={20}
+                    onColor="#86d3ff"
+                    offColor="#ccc"
+                  />
                 </div>
               )}
             </li>

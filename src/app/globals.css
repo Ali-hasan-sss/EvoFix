@@ -20,7 +20,7 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
-  direction: rtl; /* تغيير الاتجاه إلى اليمين */
+  direction: rtl;
   text-align: right;
 }
 .hero {
@@ -46,16 +46,16 @@ a:hover {
 }
 /* الخلفية الشفافة للمودال */
 .modal-overlay {
-  position: fixed; /* تأكيد أن المودال ثابت فوق الشاشة */
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* خلفية شفافة */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999; /* إعطاء قيمة z-index كبيرة لظهور المودال فوق العناصر الأخرى */
+  z-index: 9999;
 }
 
 /* المودال نفسه */
@@ -66,10 +66,10 @@ a:hover {
   border-radius: 8px;
   max-width: 100%;
   width: 90%;
-  max-width: 700px; /* عرض المودال */
+  max-width: 700px;
   margin: 0 auto;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-  z-index: 10000; /* تأكيد أن المودال نفسه فوق الخلفية */
+  z-index: 10000;
 }
 .btn {
   font-size: 18px;
@@ -96,4 +96,39 @@ a:hover {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+/* Custom scroll for sidebar */
+.custom-sidebar-scroll {
+  overflow-y: auto;
+}
+
+.custom-sidebar-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+
+.custom-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+/* Custom scroll for main content container */
+.custom-main-scroll {
+  overflow-y: auto;
+}
+
+.custom-main-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-main-scroll::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+
+.custom-main-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
 }

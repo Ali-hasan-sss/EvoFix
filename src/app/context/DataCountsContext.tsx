@@ -8,13 +8,18 @@ import { API_BASE_URL } from "@/utils/api";
 interface DataCounts {
   totalRequests: number;
   pendingRequests: number;
-  assignedRequests: number;
   completedRequests: number;
   inProgressRequests: number;
   rejectedRequests: number;
+  assignedRequests: number;
   quotedRequests: number;
   faqCount: number;
   notifications: number;
+  activationRequests: number;
+}
+interface Notification {
+  title: string;
+  isRead: boolean;
 }
 // Create a context to hold the counts
 const DataCountsContext = createContext<DataCounts | null>(null);
@@ -24,23 +29,25 @@ export const DataCountsProvider: React.FC<{ children: React.ReactNode }> = ({
   const [counts, setCounts] = useState<{
     totalRequests: number;
     pendingRequests: number;
-    assignedRequests: number;
     completedRequests: number;
     inProgressRequests: number;
     rejectedRequests: number;
+    assignedRequests: number;
     quotedRequests: number;
     faqCount: number;
     notifications: number;
+    activationRequests: number;
   }>({
     totalRequests: 0,
     pendingRequests: 0,
-    assignedRequests: 0,
     completedRequests: 0,
     inProgressRequests: 0,
     rejectedRequests: 0,
+    assignedRequests: 0,
     quotedRequests: 0,
     faqCount: 0,
     notifications: 0,
+    activationRequests: 0,
   });
 
   const fetchCounts = async () => {
@@ -51,10 +58,10 @@ export const DataCountsProvider: React.FC<{ children: React.ReactNode }> = ({
       const requestsEndpoints = [
         "/maintenance-requests/count",
         "/maintenance-requests/count/pending",
-        "/maintenance-requests/count/assign",
         "/maintenance-requests/count/completed",
         "/maintenance-requests/count/inProgress",
         "/maintenance-requests/count/rejected",
+        "/maintenance-requests/count/assign",
         "/maintenance-requests/count/quoted",
         "/fAQ/count",
         "/notifications/count",
@@ -66,6 +73,15 @@ export const DataCountsProvider: React.FC<{ children: React.ReactNode }> = ({
           axios.get(`${API_BASE_URL}${endpoint}`, { headers })
         )
       );
+      //feth the notifications count for activ technical account
+      const notificationsResponse = await axios.get(
+        `${API_BASE_URL}/notifications`,
+        { headers }
+      );
+      const activationRequestsCount = notificationsResponse.data.filter(
+        (notification: Notification) =>
+          notification.title === "طلب تفعيل حساب تقني" && !notification.isRead
+      ).length;
 
       // Update counts based on the responses
       setCounts({
@@ -75,16 +91,17 @@ export const DataCountsProvider: React.FC<{ children: React.ReactNode }> = ({
         pendingRequests: responses[1].data.count?.message
           ? 0
           : responses[1].data.count,
-        assignedRequests: responses[2].data.count?.message
+
+        completedRequests: responses[2].data.count?.message
           ? 0
           : responses[2].data.count,
-        completedRequests: responses[3].data.count?.message
+        inProgressRequests: responses[3].data.count?.message
           ? 0
           : responses[3].data.count,
-        inProgressRequests: responses[4].data.count?.message
+        rejectedRequests: responses[4].data.count?.message
           ? 0
           : responses[4].data.count,
-        rejectedRequests: responses[5].data.count?.message
+        assignedRequests: responses[5].data.count?.message
           ? 0
           : responses[5].data.count,
         quotedRequests: responses[6].data.count?.message
@@ -96,6 +113,7 @@ export const DataCountsProvider: React.FC<{ children: React.ReactNode }> = ({
         notifications: responses[8].data.count?.message
           ? 0
           : responses[8].data.count,
+        activationRequests: activationRequestsCount,
       });
     } catch (error) {
       console.error("Error fetching counts:", error);

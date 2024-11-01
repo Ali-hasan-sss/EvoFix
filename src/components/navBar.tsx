@@ -97,7 +97,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
     <div>
       {/* Navbar for larger screens */}
       <nav
-        className={`p-4 fixed w-full z-10 top-0 shadow-lg md:flex md:justify-between items-center opacity-95 border-b border-yellow-500 ${
+        className={`p-4 fixed w-full z-10 top-0 shadow-lg md:flex md:justify-between items-center border-b border-yellow-500 ${
           isDarkMode ? "bg-gray-900 text-white" : "bg-gray-700 text-black"
         }`}
       >

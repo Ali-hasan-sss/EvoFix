@@ -17,6 +17,7 @@ interface RequestStats {
   pendingRequests: number;
   inProgressRequests: number;
   rejectedRequests: number;
+  faqCount: number;
 }
 
 const DashboardHome: React.FC = () => {
@@ -32,7 +33,7 @@ const DashboardHome: React.FC = () => {
       {
         data: [
           stats.completedRequests,
-          stats.pendingRequests,
+          stats.pendingRequests + stats.assignedRequests + stats.quotedRequests,
           stats.inProgressRequests,
           stats.rejectedRequests,
         ],
@@ -47,7 +48,7 @@ const DashboardHome: React.FC = () => {
         لوحة التحكم
       </h1>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             الإشعارات غير المقروءة
@@ -55,6 +56,20 @@ const DashboardHome: React.FC = () => {
           <p className="text-2xl font-bold text-blue-500">
             {stats.notifications}
           </p>
+        </div>
+        <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            طلبات تفعيل حساب تقني
+          </h2>
+          <p className="text-2xl font-bold text-blue-500">
+            {stats.activationRequests}
+          </p>
+        </div>
+        <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            أسئلة بحاجة اجابة
+          </h2>
+          <p className="text-2xl font-bold text-blue-500">{stats.faqCount}</p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
@@ -81,6 +96,24 @@ const DashboardHome: React.FC = () => {
           </h2>
           <p className="text-2xl font-bold text-yellow-500">
             {stats.pendingRequests}
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            طلبات قيد المعاينة
+          </h2>
+          <p className="text-2xl font-bold text-yellow-500">
+            {stats.assignedRequests}
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            طلبات قيد الموافقة
+          </h2>
+          <p className="text-2xl font-bold text-yellow-500">
+            {stats.quotedRequests}
           </p>
         </div>
 

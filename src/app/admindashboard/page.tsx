@@ -27,6 +27,8 @@ import {
   FaMobileAlt,
   FaConciergeBell,
   FaPhoneAlt,
+  FaMailBulk,
+  FaFileInvoice,
 } from "react-icons/fa";
 import ServicesComponent from "./services";
 import DevicesModels from "./DevicesModels";
@@ -129,7 +131,7 @@ const AdminDashboard: React.FC = () => {
     },
     ...(userRole === "ADMIN"
       ? [
-          { name: "اتصل بنا", icon: <FaPhoneAlt />, key: "contact-us" },
+          { name: "الرسائل والاسئلة", icon: <FaMailBulk />, key: "contact-us" },
           { name: "الخدمات", icon: <FaConciergeBell />, key: "services" },
           {
             name: "موديلات الأجهزة",
@@ -141,7 +143,7 @@ const AdminDashboard: React.FC = () => {
         ]
       : []),
     { name: "المستخدمين", icon: <FaUsers />, key: "users" },
-    { name: "الفواتير", icon: <FaUsers />, key: "Invoices" },
+    { name: "الفواتير", icon: <FaFileInvoice />, key: "Invoices" },
   ];
 
   // Handle logout action
@@ -207,16 +209,16 @@ const AdminDashboard: React.FC = () => {
       <Navbar />
       {/* Sidebar for large screens */}
       <div
-        className={`hidden md:flex p-6 mt-16 flex-col w-1/5  ${
-          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+        className={`hidden md:flex p-6 mt-16 flex-col w-1/5 custom-sidebar-scroll ${
+          isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-black"
         }`}
+        style={{ overflowY: "auto", maxHeight: "calc(100vh - 4rem)" }}
       >
-        <h2 className="text-xl font-bold my-6 text-center">لوحة التحكم</h2>
-        <ul className="space-y-6">
+        <ul className="space-y-4 mt-5">
           {navigationOptions.map((option) => (
             <li
               key={option.key}
-              className={`flex items-center cursor-pointer p-3 rounded-lg ${
+              className={`flex items-center cursor-pointer p-3 rounded-lg hover:bg-gray-500 ${
                 activeTab === option.key ? "bg-gray-700 text-white" : ""
               }`}
               onClick={() => handleTabChange(option.key)}
@@ -237,7 +239,10 @@ const AdminDashboard: React.FC = () => {
         </ul>
       </div>
       {/* Main content container */}
-      <div className={`flex-grow p-6 mt-16 w-full md:w-4/5 pb-20 md:pb-0`}>
+      <div
+        className={`flex-grow p-6 mt-16 w-full md:w-4/5 pb-20 md:pb-0 custom-main-scroll`}
+        style={{ overflowY: "auto", maxHeight: "calc(100vh - 4rem)" }}
+      >
         {renderContent()}
       </div>
 
