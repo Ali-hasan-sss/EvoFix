@@ -16,6 +16,7 @@ import UserDetails from "./UserDetails";
 import UserCard from "./UserCard";
 import { useMediaQuery } from "react-responsive";
 import AddUserForm from "./AddUserForm";
+import { useRouter } from "next/navigation";
 
 // User interface defining the structure of user data
 interface User {
@@ -37,7 +38,7 @@ interface UserFormData {
   email: string;
   governorate: string;
   address: string;
-  role: "USER" | "SUB_ADMIN" | "TECHNICAL";
+  role: "USER" | "SUBADMIN" | "TECHNICAL" | "ADMIN";
   specialization?: string;
   services?: string;
 }
@@ -55,7 +56,7 @@ const Users: React.FC = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" }); // Check if the screen is mobile size
   const [isAddingUser, setIsAddingUser] = useState(false); // State for adding a new user
   const userRole = localStorage.getItem("userRole"); // Get user role from local storage
-
+  const router = useRouter();
   // Function to open the edit modal for a selected user
   const openEditModal = (user: User) => {
     setSelectedUser(user);
@@ -249,7 +250,7 @@ const Users: React.FC = () => {
 
   // Function to handle view a user
   const handleViewUser = (user: User) => {
-    setSelectedUser(user);
+    router.push(`/users/${user.id}`);
   };
 
   const handleCloseDetails = () => {

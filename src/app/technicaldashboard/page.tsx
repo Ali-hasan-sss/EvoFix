@@ -2,7 +2,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import Navbar from "@/components/navBar";
 import Sidebar from "@/components/dashboard/Sidebar";
-import Profile from "../../components/dashboard/profile";
 import Home from "../page";
 import { AuthContext } from "@/app/context/AuthContext";
 import "../../components/dashboard/dashboard.css";
@@ -45,7 +44,13 @@ const Dashboard = () => {
           </div>
         );
       case "profile":
-        return <Profile />;
+        const userId = localStorage.getItem("userId");
+        if (userId) {
+          router.push(`/users/${userId}`);
+          return null; // عدم عرض محتوى البروفايل لأنه يتم التوجيه
+        } else {
+          return <div>لم يتم العثور على معرف المستخدم</div>;
+        }
       default:
         return null;
     }

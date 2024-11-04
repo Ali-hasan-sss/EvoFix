@@ -41,7 +41,7 @@ const DashboardHome: React.FC = () => {
       },
     ],
   };
-
+  console.log(`nat${stats.notifications}`);
   return (
     <div className="p-2 pt-5 bg-gray-100 dark:bg-gray-900 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
@@ -49,28 +49,37 @@ const DashboardHome: React.FC = () => {
       </h1>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            الإشعارات غير المقروءة
-          </h2>
-          <p className="text-2xl font-bold text-blue-500">
-            {stats.notifications}
-          </p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            طلبات تفعيل حساب تقني
-          </h2>
-          <p className="text-2xl font-bold text-blue-500">
-            {stats.activationRequests}
-          </p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            أسئلة بحاجة اجابة
-          </h2>
-          <p className="text-2xl font-bold text-blue-500">{stats.faqCount}</p>
-        </div>
+        {stats.notifications > 0 && (
+          <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg relative">
+            <span className="absolute top-2 right-2 bg-red-500 rounded-full w-2 h-2"></span>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              الإشعارات غير المقروءة
+            </h2>
+            <p className="text-2xl font-bold text-blue-500">
+              {stats.notifications}
+            </p>
+          </div>
+        )}
+        {stats.activationRequests > 0 && (
+          <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg relative">
+            <span className="absolute top-2 right-2 bg-red-500 rounded-full w-2 h-2"></span>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              طلبات تفعيل حساب تقني
+            </h2>
+            <p className="text-2xl font-bold text-blue-500">
+              {stats.activationRequests}
+            </p>
+          </div>
+        )}
+        {stats.faqCount > 0 && (
+          <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg relative">
+            <span className="absolute top-2 right-2 bg-red-500 rounded-full w-2 h-2"></span>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              أسئلة بحاجة اجابة
+            </h2>
+            <p className="text-2xl font-bold text-blue-500">{stats.faqCount}</p>
+          </div>
+        )}
 
         <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded-lg">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -137,7 +146,7 @@ const DashboardHome: React.FC = () => {
       </div>
 
       {/* منحنى بياني دائري لتوزيع حالات الطلبات */}
-      <div className="mt-6 bg-white dark:bg-gray-800 shadow-lg  p-6 rounded-lg">
+      <div className="mt-6 bg-white dark:bg-gray-800 shadow-lg p-6 rounded-lg">
         <div className="flex item-center " style={{ width: "40vw" }}>
           <Doughnut data={data} width={2000} height={2000} />
         </div>

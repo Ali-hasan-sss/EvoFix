@@ -146,9 +146,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
       key: "profile",
       name: "الملف الشخصي",
       icon: <FaUser className="text-2xl" />,
+      onClick: handleProfile, // استخدام handleProfile هنا
     },
   ];
-
   const sidebarRow = mainRow.filter((option) => option.key !== "viewHome");
 
   return (

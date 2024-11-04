@@ -17,6 +17,8 @@ interface UserFormProps {
   submitButtonLabel?: string;
   isNew?: boolean;
   isUser?: boolean;
+  isTechnical?: boolean;
+  isSubAdmin?: boolean;
   onClose?: () => void;
 }
 
@@ -30,10 +32,14 @@ interface FormErrors {
   confirmPassword: string;
   specialization?: string;
   services?: string;
+  admin_governorate?: string;
 }
 interface Service {
   title: string;
 }
+
+type EditUserFormInput = Omit<UserFormInput, "password" | "confirmPassword">;
+
 const UserForm: React.FC<UserFormProps> = ({
   initialData = {
     fullName: "",
@@ -45,15 +51,24 @@ const UserForm: React.FC<UserFormProps> = ({
     address: "",
     specialization: "",
     services: "",
+    admin_governorate: "",
   },
   onSubmit,
   submitButtonLabel = "التسجيل",
-  isUser = true,
+  isTechnical,
+  isSubAdmin,
   isNew,
 }) => {
   const { isDarkMode } = useContext(ThemeContext);
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<UserFormInput>(initialData);
+
+  // تحديد النوع المناسب للـ formData بناءً على قيمة isNew
+  const [formData, setFormData] = useState<UserFormInput | EditUserFormInput>(
+    isNew
+      ? initialData
+      : { ...initialData, password: undefined, confirmPassword: undefined }
+  );
+
   const [errors, setErrors] = useState<FormErrors>({
     fullName: "",
     email: "",
@@ -64,10 +79,11 @@ const UserForm: React.FC<UserFormProps> = ({
     confirmPassword: "",
     specialization: "",
     services: "",
+    admin_governorate: "",
   });
-  const [showPassword, setShowPassword] = useState(false); // لإظهار كلمة المرور
-  const [showPasswordR, setShowPasswordR] = useState(false); // لإظهار تأكيد كلمة المرور
-  const [isLoading, setIsLoading] = useState(false); // حالة التحميل
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordR, setShowPasswordR] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [specializations, setSpecializations] = useState<string[]>([]);
 
@@ -94,8 +110,17 @@ const UserForm: React.FC<UserFormProps> = ({
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" });
+    const { name, value } = e.target;
+
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: "", // قم بإزالة الخطأ المرتبط بالاسم الحالي
+    }));
   };
 
   const validateForm = (): boolean => {
@@ -109,7 +134,9 @@ const UserForm: React.FC<UserFormProps> = ({
       confirmPassword: "",
       specialization: "",
       services: "",
+      admin_governorate: "",
     };
+
     if (currentStep === 1) {
       if (!formData.fullName) newErrors.fullName = "الاسم الكامل مطلوب";
       if (!formData.email.includes("@"))
@@ -117,24 +144,32 @@ const UserForm: React.FC<UserFormProps> = ({
       if (!formData.phoneNO) newErrors.phoneNO = "رقم الهاتف مطلوب";
     } else if (currentStep === 2) {
       if (!formData.governorate) newErrors.governorate = "المحافظة مطلوبة";
-      if (!formData.address)
-        newErrors.address = "العنوان يجب ان يتجاوز 10 احرف";
-      if (!isUser) {
-        // إذا كان المستخدم تقنيًا
+      if (!formData.address || formData.address.length < 10)
+        newErrors.address = "العنوان يجب أن يتجاوز 10 أحرف";
+      if (isTechnical) {
         if (!formData.specialization)
           newErrors.specialization = "الاختصاص مطلوب";
         if (!formData.services) newErrors.services = "وصف الخدمة مطلوب";
       }
-    } else if (currentStep === 3) {
-      if (!formData.address && formData.address.length < 10)
-        newErrors.address = "العنوان مطلوب";
-      if (formData.password.length < 8)
-        newErrors.password = "كلمة المرور يجب أن تكون على الأقل 8 أحرف";
-      if (formData.password !== formData.confirmPassword)
-        newErrors.confirmPassword = "كلمتا المرور غير متطابقتين";
+      if (isSubAdmin) {
+        if (!formData.admin_governorate)
+          newErrors.admin_governorate = "حدد محافظة العمل";
+      }
+    } else if (currentStep === 3 && isNew) {
+      const { password, confirmPassword } = formData as UserFormInput;
+
+      if (!password || !confirmPassword) {
+        newErrors.password = password ? "" : "الرجاء إدخال كلمة المرور";
+        newErrors.confirmPassword = confirmPassword
+          ? ""
+          : "الرجاء تأكيد كلمة المرور";
+      } else if (password !== confirmPassword) {
+        newErrors.confirmPassword = "كلمتا المرور غير متطابقتان";
+      }
     }
 
     setErrors(newErrors);
+
     const isValid = Object.values(newErrors).every((error) => error === "");
     if (!isValid) {
       toast.error("يرجى تصحيح الأخطاء قبل المتابعة");
@@ -154,27 +189,27 @@ const UserForm: React.FC<UserFormProps> = ({
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true); // تعيين حالة التحميل إلى true عند بدء الإرسال
+    setIsLoading(true);
 
     if (validateForm()) {
-      // إزالة الحقول إذا كان المستخدم User وليس Technical
-      const filteredFormData: UserFormInput = isUser
-        ? { ...formData, specialization: undefined, services: undefined }
-        : formData;
-
-      console.log("Form data being submitted:", filteredFormData);
+      // إنشاء بيانات النموذج حسب حالة `isNew`
+      const filteredFormData = isNew
+        ? formData // عند الإنشاء، نستخدم النموذج الكامل
+        : ({
+            ...formData,
+            password: undefined,
+            confirmPassword: undefined,
+          } as Partial<UserFormInput>); // استخدام Partial لإزالة الحاجة لحقول كلمة المرور عند التعديل
 
       try {
-        await onSubmit(filteredFormData);
-        // يمكنك إضافة أي إجراء تود القيام به بعد نجاح الإرسال
+        await onSubmit(filteredFormData as UserFormInput);
       } catch (error) {
-        // التعامل مع الأخطاء هنا (مثلاً: عرض رسالة خطأ)
         console.error("Error submitting form:", error);
       } finally {
-        setIsLoading(false); // إعادة تعيين حالة التحميل إلى false بعد الانتهاء
+        setIsLoading(false);
       }
     } else {
-      setIsLoading(false); // تعيين إلى false إذا لم يتم التحقق من النموذج
+      setIsLoading(false);
     }
   };
 
@@ -246,11 +281,13 @@ const UserForm: React.FC<UserFormProps> = ({
                 <p className="text-red-500 text-sm">{errors.email}</p>
               )}
             </div>
-            <p className="m-2">
-              <a className="text-blue-200 p-1" href="login">
-                لدي حساب بالفعل
-              </a>
-            </p>
+            {isNew && (
+              <p className="m-2">
+                <a className="text-blue-200 p-1" href="login">
+                  لدي حساب بالفعل
+                </a>
+              </p>
+            )}
           </>
         );
       case 2:
@@ -313,7 +350,7 @@ const UserForm: React.FC<UserFormProps> = ({
                 <p className="text-red-500 text-sm">{errors.address}</p>
               )}
             </div>
-            {!isUser && (
+            {isTechnical && (
               <>
                 <div className="mb-4">
                   <label
@@ -375,95 +412,110 @@ const UserForm: React.FC<UserFormProps> = ({
       case 3:
         return (
           <>
-            <div className="mb-4">
-              <label htmlFor="password" className="block font-bold mb-2">
-                كلمة المرور
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`w-full p-2 border-b focus:outline-none rounded ${
-                    isDarkMode
-                      ? "bg-gray-700 text-white border-gray-600"
-                      : "bg-white text-gray-800 border-gray-300"
-                  } ${errors.password ? "border-red-500" : ""}`}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-2 top-1/2 transform -translate-y-1/2"
-                >
-                  {showPassword ? (
-                    <EyeIcon className="h-5 w-5 text-gray-500" />
-                  ) : (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-500" />
-                  )}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="text-red-500 text-sm">{errors.password}</p>
-              )}
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="confirmPassword" className="block font-bold mb-2">
-                تأكيد كلمة المرور
-              </label>
-              <div className="relative">
-                <input
-                  type={showPasswordR ? "text" : "password"}
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className={`w-full p-2 border-b focus:outline-none rounded ${
-                    isDarkMode
-                      ? "bg-gray-700 text-white border-gray-600"
-                      : "bg-white text-gray-800 border-gray-300"
-                  } ${errors.confirmPassword ? "border-red-500" : ""}`}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPasswordR(!showPasswordR)}
-                  className="absolute left-2 top-1/2 transform -translate-y-1/2"
-                >
-                  {showPasswordR ? (
-                    <EyeIcon className="h-5 w-5 text-gray-500" />
-                  ) : (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-500" />
-                  )}
-                </button>
-              </div>
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
-              )}
-              {isNew && (
-                <div className="flex items-center w-full mt-4">
-                  <input
-                    type="checkbox"
-                    className="ml-2"
-                    id="x"
-                    onChange={handleCheckboxChange}
-                  />
-
-                  <label htmlFor="#x">
-                    اوافق علي سياسة الخصوصية و{" "}
-                    <a
-                      href="/privacy-and-terms"
-                      className="text-blue-500 m-0 p-0"
-                    >
-                      شروط الاستخدام
-                    </a>
+            {isNew && (
+              <>
+                <div className="mb-4">
+                  <label htmlFor="password" className="block font-bold mb-2">
+                    كلمة المرور
                   </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      name="password"
+                      value={
+                        isNew ? (formData as UserFormInput).password || "" : ""
+                      }
+                      onChange={handleChange}
+                      className={`w-full p-2 border-b focus:outline-none rounded ${
+                        isDarkMode
+                          ? "bg-gray-700 text-white border-gray-600"
+                          : "bg-white text-gray-800 border-gray-300"
+                      } ${errors.password ? "border-red-500" : ""}`}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2"
+                    >
+                      {showPassword ? (
+                        <EyeIcon className="h-5 w-5 text-gray-500" />
+                      ) : (
+                        <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className="text-red-500 text-sm">{errors.password}</p>
+                  )}
                 </div>
-              )}
-            </div>
+
+                <div className="mb-4">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block font-bold mb-2"
+                  >
+                    تأكيد كلمة المرور
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPasswordR ? "text" : "password"}
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      value={
+                        isNew
+                          ? (formData as UserFormInput).confirmPassword || ""
+                          : ""
+                      }
+                      onChange={handleChange}
+                      className={`w-full p-2 border-b focus:outline-none rounded ${
+                        isDarkMode
+                          ? "bg-gray-700 text-white border-gray-600"
+                          : "bg-white text-gray-800 border-gray-300"
+                      } ${errors.confirmPassword ? "border-red-500" : ""}`}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswordR(!showPasswordR)}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2"
+                    >
+                      {showPasswordR ? (
+                        <EyeIcon className="h-5 w-5 text-gray-500" />
+                      ) : (
+                        <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="text-red-500 text-sm">
+                      {errors.confirmPassword}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
+
+            {isNew && (
+              <div className="flex items-center w-full mt-4">
+                <input
+                  type="checkbox"
+                  className="ml-2"
+                  id="x"
+                  onChange={handleCheckboxChange}
+                />
+                <label htmlFor="x">
+                  اوافق علي سياسة الخصوصية و
+                  <a
+                    href="/privacy-and-terms"
+                    className="text-blue-500 m-0 p-0"
+                  >
+                    شروط الاستخدام
+                  </a>
+                </label>
+              </div>
+            )}
           </>
         );
       default:
@@ -512,7 +564,7 @@ const UserForm: React.FC<UserFormProps> = ({
           }`}
           >
             {submitButtonLabel}
-            {isLoading && " ..."} {/* إضافة ثلاث نقاط عند التحميل */}
+            {isLoading && " ..."}
           </button>
         )}
       </div>

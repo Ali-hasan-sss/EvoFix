@@ -19,19 +19,6 @@ export interface RequestStats {
   inProgressRequests: number;
   rejectedRequests: number;
 }
-export interface UserFormInput {
-  fullName: string;
-  email: string;
-  phoneNO: string;
-  role?: string;
-  isActive?: boolean;
-  governorate: string;
-  address: string;
-  password: string;
-  confirmPassword: string;
-  specialization?: string;
-  services?: string;
-}
 
 export interface Technician extends User {
   isActive: boolean;
@@ -85,7 +72,25 @@ export interface UserFormData {
   confirmPassword: string;
   specialization?: string;
   services?: string;
+  admin_governorate?: string;
 }
+export interface UserFormInput {
+  fullName: string;
+  email: string;
+  phoneNO: string;
+  role?: string;
+  isActive?: boolean;
+  governorate: string;
+  address: string;
+  password: string;
+  confirmPassword: string;
+  specialization?: string;
+  services?: string;
+  admin_governorate?: string;
+  department?: string;
+}
+//انشات نوع بيانات مشترك من اجل استخدامه في صفحة اليوزر الديناميكية
+export type CombinedUserFormInput = EditProfileData & UserFormInput;
 
 // الأخطاء في النموذج
 export interface FormErrors {
@@ -98,33 +103,22 @@ export interface FormErrors {
   confirmPassword: string;
   specialization?: string;
   services?: string;
+  admin_governorate?: string;
 }
 
 // واجهة بيانات التسجيل الفني
+// واجهة بيانات تسجيل الفني
 export interface RegisterTechnicianData {
   email: string;
   fullName: string;
   governorate: string;
-  password: string;
+  password: string; // تأكد من أن هذا هو نوع 'string'
+  confirmPassword: string; // تأكد من أن هذه الخاصية موجودة
   phoneNO: string;
   address: string;
   specialization?: string;
   services?: string;
   role?: string;
-}
-
-// واجهة بيانات تحرير الملف الشخصي
-export interface EditProfileData {
-  fullName: string;
-  email: string;
-  governorate: string;
-  password: string;
-  confirmPassword: string;
-  phoneNO: string;
-  address: string;
-  specialization?: string;
-  isActive?: boolean;
-  role?: string; // إذا كانت role موجودة
 }
 export interface Service {
   id: number;
@@ -140,3 +134,6 @@ export interface DeviceModel {
   isActive?: boolean;
   services: Service[];
 }
+export type EditProfileData = Omit<UserFormInput, "password"> & {
+  password?: string; // ستكون اختيارية هنا فقط
+};

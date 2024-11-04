@@ -15,9 +15,10 @@ interface UserFormData {
   email: string;
   governorate: string;
   address: string;
-  role: "USER" | "SUB_ADMIN" | "TECHNICAL";
+  role: "USER" | "SUBADMIN" | "TECHNICAL" | "ADMIN";
   specialization?: string;
   services?: string;
+  admin_governorate?: string;
   password: string;
 }
 
@@ -27,24 +28,24 @@ interface Service {
 
 const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
   const [formData, setFormData] = useState<UserFormData>({
-    // State to hold user form data
     fullName: "",
     phoneNO: "",
     email: "",
-    governorate: "دمشق",
+    governorate: "",
     address: "",
     role: "USER",
     password: "",
+    admin_governorate: "",
+    specialization: "",
+    services: "",
   });
-  // State to store specializations fetched from the API
+
   const [specializations, setSpecializations] = useState<string[]>([]);
-  // Loading state to indicate when form submission is processing
   const [loading, setLoading] = useState<boolean>(false);
-  // Retrieve theme context to set dark/light mode styles
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const { isDarkMode } = useContext(ThemeContext);
-  // Get user role from localStorage, used to determine role options
   const userRole = localStorage.getItem("userRole");
-  // Fetch specializations from the API
+
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/services`)
@@ -59,7 +60,6 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
       .catch((error) => console.error("فشل في جلب الخدمات:", error));
   }, []);
 
-  // Handle input changes
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -68,11 +68,67 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
       ...prevData,
       [name]: value,
     }));
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: "", // Clear error for the field being changed
+    }));
   };
 
-  // Handle form submission
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.fullName) {
+      newErrors.fullName = "يجب إدخال الاسم الكامل.";
+    }
+
+    if (!formData.phoneNO) {
+      newErrors.phoneNO = "رقم الهاتف مطلوب.";
+    } else if (!/^\d{10}$/.test(formData.phoneNO)) {
+      newErrors.phoneNO = "ادخل رقم هاتف صالح";
+    }
+
+    if (!formData.email) {
+      newErrors.email = "البريد الإلكتروني مطلوب.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "البريد الإلكتروني غير صالح.";
+    }
+    if (!formData.address) {
+      newErrors.address = "العنوان مطلوب.";
+    } else if (formData.address.length < 10) {
+      newErrors.address = "يجب أن يكون العنوان أكثر من 10 أحرف.";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "كلمة المرور مطلوبة.";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "يجب أن تكون كلمة المرور أكثر من 8 أحرف.";
+    }
+
+    if (formData.role === "TECHNICAL") {
+      if (!formData.specialization) {
+        newErrors.specialization = "يجب اختيار الاختصاص.";
+      }
+
+      if (!formData.services) {
+        newErrors.services = "يجب إدخال الخدمات.";
+      }
+    }
+    if (formData.role === "SUBADMIN") {
+      if (!formData.admin_governorate) {
+        newErrors.admin_governorate = "حدد قطاع العمل";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Return true if there are no errors
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return; // Stop submission if validation fails
+    }
+
     setLoading(true);
     try {
       await onSubmit(formData);
@@ -92,7 +148,6 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
         isDarkMode ? "bg-gray-800" : "bg-gray-200"
       }`}
     >
-      {/* Main form structure */}
       <form
         onSubmit={handleSubmit}
         className={`p-4 rounded-lg shadow-md flex flex-col gap-y-2 md:grid md:grid-cols-2 gap-x-4 ${
@@ -109,6 +164,9 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
             required
             className="mt-1 p-2 text-black w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.fullName && (
+            <span className="text-red-600">{errors.fullName}</span>
+          )}
         </div>
 
         <div className="mb-2">
@@ -121,6 +179,9 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
             required
             className="mt-1 text-black p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.phoneNO && (
+            <span className="text-red-600">{errors.phoneNO}</span>
+          )}
         </div>
 
         <div className="mb-4">
@@ -133,6 +194,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
             required
             className="mt-1 text-black p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.email && <span className="text-red-600">{errors.email}</span>}
         </div>
 
         <div className="mb-4">
@@ -169,9 +231,11 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
             value={formData.address}
             onChange={handleChange}
             required
-            minLength={10}
             className="mt-1 p-2 text-black w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.address && (
+            <span className="text-red-600">{errors.address}</span>
+          )}
         </div>
 
         <div className="mb-4">
@@ -187,7 +251,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
             <option value="TECHNICAL">تقني</option>
             {userRole === "ADMIN" && <option value="ADMIN">مدير</option>}
             {userRole === "ADMIN" && (
-              <option value="SUBADMIN">مدير محافظة </option>
+              <option value="SUBADMIN">مدير محافظة</option>
             )}
           </select>
         </div>
@@ -202,6 +266,9 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
             required
             className="mt-1 p-2 text-black w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.password && (
+            <span className="text-red-600">{errors.password}</span>
+          )}
         </div>
 
         {formData.role === "TECHNICAL" && (
@@ -210,18 +277,19 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
               <label className="block">الاختصاص:</label>
               <select
                 name="specialization"
-                value={formData.specialization || ""}
                 onChange={handleChange}
-                required
-                className="mt-1 p-2 w-full text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="mt-1 text-black p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">اختر الاختصاص</option>
-                {specializations.map((specialization, index) => (
-                  <option key={index} value={specialization}>
-                    {specialization}
+                {specializations.map((spec) => (
+                  <option key={spec} value={spec}>
+                    {spec}
                   </option>
                 ))}
               </select>
+              {errors.specialization && (
+                <span className="text-red-600">{errors.specialization}</span>
+              )}
             </div>
 
             <div className="mb-4">
@@ -229,43 +297,64 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
               <input
                 type="text"
                 name="services"
-                value={formData.services || ""}
+                value={formData.services}
+                onChange={handleChange}
+                className="mt-1 p-2 text-black w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {errors.services && (
+                <span className="text-red-600">{errors.services}</span>
+              )}
+            </div>
+          </>
+        )}
+        {formData.role === "SUBADMIN" && (
+          <>
+            <div className="mb-4">
+              <label className="block">قطاع العمل:</label>
+              <select
+                name="admin_governorate"
+                value={formData.admin_governorate}
                 onChange={handleChange}
                 required
                 className="mt-1 p-2 text-black w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              >
+                <option value="">اختر المحافظة</option>
+                <option value="دمشق">دمشق</option>
+                <option value="ريف دمشق">ريف دمشق</option>
+                <option value="حمص">حمص</option>
+                <option value="حماه">حماه</option>
+                <option value="طرطوس">طرطوس</option>
+                <option value="اللاذقية">اللاذقية</option>
+                <option value="السويداء">السويداء</option>
+                <option value="القنيطرة">القنيطرة</option>
+                <option value="حلب">حلب</option>
+                <option value="الرقة">الرقة</option>
+                <option value="الحسكة">الحسكة</option>
+                <option value="دير الزور">دير الزور</option>
+                <option value="ادلب">ادلب</option>
+              </select>
             </div>
           </>
         )}
 
         <button
           type="submit"
+          className={`mt-4 p-2 rounded-lg ${
+            isDarkMode ? "bg-blue-600 text-white" : "bg-blue-500 text-white"
+          } hover:bg-blue-700`}
           disabled={loading}
-          className={`mt-4 w-full p-2 text-white rounded-md ${
-            loading ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
-          } focus:outline-none`}
         >
-          {loading ? (
-            <span className="flex items-center justify-center">
-              <svg
-                className="w-5 h-5 mr-3 animate-spin"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 2v10" />
-                <path d="M2 12h10" />
-              </svg>
-              جار التحميل...
-            </span>
-          ) : (
-            "إضافة المستخدم"
-          )}
+          {loading ? "جارٍ الإضافة..." : "إضافة مستخدم"}
+        </button>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className={`mt-2 p-2 rounded-lg ${
+            isDarkMode ? "bg-gray-600 text-white" : "bg-gray-300 text-black"
+          } hover:bg-gray-400`}
+        >
+          إلغاء
         </button>
       </form>
     </div>

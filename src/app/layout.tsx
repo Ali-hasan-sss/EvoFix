@@ -1,5 +1,3 @@
-// app/layout.tsx
-
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -7,7 +5,7 @@ import "react-confirm-alert/src/react-confirm-alert.css";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
-import DataCountsProvider from "./context/DataCountsContext";
+import { DataCountsProvider } from "./context/DataCountsContext"; // استخدم الاستيراد المسمي هنا
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",

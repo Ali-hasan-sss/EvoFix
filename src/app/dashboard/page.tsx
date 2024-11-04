@@ -2,7 +2,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import Navbar from "@/components/navBar";
 import Sidebar from "@/components/dashboard/Sidebar";
-import Profile from "../../components/dashboard/profile";
 import { AuthContext } from "@/app/context/AuthContext";
 import "../../components/dashboard/dashboard.css";
 import { ThemeContext } from "../context/ThemeContext";
@@ -11,6 +10,7 @@ import RepairRequests from "./RepairRequests/RepairRequests";
 import Notifications from "../../components/dashboard/notification";
 import Home from "../page";
 import Invoices from "@/components/Invoices";
+
 const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");
   const { isDarkMode } = useContext(ThemeContext);
@@ -58,39 +58,26 @@ const Dashboard = () => {
   const renderContent = () => {
     switch (selectedOption) {
       case "viewHome":
-        return (
-          <div>
-            <Home />
-          </div>
-        );
+        return <Home />;
       case "viewRequests":
-        return (
-          <div>
-            <RepairRequests />
-          </div>
-        );
+        return <RepairRequests />;
       case "Invoices":
-        return (
-          <div>
-            <Invoices />
-          </div>
-        );
+        return <Invoices />;
       case "notifications":
-        return (
-          <div>
-            <Notifications />
-          </div>
-        );
+        return <Notifications />;
       case "profile":
-        return (
-          <div>
-            <Profile />
-          </div>
-        );
+        const userId = localStorage.getItem("userId");
+        if (userId) {
+          router.push(`/users/${userId}`);
+          return null; // عدم عرض محتوى البروفايل لأنه يتم التوجيه
+        } else {
+          return <div>لم يتم العثور على معرف المستخدم</div>;
+        }
       default:
         return null;
     }
   };
+
   // عرض لوحة التحكم إذا كان المستخدم مسجلاً للدخول
   return (
     <>

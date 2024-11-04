@@ -20,6 +20,8 @@ const RegisterTechnicianPage = () => {
   const handleRegisterTechnician = async (
     data: RegisterTechnicianData
   ): Promise<void> => {
+    // تأكد من أن البيانات تأتي من نموذج يتوافق مع RegisterTechnicianData
+    // هنا يمكنك إجراء التحقق اللازم على البيانات
     try {
       const response = await axios.post(
         `${API_BASE_URL}/users`,
@@ -27,12 +29,12 @@ const RegisterTechnicianPage = () => {
           email: data.email,
           fullName: data.fullName,
           governorate: data.governorate,
-          password: data.password,
+          password: data.password, // تأكد من أن password ليست undefined
           phoneNO: data.phoneNO,
           address: data.address,
-          specialization: data.specialization, // الاختصاص مطلوب للتقني
-          services: data.services, // إضافة وصف الخدمات المطلوبة للتقني
-          role: "TECHNICAL", // إضافة دور التقني في الطلب
+          specialization: data.specialization,
+          services: data.services,
+          role: "TECHNICAL",
         },
         {
           headers: {
@@ -41,22 +43,20 @@ const RegisterTechnicianPage = () => {
         }
       );
 
-      if (response.status === 200 || response.status === 201) {
-        const userId = response.data.id;
-        const email = response.data.email;
-        const userRole = response.data.role;
-        const token = response.data.token; // استقبال التوكن من الاستجابة
+      // التحقق من استجابة الخادم
+      if (response.data.success) {
+        const { id, email, role, token } = response.data;
 
         // حفظ التوكن في الكوكيز
         Cookies.set("token", token, {
-          expires: 7, // حفظ التوكن لمدة 7 أيام
-          secure: process.env.NODE_ENV === "production", // يستخدم secure إذا كان الموقع في الإنتاج (HTTPS)
+          expires: 7,
+          secure: process.env.NODE_ENV === "production",
         });
 
         // حفظ المعرف والبريد الإلكتروني في localStorage
-        localStorage.setItem("userId", userId.toString()); // حفظ المعرف كـ string
+        localStorage.setItem("userId", id.toString());
         localStorage.setItem("email", email);
-        localStorage.setItem("userRole", userRole);
+        localStorage.setItem("userRole", role);
 
         toast.success("تم إنشاء حساب تقني بنجاح!");
         toast.success(
@@ -65,8 +65,9 @@ const RegisterTechnicianPage = () => {
             duration: 10000,
           }
         );
+
         // تسجيل الدخول تلقائيًا
-        login(email, userId);
+        login(email, id);
 
         // إعادة توجيه المستخدم بعد التسجيل
         setTimeout(() => {
@@ -76,9 +77,11 @@ const RegisterTechnicianPage = () => {
         toast.error("حدث خطأ أثناء إنشاء الحساب");
       }
     } catch (error) {
-      // استخدام AxiosError للتحقق من نوع الخطأ
-      if (error instanceof AxiosError && error.response) {
-        toast.error(`حدث خطأ: ${error.response.data.message || "غير معروف"}`);
+      if (error instanceof AxiosError) {
+        // التحقق من نوع الخطأ
+        const errorMessage =
+          error.response?.data?.message || "حدث خطأ غير معروف";
+        toast.error(`خطأ: ${errorMessage}`);
       } else {
         toast.error("تعذر الاتصال بالخادم");
       }
@@ -104,6 +107,7 @@ const RegisterTechnicianPage = () => {
             onSubmit={handleRegisterTechnician}
             isNew={true}
             isUser={false}
+            isTechnical={true}
           />
         </div>
       </div>
