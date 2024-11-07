@@ -12,6 +12,8 @@ import { ThemeContext } from "@/app/context/ThemeContext";
 import { CombinedUserFormInput } from "@/utils/types";
 import toast from "react-hot-toast";
 import { ToastContainer } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { FaArrowCircleRight } from "react-icons/fa";
 
 interface TechnicianDetails {
   id: number;
@@ -49,7 +51,7 @@ const UserPage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const { isDarkMode } = useContext(ThemeContext);
   const isNew = false;
-
+  const router = useRouter();
   const [formData, setFormData] = useState<CombinedUserFormInput | null>(null);
 
   useEffect(() => {
@@ -98,6 +100,17 @@ const UserPage = () => {
         });
     }
   }, [id]);
+
+  const handelGoBack = () => {
+    const userRole = localStorage.getItem("userRole");
+    if (userRole === "ADMIN" || userRole === "SUBADMIN") {
+      router.push("/admindashboard");
+    } else if (userRole === "TECHNICAL") {
+      router.push("/technicaldashboard");
+    } else {
+      router.push("/dashboard");
+    }
+  };
 
   const editUser = async (formData: CombinedUserFormInput) => {
     setEditing(true);
@@ -202,11 +215,14 @@ const UserPage = () => {
       <ToastContainer />
 
       <div
-        className={`pt-20 mt-5 w-full p-6 bg-gray-100 shadow-lg rounded-lg md:flex md:flex-col md:items-center text-right ${
+        className={`pt-20 mt-10 w-full p-6 bg-gray-100 shadow-lg rounded-lg md:flex md:flex-col  text-right ${
           isDarkMode ? "bg-gray-900 text-white" : "bg-gray-200 text-black"
         }`}
         style={{ minHeight: "100vh" }}
       >
+        <button onClick={handelGoBack}>
+          <FaArrowCircleRight className="text-3xl" />
+        </button>
         <h1 className="text-3xl font-bold mb-6">معلومات المستخدم</h1>
 
         <div
@@ -258,7 +274,7 @@ const UserPage = () => {
             />
 
             {/* إضافة السبينر بجانب السويتش في حالة التحميل */}
-            <div className="absolute top-4 right-20 mr-5 h-5 w-5">
+            <div className="absolute top-4 right-20 mr-10 h-5 w-5">
               {editing && (
                 <CircularProgress size={16} className="inline ml-2" />
               )}
@@ -301,14 +317,13 @@ const UserPage = () => {
               </p>
             </>
           )}
+          <button
+            onClick={handleEditClick}
+            className="mt-6 bg-blue-500 inline text-white px-6 py-2 rounded-md hover:bg-blue-600"
+          >
+            تعديل المستخدم
+          </button>
         </div>
-
-        <button
-          onClick={handleEditClick}
-          className="mt-6 bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600"
-        >
-          تعديل المستخدم
-        </button>
 
         {showEditModal && (
           <Modal open={showEditModal} onClose={() => setShowEditModal(false)}>

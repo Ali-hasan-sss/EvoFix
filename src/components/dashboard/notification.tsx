@@ -8,6 +8,8 @@ import { ThemeContext } from "@/app/context/ThemeContext";
 import Modal from "react-modal";
 import PaymentForm from "@/components/forms/PaymentForm";
 import Switch from "react-switch";
+import { FaEye } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 interface APINotification {
   id: number;
@@ -41,6 +43,7 @@ const NotificationComponent: React.FC = () => {
     null
   );
   const [isActivating, setIsActivating] = useState(false);
+  const router = useRouter();
 
   const FETCH_INTERVAL = 60000;
 
@@ -151,35 +154,14 @@ const NotificationComponent: React.FC = () => {
     }
   };
 
-  const handleActivationToggle = async (
-    checked: boolean,
-    notification: MappedNotification
-  ) => {
-    setIsActivating(true);
-    const token = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("token="));
-    const authToken = token ? token.split("=")[1] : "";
+  const handleActivationToggle = async (notification: MappedNotification) => {
+    // استخدم useRouter للتوجيه
     try {
-      await axios.put(
-        `${API_BASE_URL}/users/${notification.senderId}`,
-        {
-          isActive: checked,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-      toast.success(
-        checked ? "تم تفعيل حساب التقني بنجاح" : "تم تعطيل حساب التقني بنجاح"
-      );
+      // التوجيه إلى صفحة المستخدم بناءً على senderId
+      router.push(`/users/${notification.senderId}`);
     } catch (error) {
-      console.error("خطأ في تفعيل الحساب:", error);
-      toast.error("حدث خطأ أثناء تحديث حالة حساب التقني");
-    } finally {
-      setIsActivating(false);
+      console.error("خطأ في التوجيه إلى صفحة المستخدم:", error);
+      toast.error("حدث خطأ أثناء محاولة زيارة صفحة المستخدم");
     }
   };
 
@@ -410,20 +392,14 @@ const NotificationComponent: React.FC = () => {
                 </div>
               )}
               {notification.title === "طلب تفعيل حساب تقني" && (
-                <div className="mt-2 flex items-center">
-                  <label htmlFor="activate-switch" className="mr-2">
-                    تفعيل الحساب
-                  </label>
-                  <Switch
-                    id="activate-switch"
-                    onChange={() => handleActivationToggle(true, notification)}
-                    checked={isActivating}
+                <div className="mt-2 flex items-center ">
+                  <button
+                    className="bg-blue-500 py-1 px-3 rounded hover:bg-blue-300"
+                    onClick={() => handleActivationToggle(notification)} // استخدم onClick ومرر notification كـ argument
                     disabled={isActivating}
-                    width={40}
-                    height={20}
-                    onColor="#86d3ff"
-                    offColor="#ccc"
-                  />
+                  >
+                    <FaEye /> مشاهدة
+                  </button>
                 </div>
               )}
             </li>

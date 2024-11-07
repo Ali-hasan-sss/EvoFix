@@ -3,10 +3,9 @@
 import React, { useContext, useState, useEffect } from "react";
 import { ThemeContext } from "@/app/context/ThemeContext";
 
-// Define columns based on having an accessor or render
 interface ColumnWithAccessor<T> {
   title: string;
-  accessor: keyof T; // Use keyof T to ensure it's a valid key of T
+  accessor: keyof T;
 }
 
 interface ColumnWithRender<T> {
@@ -17,37 +16,50 @@ interface ColumnWithRender<T> {
 export type Column<T> = ColumnWithAccessor<T> | ColumnWithRender<T>;
 
 interface GenericTableProps<T> {
-  data: T[]; // Data for the table
-  columns: Column<T>[]; // Column information
-  isLoading?: boolean; // Option to show loading state
+  data: T[];
+  columns: Column<T>[];
+  isLoading?: boolean;
 }
 
-// Generic Table component
 const GenericTable = <T extends Record<string, unknown>>({
   data,
   columns,
-  isLoading = false, // Default loading state
+  isLoading = false,
 }: GenericTableProps<T>) => {
   const { isDarkMode } = useContext(ThemeContext);
   const [sortedData, setSortedData] = useState<T[]>(data);
+  const [searchValue, setSearchValue] = useState("");
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof T; // Use keyof T here
+    key: keyof T;
     direction: "asc" | "desc";
   } | null>(null);
+
   useEffect(() => {
-    setSortedData(data);
-  }, [data]);
-  // Function to get values based on accessor or render
+    const filteredData = data.filter((item) =>
+      columns.some((column) =>
+        "accessor" in column && typeof column.accessor === "string"
+          ? (item[column.accessor] as string)
+              ?.toString()
+              .toLowerCase()
+              .includes(searchValue.toLowerCase())
+          : false
+      )
+    );
+    setSortedData(filteredData);
+  }, [data, searchValue, columns]);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(event.target.value);
+  };
+
   const getValueByAccessorOrRender = (
     column: Column<T>,
     item: T
   ): React.ReactNode => {
-    // If the column has a render function
     if ("render" in column && typeof column.render === "function") {
-      return column.render(item); // Call the function and return the result
+      return column.render(item);
     }
 
-    // If the column has an accessor
     if ("accessor" in column && typeof column.accessor === "string") {
       const keys = column.accessor.split(".");
       let result: unknown = item;
@@ -60,7 +72,7 @@ const GenericTable = <T extends Record<string, unknown>>({
         ) {
           result = (result as Record<string, unknown>)[key];
         } else {
-          return "N/A"; // If key is not found, return N/A
+          return "N/A";
         }
       }
 
@@ -72,10 +84,9 @@ const GenericTable = <T extends Record<string, unknown>>({
       }
     }
 
-    return "N/A"; // If no valid value is found
+    return "N/A";
   };
 
-  // Sorting function
   const handleSort = (accessor: keyof T) => {
     let direction: "asc" | "desc" = "asc";
     if (
@@ -86,8 +97,8 @@ const GenericTable = <T extends Record<string, unknown>>({
       direction = "desc";
     }
     const sorted = [...sortedData].sort((a, b) => {
-      const aValue = a[accessor]; // Use keyof T
-      const bValue = b[accessor]; // Use keyof T
+      const aValue = a[accessor];
+      const bValue = b[accessor];
       if (aValue < bValue) return direction === "asc" ? -1 : 1;
       if (aValue > bValue) return direction === "asc" ? 1 : -1;
       return 0;
@@ -98,6 +109,19 @@ const GenericTable = <T extends Record<string, unknown>>({
 
   return (
     <div className="overflow-x-auto">
+      <div className="mb-4 flex justify-start">
+        <input
+          type="text"
+          placeholder="بحث بالاسم..."
+          value={searchValue}
+          onChange={handleSearchChange}
+          className={`p-2 border rounded-lg outline-none  ${
+            isDarkMode
+              ? "bg-gray-800 text-white border-gray-600"
+              : "bg-gray-200 text-black border-gray-300"
+          }`}
+        />
+      </div>
       <table
         className={`min-w-full border border-gray-300 ${
           isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
@@ -132,7 +156,7 @@ const GenericTable = <T extends Record<string, unknown>>({
                 جارٍ التحميل...
               </td>
             </tr>
-          ) : Array.isArray(sortedData) && sortedData.length > 0 ? (
+          ) : sortedData.length > 0 ? (
             sortedData.map((item, rowIndex) => (
               <tr
                 key={rowIndex}
@@ -144,7 +168,7 @@ const GenericTable = <T extends Record<string, unknown>>({
                     : isDarkMode
                     ? "bg-gray-600"
                     : "bg-white"
-                } hover:bg-gray-300 transition-colors`}
+                } hover:bg-gray-500 transition-colors`}
               >
                 {columns.map((column, colIndex) => (
                   <td

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import DataCountsProvider, {
@@ -22,6 +22,16 @@ interface RequestStats {
 
 const DashboardHome: React.FC = () => {
   const stats = useDataCounts();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (stats?.fetchCounts) {
+        await stats.fetchCounts();
+      }
+    };
+
+    fetchData();
+  }, []);
 
   if (!stats) {
     return <div>Loading...</div>;

@@ -83,35 +83,28 @@ const Dashboard = () => {
     <>
       <Navbar />
       <div
-        className={`flex flex-row  ${
+        className={`flex flex-row ${
           isDarkMode ? "bg-gray-900 text-white" : "bg-gray-300 text-black"
         }`}
-        style={{
-          minHeight: "100vh",
-          paddingTop: "64px",
-          overflowY: "auto",
-        }}
       >
         {/* Sidebar */}
-        <Sidebar onSelectOption={setSelectedOption} />
-
-        {/* الحاوية الرئيسية */}
         <div
-          className={`flex-1 flex justify-center items-center rounded ${
-            isDarkMode ? "bg-black-600" : "bg-gray-400"
-          }`}
+          className="sidebar mt-20 custom-sidebar-scroll"
           style={{
-            minHeight: "100%",
-            width: "100%",
             overflowY: "auto",
+            height: "calc(100vh - 4rem)",
+            minHeight: "100vh",
           }}
         >
-          <div
-            className="flex flex-col py-4 mb-9"
-            style={{ width: "100%", minHeight: "100%", overflowY: "auto" }}
-          >
-            {renderContent()}
-          </div>
+          <Sidebar onSelectOption={setSelectedOption} />
+        </div>
+
+        {/* Main content */}
+        <div
+          className={`flex-grow p-6 mt-16 w-full md:w-4/5 pb-20 md:pb-0 custom-main-scroll`}
+          style={{ overflowY: "auto", maxHeight: "calc(100vh - 4rem)" }}
+        >
+          {renderContent()}
         </div>
       </div>
     </>

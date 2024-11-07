@@ -144,7 +144,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
 
   return (
     <div
-      className={`overflow-y-auto max-h-screen ${
+      className={`overflow-y-auto max-h-screen custom-sidebar-scroll p-2${
         isDarkMode ? "bg-gray-800" : "bg-gray-200"
       }`}
     >
@@ -345,16 +345,6 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onSubmit, onClose }) => {
           disabled={loading}
         >
           {loading ? "جارٍ الإضافة..." : "إضافة مستخدم"}
-        </button>
-
-        <button
-          type="button"
-          onClick={onClose}
-          className={`mt-2 p-2 rounded-lg ${
-            isDarkMode ? "bg-gray-600 text-white" : "bg-gray-300 text-black"
-          } hover:bg-gray-400`}
-        >
-          إلغاء
         </button>
       </form>
     </div>

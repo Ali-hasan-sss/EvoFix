@@ -101,7 +101,7 @@ const RepairRequests: React.FC = () => {
   const filteredRequests = getFilteredRequests();
 
   return (
-    <div className="mt-3 flex flex-col w-full " style={{ minHeight: "90vh" }}>
+    <div className="mt-4 flex flex-col w-full " style={{ minHeight: "90vh" }}>
       {loading ? (
         <div className="flex justify-center items-center h-screen">
           <ClipLoader color="#4A90E2" size={50} />

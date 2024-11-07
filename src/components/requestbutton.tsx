@@ -161,6 +161,33 @@ const RepairRequestButton: React.FC = () => {
       >
         طلب إصلاح
       </button>
+      {!isLoggedIn && isModalOpen && (
+        <>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div
+              className={`p-6 rounded-lg shadow-lg w-11/12 sm:w-96 ${
+                isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-black"
+              }`}
+              style={{ maxHeight: "80%", overflowY: "auto" }}
+            >
+              <p>
+                يجب عليك
+                <a href="/login" className="text-blue-500">
+                  تسجيل الدخول
+                </a>
+                لارسال طلب اصلاح
+              </p>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="bg-red-500 hover:bg-red-600 mt-4 text-white px-4 py-2 rounded-lg focus:outline-none"
+              >
+                إلغاء
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       {isLoggedIn && isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -188,6 +215,17 @@ const RepairRequestButton: React.FC = () => {
                   <option value="">اختر المحافظة</option>
                   <option value="دمشق">دمشق</option>
                   <option value="ريف دمشق">ريف دمشق</option>
+                  <option value="حمص">حمص</option>
+                  <option value="حماه">حماه</option>
+                  <option value="طرطوس">طرطوس</option>
+                  <option value="اللاذقية">اللاذقية</option>
+                  <option value="السويداء">السويداء</option>
+                  <option value="القنيطرة">القنيطرة</option>
+                  <option value="حلب">حلب</option>
+                  <option value="الرقة">الرقة</option>
+                  <option value="الحسكة">الحسكة</option>
+                  <option value="دير الزور">دير الزور</option>
+                  <option value="ادلب">ادلب</option>
                 </select>
               </div>
 

@@ -17,6 +17,7 @@ import UserCard from "./UserCard";
 import { useMediaQuery } from "react-responsive";
 import AddUserForm from "./AddUserForm";
 import { useRouter } from "next/navigation";
+import { CircularProgress } from "@mui/material";
 
 // User interface defining the structure of user data
 interface User {
@@ -45,10 +46,11 @@ interface UserFormData {
 
 const Users: React.FC = () => {
   const { isDarkMode } = useContext(ThemeContext); // Get dark mode state from context
+  const [searchValue, setSearchValue] = useState("");
   const [users, setUsers] = useState<User[]>([]); // State for user list
   const [loading, setLoading] = useState(true); // State for loading spinner
   const [error, setError] = useState<string | null>(null); // State for error messages
-  const [isDeleting, setIsDeleting] = useState(false); // State for deletion status
+  const [deletingItemId, setDeletingItemId] = useState<number | null>(null);
   const [togglingUserId, setTogglingUserId] = useState<number | null>(null); // State for user ID being toggled
   const [selectedUser, setSelectedUser] = useState<User | null>(null); // State for currently selected user
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
@@ -76,6 +78,12 @@ const Users: React.FC = () => {
     setSelectedUser(null);
   };
 
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(event.target.value);
+  };
+  const filteredUsers = users.filter((user) =>
+    user.fullName.toLowerCase().includes(searchValue.toLowerCase())
+  );
   // Function to handle adding a new user
   const handleAddUser = async (data: UserFormData) => {
     try {
@@ -213,7 +221,7 @@ const Users: React.FC = () => {
         {
           label: "نعم",
           onClick: async () => {
-            setIsDeleting(true);
+            setDeletingItemId(userId);
             try {
               const token = document.cookie
                 .split("; ")
@@ -234,7 +242,7 @@ const Users: React.FC = () => {
               console.error("فشل في حذف المستخدم:", error);
               toast.error("حدث خطأ أثناء محاولة حذف المستخدم.");
             } finally {
-              setIsDeleting(false);
+              setDeletingItemId(null);
             }
           },
         },
@@ -287,9 +295,9 @@ const Users: React.FC = () => {
             </button>
             <button
               onClick={() => handleDeleteUser(user.id)}
-              disabled={isDeleting}
+              disabled={deletingItemId === user.id}
             >
-              {isDeleting ? (
+              {deletingItemId === user.id ? (
                 <ClipLoader color="#FF6347" size={15} />
               ) : (
                 <FaTrash className="text-red-500 hover:text-red-700" />
@@ -307,33 +315,38 @@ const Users: React.FC = () => {
     { title: "#", accessor: "displayId" },
     { title: "اسم المستخدم", accessor: "fullName" },
     { title: "المحافظة", accessor: "governorate" },
-    { title: "نوع المستخدم", accessor: "role" },
     { title: "البريد الالكتروني", accessor: "email" },
     { title: "رقم الهاتف", accessor: "phoneNO" },
     { title: "العنوان", accessor: "address" },
     {
       title: "الحالة",
       render: (item: User) => (
-        <Switch
-          onChange={() => handleToggleActive(item.id, item.isActive)}
-          checked={item.isActive}
-          onColor="#4A90E2"
-          offColor="#FF6347"
-          height={20}
-          width={40}
-          disabled={togglingUserId === item.id || isDeleting}
-        />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <Switch
+            onChange={() => handleToggleActive(item.id, item.isActive)}
+            checked={item.isActive}
+            onColor="#4A90E2"
+            offColor="#FF6347"
+            height={20}
+            width={40}
+            disabled={togglingUserId === item.id}
+          />
+          {togglingUserId === item.id && (
+            <CircularProgress size={16} className="inline ml-2" />
+          )}{" "}
+        </div>
       ),
     },
     {
       title: "العمليات",
       render: (item: User) => (
-        <div className="flex space-x-2 justify-center">
+        <div className="flex  justify-center">
           <button
+            className="ml-4"
             onClick={() => handleDeleteUser(item.id)}
-            disabled={isDeleting}
+            disabled={deletingItemId === item.id}
           >
-            {isDeleting ? (
+            {deletingItemId === item.id ? (
               <ClipLoader color="#FF6347" size={15} />
             ) : (
               <FaTrash className="text-red-500 hover:text-red-700" />
@@ -395,8 +408,19 @@ const Users: React.FC = () => {
 
       {isMobile ? (
         <div className="grid grid-cols-1 gap-4">
-          {Array.isArray(users) ? (
-            users.map((user) => (
+          <input
+            type="text"
+            placeholder="بحث بالاسم..."
+            value={searchValue}
+            onChange={handleSearchChange}
+            className={`p-2 border rounded-lg outline-none  ${
+              isDarkMode
+                ? "bg-gray-800 text-white border-gray-600"
+                : "bg-gray-200 text-black border-gray-300"
+            }`}
+          />
+          {Array.isArray(filteredUsers) && filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => (
               <UserCard
                 key={user.id}
                 user={user}
@@ -429,7 +453,7 @@ const Users: React.FC = () => {
           >
             <button
               onClick={closeModal}
-              className="absolute top-3 left-3 text-gray-500 hover:text-gray-700 "
+              className="absolute top-4 left-5 text-white hover:text-gray-600 "
               aria-label="Close"
             >
               <svg

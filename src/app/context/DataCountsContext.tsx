@@ -17,6 +17,7 @@ interface DataCounts {
   faqCount: number;
   notifications: number;
   activationRequests: number;
+  fetchCounts?: () => Promise<void>;
 }
 interface Notification {
   title: string;
@@ -25,6 +26,7 @@ interface Notification {
 
 // Create a context to hold the counts
 const DataCountsContext = createContext<DataCounts | null>(null);
+
 export const DataCountsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -46,32 +48,27 @@ export const DataCountsProvider: React.FC<{ children: React.ReactNode }> = ({
       const token = Cookies.get("token");
       const headers = { Authorization: `Bearer ${token}` };
 
-      // Fetch all requests counts from the new single endpoint
       const requestsResponse = await axios.get(
         `${API_BASE_URL}/maintenance-requests/count`,
         { headers }
       );
 
-      // Fetch all notifications
       const notificationsResponse = await axios.get(
         `${API_BASE_URL}/notifications`,
         { headers }
       );
-      // Fetch the notifications count
+
       const notificationsCountResponse = await axios.get(
         `${API_BASE_URL}/notifications/count`,
         { headers }
       );
-      // Extract actual notifications count from the response
       const notificationsCount = notificationsCountResponse.data.count;
 
-      // Count the activation requests that have "طلب تفعيل حساب تقني" as the title and are unread
       const activationRequestsCount = notificationsResponse.data.filter(
         (notification: Notification) =>
           notification.title === "طلب تفعيل حساب تقني" && !notification.isRead
       ).length;
 
-      // Update counts based on the new response structure
       setCounts({
         totalRequests: requestsResponse.data.AllRequests,
         pendingRequests: requestsResponse.data.Pending,
@@ -80,8 +77,8 @@ export const DataCountsProvider: React.FC<{ children: React.ReactNode }> = ({
         rejectedRequests: requestsResponse.data.Reject,
         assignedRequests: requestsResponse.data.Assign,
         quotedRequests: requestsResponse.data.Quoted,
-        faqCount: requestsResponse.data.FAQ, // No change for FAQ count in this example
-        notifications: notificationsCount, // Use the extracted notifications count
+        faqCount: requestsResponse.data.FAQ,
+        notifications: notificationsCount,
         activationRequests: activationRequestsCount,
       });
     } catch (error) {
@@ -91,10 +88,13 @@ export const DataCountsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     fetchCounts();
+    const interval = setInterval(fetchCounts, 60000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
-    <DataCountsContext.Provider value={counts}>
+    <DataCountsContext.Provider value={{ ...counts, fetchCounts }}>
       {children}
     </DataCountsContext.Provider>
   );
