@@ -83,28 +83,35 @@ const FAQ = () => {
           isDarkMode ? "bg-gray-800 text-light" : "bg-blue-200 text-black"
         }`}
       >
-        {faqs.map((faq, index) => (
-          <div key={faq.id} className="border border-yellow-500 rounded-lg p-4">
-            <button
-              onClick={() => toggleExpand(index)}
-              className="w-full text-right font-semibold flex justify-between items-center"
+        {faqs && faqs.length > 0 ? (
+          faqs.map((faq, index) => (
+            <div
+              key={faq.id}
+              className="border border-yellow-500 rounded-lg p-4"
             >
-              {faq.question}
-              {expandedIndex === index ? (
-                <FaChevronUp className="ml-2" />
-              ) : (
-                <FaChevronDown className="ml-2" />
+              <button
+                onClick={() => toggleExpand(index)}
+                className="w-full text-right font-semibold flex justify-between items-center"
+              >
+                {faq.question}
+                {expandedIndex === index ? (
+                  <FaChevronUp className="ml-2" />
+                ) : (
+                  <FaChevronDown className="ml-2" />
+                )}
+              </button>
+              {expandedIndex === index && (
+                <div className="text-right">
+                  <p className="text-sm text-green-500">
+                    {faq.answer || "لم تتم الإجابة بعد"}
+                  </p>
+                </div>
               )}
-            </button>
-            {expandedIndex === index && (
-              <div className=" text-right">
-                <p className="text-sm text-green-500">
-                  {faq.answer || "لم تتم الإجابة بعد"}
-                </p>
-              </div>
-            )}
-          </div>
-        ))}
+            </div>
+          ))
+        ) : (
+          <p>لا توجد أسئلة متاحة حاليًا.</p>
+        )}
       </div>
 
       {/* إضافة سؤال جديد */}
