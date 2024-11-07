@@ -205,59 +205,55 @@ const ContactUsAndFAQ: React.FC = () => {
         )}
 
       {/* FAQs */}
-      {activeTab === "faq" && !loadingFAQ && faqs.length > 0 && (
+      {activeTab === "faq" && !loadingFAQ && faqs && faqs.length > 0 && (
         <ul className="space-y-4">
-          {faqs && faqs.length > 0 ? (
-            faqs.map((faq) => (
-              <li key={faq.id} className="border rounded-lg p-4 shadow">
-                <div className="flex justify-between">
-                  <h3 className="font-semibold">{faq.question}</h3>
-                  <button onClick={() => handleDelete(faq.id, "faq")}>
-                    <FaTrash className="text-red-500 cursor-pointer" />
+          {faqs.map((faq) => (
+            <li key={faq.id} className="border rounded-lg p-4 shadow">
+              <div className="flex justify-between">
+                <h3 className="font-semibold">{faq.question}</h3>
+                <button onClick={() => handleDelete(faq.id, "faq")}>
+                  <FaTrash className="text-red-500 cursor-pointer" />
+                </button>
+              </div>
+              <p className="text-sm text-green-500">{faq.answer}</p>
+              <p className="text-sm text-gray-500">
+                {faq.isPublished ? "منشور" : "غير منشور"}
+              </p>
+              {/* Switch for toggling FAQ publish status */}
+              <Switch
+                checked={faq.isPublished}
+                onChange={() => handleTogglePublish(faq.id, faq.isPublished)}
+                onColor="#4A90E2"
+                offColor="#FF6347"
+                height={20}
+                width={40}
+              />
+              {selectedFaq === faq.id ? (
+                <div className="mt-2 flex flex-col sm:flex-row items-center">
+                  <input
+                    type="text"
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    placeholder="أدخل الإجابة"
+                    className="p-2 border rounded mb-2 sm:mb-0 sm:mr-2 flex-grow text-black"
+                  />
+                  <button
+                    onClick={() => handleAddAnswer(faq.id)}
+                    className="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded"
+                  >
+                    إرسال
                   </button>
                 </div>
-                <p className="text-sm text-green-500">{faq.answer}</p>
-                <p className="text-sm text-gray-500">
-                  {faq.isPublished ? "منشور" : "غير منشور"}
-                </p>
-                {/* Switch for toggling FAQ publish status */}
-                <Switch
-                  checked={faq.isPublished}
-                  onChange={() => handleTogglePublish(faq.id, faq.isPublished)}
-                  onColor="#4A90E2"
-                  offColor="#FF6347"
-                  height={20}
-                  width={40}
-                />
-                {selectedFaq === faq.id ? (
-                  <div className="mt-2 flex flex-col sm:flex-row items-center">
-                    <input
-                      type="text"
-                      value={answer}
-                      onChange={(e) => setAnswer(e.target.value)}
-                      placeholder="أدخل الإجابة"
-                      className="p-2 border rounded mb-2 sm:mb-0 sm:mr-2 flex-grow text-black"
-                    />
-                    <button
-                      onClick={() => handleAddAnswer(faq.id)}
-                      className="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded"
-                    >
-                      إرسال
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setSelectedFaq(faq.id)}
-                    className="mt-2 py-2 px-4 bg-blue-500 rounded hover:bg-blue-400 block"
-                  >
-                    {faq.answer ? "تعديل الاجابة" : "اضافة اجابة"}
-                  </button>
-                )}
-              </li>
-            ))
-          ) : (
-            <p>لا توجد أسئلة متاحة حاليًا.</p>
-          )}
+              ) : (
+                <button
+                  onClick={() => setSelectedFaq(faq.id)}
+                  className="mt-2 py-2 px-4 bg-blue-500 rounded hover:bg-blue-400 block"
+                >
+                  {faq.answer ? "تعديل الاجابة" : "اضافة اجابة"}
+                </button>
+              )}
+            </li>
+          ))}
         </ul>
       )}
     </div>
