@@ -122,7 +122,7 @@ const RepairRequests: React.FC = () => {
                     ? "bg-blue-500 text-white"
                     : "bg-white text-black"
                 }`}
-                onClick={() => setActiveTab(tab.key)} // تعيين التبويب النشط
+                onClick={() => setActiveTab(tab.key)}
               >
                 {tab.label}
                 {tabCounts[tab.key] > 0 && (
@@ -148,7 +148,7 @@ const RepairRequests: React.FC = () => {
                   key={request.id}
                   request={request as RepairRequest}
                   statusMap={statusMap}
-                  onRequestUpdated={onRequestUpdated} // تمرير الدالة
+                  onRequestUpdated={onRequestUpdated}
                 />
               ))}
             </div>

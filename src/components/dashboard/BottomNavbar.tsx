@@ -24,7 +24,7 @@ const BottomNavbar: React.FC<BottomNavbarProps> = ({
   activeOption,
   handleOptionSelect,
   handleLogout,
-  handleProfile, // استدعاء دالة الملف الشخصي هنا
+  handleProfile,
   isDarkMode,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -52,7 +52,7 @@ const BottomNavbar: React.FC<BottomNavbarProps> = ({
         {/* عرض الصف الأول بدون زر الملف الشخصي */}
         <div className="flex justify-around p-1 border-t border-yellow-500">
           {mainRow
-            .filter((option) => option.key !== "profile") // استبعاد زر الملف الشخصي
+            .filter((option) => option.key !== "profile")
             .map((option) => (
               <button
                 key={option.key}

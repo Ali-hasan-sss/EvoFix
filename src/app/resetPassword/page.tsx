@@ -28,7 +28,6 @@ export default function ResetPassword() {
       setToken(tokenParam);
       setUserId(idParam);
     } else {
-      // التعامل مع حالة عدم وجود المعلمات
       setErrorMessage("المعلمات غير صحيحة.");
     }
   }, []);

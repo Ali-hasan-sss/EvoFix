@@ -153,7 +153,7 @@ const DevicesModels: React.FC = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold">Device Models</h2>
+      <h2 className="text-xl font-bold"> موديلات الاجهزة</h2>
 
       <button
         onClick={() => {
@@ -162,7 +162,7 @@ const DevicesModels: React.FC = () => {
         }}
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
       >
-        Add New Model
+        اضافة موديل جديد{" "}
       </button>
 
       {/* Display loading spinner while fetching data */}

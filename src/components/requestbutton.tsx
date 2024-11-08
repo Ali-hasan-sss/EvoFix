@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 interface Service {
   id: string;
   title: string;
-  DevicesModels: { id: string; title: string }[]; // اضافة موديلات الأجهزة
+  DevicesModels: { id: string; title: string }[];
 }
 
 const RepairRequestButton: React.FC = () => {
@@ -64,7 +64,7 @@ const RepairRequestButton: React.FC = () => {
       };
 
       fetchServices();
-    }, []); // استدعاء الخدمة مرة واحدة عند تحميل المكون
+    }, []);
 
     const handleDeviceTypeChange = (type: string) => {
       setDeviceType(type);
@@ -233,7 +233,7 @@ const RepairRequestButton: React.FC = () => {
               <DeviceTypeSelector
                 deviceType={deviceType}
                 setDeviceType={setDeviceType}
-                setDeviceModels={setDeviceModels} // تمرير setDeviceModels
+                setDeviceModels={setDeviceModels}
               />
 
               <div className="mb-4">

@@ -5,6 +5,7 @@ import {
   FaTwitter,
   FaEnvelope,
   FaXRay,
+  FaWhatsapp,
 } from "react-icons/fa";
 
 const Footer = () => {
@@ -26,7 +27,7 @@ const Footer = () => {
         {/* أيقونات التواصل الاجتماعي */}
         <div className="flex space-x-4 text-2xl">
           <a
-            href="https://facebook.com"
+            href="https://www.facebook.com/mohammad.salman.1998"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-blue-500"
@@ -34,7 +35,7 @@ const Footer = () => {
             <FaFacebookF />
           </a>
           <a
-            href="https://linkedin.com"
+            href="https://www.linkedin.com/in/mohammad-salman-779559263"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-blue-700"
@@ -42,15 +43,21 @@ const Footer = () => {
             <FaLinkedinIn />
           </a>
           <a
-            href="https://twitter.com"
+            href="https://x.com/M1998Salman"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-blue-400"
           >
             <FaTwitter />
           </a>
-          <a href="mailto:example@example.com" className="hover:text-red-500">
+          <a href="evolutionfix8@gmail.com" className="hover:text-red-500">
             <FaEnvelope />
+          </a>
+          <a
+            href="https://api.whatsapp.com/send/?phone=+963960950112"
+            className="hover:text-green-500"
+          >
+            <FaWhatsapp />
           </a>
         </div>
       </div>

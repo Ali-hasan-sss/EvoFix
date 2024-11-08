@@ -5,14 +5,14 @@ import RepairRequestCard from "@/components/RepairRequestCard";
 interface AvailableRequestsProps {
   repairRequests: RepairRequest[];
   statusMap: { [key: string]: string };
-  userRole: "TECHNICIAN"; // تمرير الدور الحالي
+  userRole: "TECHNICIAN";
   onRequestUpdated: () => void;
 }
 
 const AvailableRequests: React.FC<AvailableRequestsProps> = ({
   repairRequests,
   statusMap,
-  userRole, // تمرير userRole كـ prop
+  userRole,
   onRequestUpdated,
 }) => {
   return (
@@ -22,17 +22,16 @@ const AvailableRequests: React.FC<AvailableRequestsProps> = ({
         gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
       }}
     >
-      {repairRequests.map(
-        (request) =>
-          request.user ? ( // تحقق من وجود user قبل عرض الكارد
-            <RepairRequestCard
-              key={request.id}
-              request={request}
-              statusMap={statusMap} // تمرير statusMap
-              userRole={userRole} // تمرير userRole من الخصائص
-              onRequestUpdated={onRequestUpdated} // تمرير onRequestUpdated
-            />
-          ) : null // إذا لم يكن هناك user، لا تعرض الكارد
+      {repairRequests.map((request) =>
+        request.user ? (
+          <RepairRequestCard
+            key={request.id}
+            request={request}
+            statusMap={statusMap}
+            userRole={userRole}
+            onRequestUpdated={onRequestUpdated}
+          />
+        ) : null
       )}
     </div>
   );

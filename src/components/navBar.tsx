@@ -22,7 +22,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
   const [activeItem, setActiveItem] = useState("");
   const [userRole, setUserRole] = useState<string | null>(null);
   const pathname = usePathname();
-  const dropdownRef = useRef<HTMLDivElement>(null); // إنشاء مرجع للقائمة المنسدلة
+  const dropdownRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add("dark");

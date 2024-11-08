@@ -47,7 +47,7 @@ const Dashboard = () => {
         const userId = localStorage.getItem("userId");
         if (userId) {
           router.push(`/users/${userId}`);
-          return null; // عدم عرض محتوى البروفايل لأنه يتم التوجيه
+          return null;
         } else {
           return <div>لم يتم العثور على معرف المستخدم</div>;
         }

@@ -18,7 +18,7 @@ interface TermPolicy {
 
 export default function PrivacyAndTerms() {
   const { isDarkMode } = useContext(ThemeContext);
-  const [termsPolicy, setTermsPolicy] = useState<TermPolicy[]>([]); // تحديد نوع البيانات هنا
+  const [termsPolicy, setTermsPolicy] = useState<TermPolicy[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export default function PrivacyAndTerms() {
     const fetchTermsAndPolicy = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/termsOfUsePolicy`);
-        setTermsPolicy(response.data.TermsPolicy); // استخدام البيانات من الاستجابة
+        setTermsPolicy(response.data.TermsPolicy);
       } catch (error) {
         console.error("Error fetching terms and policies:", error);
       } finally {
@@ -55,7 +55,7 @@ export default function PrivacyAndTerms() {
 
         {termsPolicy.map(
           (policy) =>
-            policy.title && ( // تأكد من أن العنوان ليس فارغًا
+            policy.title && (
               <section key={policy.id} className="mb-8">
                 <h2 className="text-2xl font-semibold mb-2">{policy.title}</h2>
                 <p className="mb-4">{policy.content}</p>

@@ -5,12 +5,11 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import "react-toastify/dist/ReactToastify.css";
 import { API_BASE_URL } from "@/utils/api";
-import { ThemeContext } from "@/app/context/ThemeContext"; // استيراد سياق الدارك مود
+import { ThemeContext } from "@/app/context/ThemeContext";
 
-// استيراد الصور
 import SyriatelImage from "../assets/images/syriatel.jpeg";
 import MTNImage from "../assets/images/mtn.jpeg";
-import { ClipLoader } from "react-spinners"; // استيراد سبينر
+import { ClipLoader } from "react-spinners";
 
 interface PaymentFormProps {
   requestId: number | null;
@@ -29,7 +28,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   const [amount, setAmount] = useState("");
   const [CheckFee, setCheckFee] = useState("");
   const [textMessage, setTextMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // حالة التحميل
+  const [isLoading, setIsLoading] = useState(false);
 
   // جلب حالة الوضع (دارك/لايت)
   const { isDarkMode } = useContext(ThemeContext);
@@ -73,7 +72,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       ? `${API_BASE_URL}/maintenance-requests/${requestId}/accept_check`
       : `${API_BASE_URL}/epaid/${requestId}`;
 
-    setIsLoading(true); // بدء التحميل
+    setIsLoading(true);
     try {
       await axios.post(apiUrl, paymentData, {
         headers: {
@@ -97,7 +96,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       }
       console.error(error);
     } finally {
-      setIsLoading(false); // إنهاء التحميل
+      setIsLoading(false);
     }
   };
 
@@ -213,7 +212,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
             <button
               onClick={handleSubmit}
               className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
-              disabled={isLoading} // تعطيل الزر أثناء التحميل
+              disabled={isLoading}
             >
               {isLoading ? (
                 <ClipLoader size={20} color={"#ffffff"} />

@@ -20,8 +20,6 @@ const RegisterTechnicianPage = () => {
   const handleRegisterTechnician = async (
     data: RegisterTechnicianData
   ): Promise<void> => {
-    // تأكد من أن البيانات تأتي من نموذج يتوافق مع RegisterTechnicianData
-    // هنا يمكنك إجراء التحقق اللازم على البيانات
     try {
       const response = await axios.post(
         `${API_BASE_URL}/users`,
@@ -29,7 +27,7 @@ const RegisterTechnicianPage = () => {
           email: data.email,
           fullName: data.fullName,
           governorate: data.governorate,
-          password: data.password, // تأكد من أن password ليست undefined
+          password: data.password,
           phoneNO: data.phoneNO,
           address: data.address,
           specialization: data.specialization,
@@ -43,17 +41,14 @@ const RegisterTechnicianPage = () => {
         }
       );
 
-      // التحقق من استجابة الخادم
       if (response.data.success) {
         const { id, email, role, token } = response.data;
 
-        // حفظ التوكن في الكوكيز
         Cookies.set("token", token, {
           expires: 7,
           secure: process.env.NODE_ENV === "production",
         });
 
-        // حفظ المعرف والبريد الإلكتروني في localStorage
         localStorage.setItem("userId", id.toString());
         localStorage.setItem("email", email);
         localStorage.setItem("userRole", role);
@@ -78,7 +73,6 @@ const RegisterTechnicianPage = () => {
       }
     } catch (error) {
       if (error instanceof AxiosError) {
-        // التحقق من نوع الخطأ
         const errorMessage =
           error.response?.data?.message || "حدث خطأ غير معروف";
         toast.error(`خطأ: ${errorMessage}`);

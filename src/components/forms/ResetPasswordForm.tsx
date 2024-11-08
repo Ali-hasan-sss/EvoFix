@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { API_BASE_URL } from "@/utils/api";
 
 interface ResetPasswordFormProps {
-  onClose: () => void; // إضافة دالة لإغلاق المودال
+  onClose: () => void;
 }
 
 const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onClose }) => {
@@ -36,7 +36,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onClose }) => {
       toast.success(
         "تم إرسال طلب استعادة كلمة المرور بنجاح، يرجى التحقق من بريدك الإلكتروني"
       );
-      onClose(); // إغلاق المودال هنا
+      onClose();
     } catch (error) {
       toast.error("حدث خطأ أثناء إرسال الطلب، يرجى المحاولة لاحقًا");
     } finally {

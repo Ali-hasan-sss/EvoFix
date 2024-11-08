@@ -85,12 +85,12 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
       toast.error("خطأ في استلام المهمة");
       console.error("خطأ في استلام المهمة", error);
     } finally {
-      setIsProcessing(false); // إيقاف حالة التحميل
+      setIsProcessing(false);
     }
   };
 
   const handleSubmitTask = async () => {
-    setIsProcessing(true); // تفعيل حالة التحميل
+    setIsProcessing(true);
     try {
       const token = document.cookie.replace(
         /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
@@ -118,12 +118,12 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
       toast.error("خطأ في تسليم المهمة");
       console.error("خطأ في تسليم المهمة", error);
     } finally {
-      setIsProcessing(false); // إيقاف حالة التحميل
+      setIsProcessing(false);
     }
   };
 
   const handleDeleteRequest = async () => {
-    setIsDeleting(true); // تفعيل حالة التحميل الخاصة بالحذف
+    setIsDeleting(true);
     try {
       const token = document.cookie.replace(
         /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
@@ -149,7 +149,7 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
       toast.error("خطأ في حذف الطلب");
       console.error("خطأ في حذف الطلب", error);
     } finally {
-      setIsDeleting(false); // إيقاف حالة التحميل
+      setIsDeleting(false);
     }
   };
 
@@ -280,12 +280,12 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
               className={`text-white px-4 mt-2 py-2 rounded-md ${
                 isDeleting || isProcessing
                   ? "bg-gray-400 cursor-not-allowed"
-                  : getButtonLabel() === "حذف" // تحقق إذا كان نص الزر "حذف"
-                  ? "bg-red-500 hover:bg-red-600" // لون زر الحذف
-                  : "bg-blue-500 hover:bg-blue-600" // لون الأزرار الأخرى
+                  : getButtonLabel() === "حذف"
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-blue-500 hover:bg-blue-600"
               }`}
               onClick={handleButtonClick}
-              disabled={isDeleting || isProcessing} // تعطيل الزر أثناء التحميل
+              disabled={isDeleting || isProcessing}
             >
               {isDeleting || isProcessing ? (
                 <ClipLoader size={20} color="#ffffff" />

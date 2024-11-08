@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { ThemeContext } from "@/app/context/ThemeContext";
 import { AiOutlineArrowRight, AiOutlineArrowLeft } from "react-icons/ai";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { UserFormInput } from "../../utils/types"; // تأكد من مسار الاستيراد الصحيح
+import { UserFormInput } from "../../utils/types";
 import axios from "axios";
 import { API_BASE_URL } from "@/utils/api";
 
@@ -119,7 +119,7 @@ const UserForm: React.FC<UserFormProps> = ({
 
     setErrors((prevErrors) => ({
       ...prevErrors,
-      [name]: "", // قم بإزالة الخطأ المرتبط بالاسم الحالي
+      [name]: "",
     }));
   };
 

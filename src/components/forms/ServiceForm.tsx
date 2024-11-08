@@ -5,12 +5,12 @@ interface ServiceFormProps {
   initialData?: {
     title: string;
     description: string;
-    serviceImage?: File | null; // تعديل هنا
+    serviceImage?: File | null;
   };
   onSubmit: (data: {
     title: string;
     description: string;
-    serviceImage: File | null; // تعديل هنا
+    serviceImage: File | null;
   }) => void;
   onClose: () => void;
 }
@@ -27,7 +27,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
   const [serviceImage, setServiceImage] = useState<File | null>(
     initialData?.serviceImage || null
   );
-  const [preview, setPreview] = useState<string | null>(null); // حالة المعاينة
+  const [preview, setPreview] = useState<string | null>(null);
   const { isDarkMode } = useContext(ThemeContext);
   useEffect(() => {
     // تحديث رابط المعاينة عند تغيير الصورة
@@ -112,12 +112,12 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                 src={preview}
                 alt="معاينة الصورة"
                 width={200}
-                height={200} // يمكنك تحديد الارتفاع أيضًا
+                height={200}
                 className="h-auto rounded"
               />
               <button
                 type="button"
-                onClick={handleRemoveImage} // زر إزالة الصورة
+                onClick={handleRemoveImage}
                 className="mt-2 bg-red-500 text-white rounded px-4 py-2"
               >
                 إزالة الصورة

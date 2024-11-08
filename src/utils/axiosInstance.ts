@@ -1,3 +1,5 @@
+//هذا الملف تم انشاءه من اجل تصدير طلبات الشبكة جاهزة الى مكونات المشروع ولكن لم يتم الاستخدام في كافة المكونات
+
 import axios, { AxiosError } from "axios";
 import Cookies from "js-cookie";
 
@@ -33,10 +35,9 @@ export const getData = async <T>(endpoint: string): Promise<T> => {
     const response = await axiosInstance.get<ApiResponse<T>>(endpoint);
     const data = response.data.data;
 
-    // تأكد من أن البيانات تتطابق مع النوع T
     if (data !== null && data !== undefined) {
       if (typeof data === "object" || typeof data === "string") {
-        return data as T; // استخدم type assertion هنا
+        return data as T;
       } else {
         throw new Error("البيانات غير صحيحة أو غير موجودة.");
       }
@@ -55,7 +56,7 @@ export const postData = async <T, R>(
 ): Promise<ApiResponse<R>> => {
   try {
     const response = await axiosInstance.post<ApiResponse<R>>(endpoint, data);
-    return response.data; // إرجاع الاستجابة الكاملة
+    return response.data;
   } catch (error) {
     handleError(error);
     throw error; // إعادة طرح الخطأ بعد التعامل معه

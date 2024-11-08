@@ -29,7 +29,6 @@ const DeviceModelForm: React.FC<DeviceModelFormProps> = ({
         // جلب التوكن من الكوكيز
         const authToken = Cookies.get("authToken");
 
-        // إعداد الهيدر مع التوكن
         const response = await axios.get(`${API_BASE_URL}/services`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -54,7 +53,7 @@ const DeviceModelForm: React.FC<DeviceModelFormProps> = ({
         title,
         serviceID,
         createAt: new Date().toISOString(),
-        services: [], // تأكد من تمرير الخدمات إذا كان هناك بيانات
+        services: [],
       });
       toast.success("تمت العملية بنجاح!");
       onClose();

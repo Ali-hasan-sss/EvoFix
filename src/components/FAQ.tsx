@@ -1,22 +1,21 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { FaPlus, FaChevronDown, FaChevronUp } from "react-icons/fa"; // استيراد الأيقونات المطلوبة
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { toast } from "react-toastify";
-import Cookies from "js-cookie"; // استيراد مكتبة js-cookie
 import { API_BASE_URL } from "@/utils/api";
 import { ThemeContext } from "@/app/context/ThemeContext";
 // تعريف نوع الأسئلة الشائعة
 interface FAQItem {
-  id: number; // معرف السؤال
-  question: string; // نص السؤال
-  answer: string | null; // نص الإجابة (قد تكون null إذا لم يكن هناك إجابة بعد)
+  id: number;
+  question: string;
+  answer: string | null;
 }
 
 const FAQ = () => {
-  const [faqs, setFaqs] = useState<FAQItem[]>([]); // القيمة الافتراضية مصفوفة فارغة
-  const [newQuestion, setNewQuestion] = useState(""); // سؤال جديد
+  const [faqs, setFaqs] = useState<FAQItem[]>([]);
+  const [newQuestion, setNewQuestion] = useState("");
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // لإدارة تحميل الطلب
+  const [isLoading, setIsLoading] = useState(false);
   const { isDarkMode } = useContext(ThemeContext);
   // جلب الأسئلة الشائعة عند التحميل
   const fetchFAQs = async () => {
@@ -24,7 +23,7 @@ const FAQ = () => {
       const response = await axios.get<{ faqs: FAQItem[] }>(
         `${API_BASE_URL}/fAQ`
       );
-      setFaqs(response.data.faqs); // الحصول على البيانات داخل خاصية `faqs`
+      setFaqs(response.data.faqs);
       console.log(response.data.faqs);
     } catch (error) {
       console.error("خطأ في جلب الأسئلة:", error);

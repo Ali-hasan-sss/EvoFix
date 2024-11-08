@@ -214,8 +214,7 @@ const LoginForm = () => {
         }`}
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40"
       >
-        <ResetPasswordForm onClose={toggleModal} />{" "}
-        {/* عرض فورم استعادة كلمة المرور */}
+        <ResetPasswordForm onClose={toggleModal} />
       </Modal>
     </>
   );

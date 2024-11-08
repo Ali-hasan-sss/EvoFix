@@ -5,7 +5,7 @@ import "react-confirm-alert/src/react-confirm-alert.css";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
-import { DataCountsProvider } from "./context/DataCountsContext"; // استخدم الاستيراد المسمي هنا
+import { DataCountsProvider } from "./context/DataCountsContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",

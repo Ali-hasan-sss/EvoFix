@@ -6,7 +6,7 @@ import axios from "axios";
 import { API_BASE_URL } from "@/utils/api";
 import Navbar from "@/components/navBar";
 import UserForm from "@/components/forms/UserForm";
-import { Modal, CircularProgress } from "@mui/material"; // إضافة CircularProgress هنا
+import { Modal, CircularProgress } from "@mui/material";
 import Switch from "react-switch";
 import { ThemeContext } from "@/app/context/ThemeContext";
 import { CombinedUserFormInput } from "@/utils/types";
@@ -39,8 +39,8 @@ interface User {
   isVerified: boolean;
   createdAt: string;
   avatar: string | null;
-  technician?: TechnicianDetails; // بيانات التقني
-  subadmin?: SubAdminDetails; // بيانات السوب أدمن
+  technician?: TechnicianDetails;
+  subadmin?: SubAdminDetails;
 }
 
 const UserPage = () => {
@@ -152,7 +152,7 @@ const UserPage = () => {
         toast.error("حدث خطأ أثناء تحديث بيانات المستخدم.");
         console.error("Error updating user data:", error);
       } finally {
-        setEditing(false); // تأكد من إعادة تعيين حالة التعديل هنا
+        setEditing(false);
         setLoading(false);
       }
     }
@@ -161,7 +161,7 @@ const UserPage = () => {
   //************* */
   const toggleActiveStatus = async () => {
     if (user) {
-      setEditing(true); // تعيين حالة التعديل إلى true
+      setEditing(true);
       const authToken =
         document.cookie
           .split("; ")
@@ -184,7 +184,7 @@ const UserPage = () => {
         toast.error("حدث خطأ أثناء تحديث حالة التفعيل.");
         console.error("Error updating user activation status:", error);
       } finally {
-        setEditing(false); // تأكد من إعادة تعيين حالة التعديل هنا
+        setEditing(false);
         setLoading(false);
       }
     }
@@ -306,7 +306,7 @@ const UserPage = () => {
             </>
           )}
 
-          {/* معلومات إضافية للمستخدمين السوب أدمن */}
+          {/* معلومات إضافية للمستخدمين السب أدمن */}
           {user.role === "SUBADMIN" && user.subadmin && (
             <>
               <p className="border border-gray-300 rounded p-3">

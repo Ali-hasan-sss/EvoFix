@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import Image from "next/image";
 import "./dashboard.css";
-import BottomNavbar from "./BottomNavbar"; // استيراد المكون الجديد
+import BottomNavbar from "./BottomNavbar";
 import { ThemeContext } from "@/app/context/ThemeContext";
 import { AuthContext } from "@/app/context/AuthContext";
 import technicalImage from "@/components/assets/images/technicalImage.png";
@@ -97,7 +97,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
             },
           }
         );
-        setNotificationsCount(response.data.count); // تحديث حالة عدد الإشعارات
+        setNotificationsCount(response.data.count);
       } catch (error: unknown) {
         console.error("خطأ في جلب عدد الإشعارات", error);
       }
@@ -146,7 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
       key: "profile",
       name: "الملف الشخصي",
       icon: <FaUser className="text-2xl" />,
-      onClick: handleProfile, // استخدام handleProfile هنا
+      onClick: handleProfile,
     },
   ];
   const sidebarRow = mainRow.filter((option) => option.key !== "viewHome");
@@ -211,7 +211,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
         activeOption={activeOption}
         handleOptionSelect={handleOptionSelect}
         handleLogout={handleLogout}
-        handleProfile={handleProfile} // تمرير الدالة هنا
+        handleProfile={handleProfile}
         isDarkMode={isDarkMode}
       />
     </div>

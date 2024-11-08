@@ -1,6 +1,5 @@
-/* dashboard.css */
 .sidebar-button {
-  transition: background-color 0.3s, color 0.3s; /* تأثير التحويل */
+  transition: background-color 0.3s, color 0.3s;
   padding: 10px;
   border-radius: 5px;
 }

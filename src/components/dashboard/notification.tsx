@@ -96,13 +96,13 @@ const NotificationComponent: React.FC = () => {
     }
   }, []);
 
-  // استدعاء الدالة تلقائيًا كل 10 دقائق باستخدام useEffect
+  // استدعاء الدالة تلقائيًا كل دقيقة باستخدام useEffect
   useEffect(() => {
-    fetchNotifications(); // استدعاء أولي عند تحميل المكون
+    fetchNotifications();
 
     const intervalId = setInterval(fetchNotifications, FETCH_INTERVAL);
 
-    return () => clearInterval(intervalId); // تنظيف عند إزالة المكون
+    return () => clearInterval(intervalId);
   }, [fetchNotifications]);
 
   useEffect(() => {
@@ -155,7 +155,6 @@ const NotificationComponent: React.FC = () => {
   };
 
   const handleActivationToggle = async (notification: MappedNotification) => {
-    // استخدم useRouter للتوجيه
     try {
       // التوجيه إلى صفحة المستخدم بناءً على senderId
       router.push(`/users/${notification.senderId}`);
@@ -395,7 +394,7 @@ const NotificationComponent: React.FC = () => {
                 <div className="mt-2 flex items-center ">
                   <button
                     className="bg-blue-500 py-1 px-3 rounded hover:bg-blue-300"
-                    onClick={() => handleActivationToggle(notification)} // استخدم onClick ومرر notification كـ argument
+                    onClick={() => handleActivationToggle(notification)}
                     disabled={isActivating}
                   >
                     <FaEye /> مشاهدة
@@ -414,7 +413,7 @@ const NotificationComponent: React.FC = () => {
         className={`relative p-6 rounded-lg max-w-md mx-auto z-50 ${
           isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
         }`}
-        overlayClassName={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40`} // زيادة z-index للطبقة الخلفية
+        overlayClassName={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40`}
       >
         <button
           onClick={closeModal}

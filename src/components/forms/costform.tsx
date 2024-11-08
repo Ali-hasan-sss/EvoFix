@@ -3,7 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "@/utils/api";
 import { ThemeContext } from "@/app/context/ThemeContext";
-import { ClipLoader } from "react-spinners"; // استيراد السبينر
+import { ClipLoader } from "react-spinners";
 
 interface PricingFormProps {
   requestId: string;
@@ -16,11 +16,11 @@ const PricingForm: React.FC<PricingFormProps> = ({
   onClose,
   onRequestUpdated,
 }) => {
-  const { isDarkMode } = useContext(ThemeContext); // استخدام ThemeContext
+  const { isDarkMode } = useContext(ThemeContext);
   const [cost, setCost] = useState<number | "">("");
-  const [resultCheck, setResultCheck] = useState<string>(""); // حقل وصف العطل
+  const [resultCheck, setResultCheck] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false); // حالة التحميل
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +32,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
     }
 
     try {
-      setIsLoading(true); // تعيين حالة التحميل إلى true
+      setIsLoading(true);
       const token = Cookies.get("token");
       await axios.put(
         `${API_BASE_URL}/maintenance-requests/${requestId}/quote`,
@@ -52,7 +52,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
       console.error("خطأ أثناء تسعير الطلب:", err);
       setError("حدث خطأ أثناء تسعير الطلب.");
     } finally {
-      setIsLoading(false); // إعادة تعيين حالة التحميل إلى false
+      setIsLoading(false);
     }
   };
 

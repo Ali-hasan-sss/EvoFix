@@ -47,9 +47,9 @@ const ServiceSlider: React.FC = () => {
             <Image
               src={service.serviceImage}
               alt={service.title}
-              width={800} // عرض ثابت للصورة
-              height={400} // ارتفاع ثابت للصورة
-              className="rounded-lg object-cover w-full h-[400px]" // ضمان تغطية الصورة للمساحة بشكل كامل
+              width={800}
+              height={400}
+              className="rounded-lg object-cover w-full h-[400px]"
             />
             <div className="absolute bottom-0 left-0 w-full bg-gray-800 bg-opacity-60 p-4 rounded-b-lg">
               <h2 className="text-lg font-bold text-white text-center">
