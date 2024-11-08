@@ -5,6 +5,7 @@ import { FaPaperPlane, FaStar } from "react-icons/fa";
 import Cookies from "js-cookie";
 import { API_BASE_URL } from "@/utils/api";
 import { ThemeContext } from "../app/context/ThemeContext";
+import Slider from "react-slick";
 
 interface Review {
   id: number;
@@ -23,6 +24,14 @@ const Reviews = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { isDarkMode } = useContext(ThemeContext);
 
+  const settings = {
+    dots: true,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    adaptiveHeight: true,
+  };
   // جلب التقييمات من API
   const fetchReviews = async () => {
     try {
@@ -84,31 +93,33 @@ const Reviews = () => {
         تقييمات المستخدمين
       </h2>
 
-      {/* عرض التقييمات */}
+      {/* عرض التقييمات ضمن سلايدر */}
       <div className="mb-6">
         {Array.isArray(reviews) && reviews.length > 0 ? (
-          reviews.map((review) => (
-            <div key={review.id} className="mb-4 border-b pb-2">
-              <details>
-                <summary className="cursor-pointer font-semibold">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <FaStar
-                        key={i}
-                        className={
-                          i < review.rating
-                            ? "text-yellow-500"
-                            : "text-gray-300"
-                        }
-                      />
-                    ))}
-                  </div>
-                  <p>{review.user.fullName}</p>
-                </summary>
-                <p className="mt-2">{review.comment}</p>
-              </details>
-            </div>
-          ))
+          <Slider {...settings}>
+            {reviews.map((review) => (
+              <div key={review.id} className="mb-4 border-b pb-2">
+                <details>
+                  <summary className="cursor-pointer font-semibold">
+                    <div className="flex items-center">
+                      {[...Array(5)].map((_, i) => (
+                        <FaStar
+                          key={i}
+                          className={
+                            i < review.rating
+                              ? "text-yellow-500"
+                              : "text-gray-300"
+                          }
+                        />
+                      ))}
+                    </div>
+                    <p>{review.user.fullName}</p>
+                  </summary>
+                  <p className="mt-2">{review.comment}</p>
+                </details>
+              </div>
+            ))}
+          </Slider>
         ) : (
           <p>لا توجد تقييمات بعد.</p>
         )}

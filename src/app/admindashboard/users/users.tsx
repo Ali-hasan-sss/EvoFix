@@ -81,9 +81,12 @@ const Users: React.FC = () => {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(event.target.value);
   };
-  const filteredUsers = users.filter((user) =>
-    user.fullName.toLowerCase().includes(searchValue.toLowerCase())
-  );
+  const filteredUsers = Array.isArray(users)
+    ? users.filter((user) =>
+        user.fullName.toLowerCase().includes(searchValue.toLowerCase())
+      )
+    : [];
+
   // Function to handle adding a new user
   const handleAddUser = async (data: UserFormData) => {
     try {

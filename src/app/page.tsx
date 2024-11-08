@@ -15,6 +15,7 @@ import "slick-carousel/slick/slick-theme.css";
 import ContactForm from "@/components/forms/ContactForm";
 import Reviews from "@/components/Review";
 import FAQ from "@/components/FAQ";
+import Footer from "@/components/footer";
 const Home: NextPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
 
@@ -110,9 +111,7 @@ const Home: NextPage = () => {
         </section>
         {/* Footer */}
         <footer className="bg-gray-800 text-white py-6">
-          <div className="container mx-auto px-4 text-center">
-            <p>© 2024 Repair Services. All rights reserved.</p>
-          </div>
+          <Footer></Footer>
         </footer>
       </div>
     </div>
