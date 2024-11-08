@@ -37,12 +37,6 @@ const Dashboard = () => {
   }, [isLoggedIn, loading, router]);
 
   // تعيين العنصر النشط من localStorage عند التحميل
-  useEffect(() => {
-    const storedOption = localStorage.getItem("activeOption");
-    if (storedOption) {
-      setSelectedOption(storedOption);
-    }
-  }, []);
 
   // عرض رسالة أثناء التحقق من حالة تسجيل الدخول
   if (loading) {
