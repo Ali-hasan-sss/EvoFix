@@ -1,125 +1,73 @@
-import React, { useEffect, useState, useContext } from "react";
-import axios from "axios";
-import ClipLoader from "react-spinners/ClipLoader";
-import { API_BASE_URL } from "@/utils/api";
-import Cookies from "js-cookie";
+import React, { useState, useContext, useEffect } from "react";
 import { ThemeContext } from "../context/ThemeContext";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useRepairRequests } from "@/app/context/RepairRequestsContext";
 import Switch from "react-switch";
 import { FaTrash } from "react-icons/fa";
-
-// Define the types for contact messages and FAQs
-interface ContactMessage {
-  id: number;
-  content: string;
-  email: string;
-  subject: string;
-  sentAt: string;
-}
-
-interface FAQ {
-  id: number;
-  question: string;
-  answer: string;
-  isPublished: boolean;
-}
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { API_BASE_URL } from "@/utils/api";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
 
 const ContactUsAndFAQ: React.FC = () => {
-  // State variables to manage contact messages, FAQs, loading states, and error messages
-  const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
-  const [faqs, setFaqs] = useState<FAQ[]>([]);
-  const [loadingContact, setLoadingContact] = useState<boolean>(true);
-  const [loadingFAQ, setLoadingFAQ] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<"contact" | "faq">("contact");
-  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"messages" | "faqs">("messages");
+  const { faqs = [], fetchFAQs, isFAQsLoading } = useRepairRequests();
+  const {
+    contactMessages = [],
+    fetchContactMessages,
+    isContactMessagesLoading,
+  } = useRepairRequests();
+  const [localFaqs, setLocalFaqs] = useState(faqs);
+  const [localContactMessages, setLocalContactMessages] =
+    useState(contactMessages);
   const [selectedFaq, setSelectedFaq] = useState<number | null>(null);
   const [answer, setAnswer] = useState<string>("");
-  // Access the theme context and get the token from cookies
   const { isDarkMode } = useContext(ThemeContext);
   const token = Cookies.get("token");
 
-  // Effect to fetch contact messages and FAQs when the component mounts
   useEffect(() => {
-    const fetchContactMessages = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/contact-us`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setContactMessages(response.data.adminContactUs);
-      } catch (err) {
-        setError("حدث خطأ أثناء جلب رسائل اتصل بنا.");
-      } finally {
-        setLoadingContact(false);
-      }
-    };
-
-    const fetchFAQs = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/fAQ`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setFaqs(response.data.faqs);
-      } catch (err) {
-        setError("حدث خطأ أثناء جلب الأسئلة الشائعة.");
-      } finally {
-        setLoadingFAQ(false);
-      }
-    };
-
-    fetchContactMessages();
     fetchFAQs();
-  }, [token]);
+    fetchContactMessages();
+  }, []);
 
-  // Function to handle tab change between contact messages and FAQs
-  const handleTabChange = (tab: "contact" | "faq") => {
-    setActiveTab(tab);
-  };
+  useEffect(() => {
+    setLocalFaqs(faqs);
+  }, [faqs]);
 
-  // Function to toggle the publish status of a FAQ
+  useEffect(() => {
+    setLocalContactMessages(contactMessages);
+  }, [contactMessages]);
+
   const handleTogglePublish = async (faqId: number, isPublished: boolean) => {
     try {
       await axios.put(
         `${API_BASE_URL}/fAQ/${faqId}`,
         { isPublished: !isPublished },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Update the FAQ list in state
-      setFaqs((prevFaqs) =>
-        prevFaqs.map((faq) =>
-          faq.id === faqId ? { ...faq, isPublished: !isPublished } : faq
-        )
+      const updatedFaqs = localFaqs.map((faq) =>
+        faq.id === faqId ? { ...faq, isPublished: !isPublished } : faq
       );
+      setLocalFaqs(updatedFaqs);
       toast.success("تم تحديث حالة النشر بنجاح.");
     } catch (error) {
       toast.error("حدث خطأ أثناء تحديث حالة النشر.");
     }
   };
 
-  // Function to add an answer to a FAQ
   const handleAddAnswer = async (faqId: number) => {
     try {
       await axios.put(
         `${API_BASE_URL}/fAQ/${faqId}`,
         { answer },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Update the FAQ list in state
-      setFaqs((prevFaqs) =>
-        prevFaqs.map((faq) => (faq.id === faqId ? { ...faq, answer } : faq))
+      const updatedFaqs = localFaqs.map((faq) =>
+        faq.id === faqId ? { ...faq, answer } : faq
       );
+      setLocalFaqs(updatedFaqs);
       setAnswer("");
       setSelectedFaq(null);
       toast.success("تم إضافة الإجابة بنجاح.");
@@ -128,64 +76,80 @@ const ContactUsAndFAQ: React.FC = () => {
     }
   };
 
-  // Function to delete a contact message or FAQ
-  const handleDelete = async (id: number, type: "contact" | "faq") => {
-    try {
-      await axios.delete(
-        `${API_BASE_URL}/${type === "contact" ? "contact-us" : "fAQ"}/${id}`,
+  const handleDelete = (id: number, type: "contact" | "faq") => {
+    confirmAlert({
+      title: "تأكيد الحذف",
+      message: "هل أنت متأكد أنك تريد حذف هذا العنصر؟",
+      buttons: [
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
+          label: "نعم",
+          onClick: async () => {
+            try {
+              await axios.delete(
+                `${API_BASE_URL}/${
+                  type === "contact" ? "contact-us" : "fAQ"
+                }/${id}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+              );
+              if (type === "faq") {
+                setLocalFaqs(localFaqs.filter((faq) => faq.id !== id));
+              } else {
+                setLocalContactMessages(
+                  localContactMessages.filter((message) => message.id !== id)
+                );
+              }
+              toast.success("تم حذف العنصر بنجاح.");
+            } catch (error) {
+              toast.error("حدث خطأ أثناء الحذف.");
+            }
           },
-        }
-      );
-      if (type === "contact") {
-        setContactMessages((prevMessages) =>
-          prevMessages.filter((message) => message.id !== id)
-        );
-      } else {
-        setFaqs((prevFaqs) => prevFaqs.filter((faq) => faq.id !== id));
-      }
-      toast.success("تم حذف العنصر بنجاح.");
-    } catch (error) {
-      toast.error("حدث خطأ أثناء الحذف.");
-    }
+        },
+        {
+          label: "لا",
+          onClick: () => {}, // لا تفعل شيئاً إذا تم اختيار "لا"
+        },
+      ],
+    });
   };
 
   return (
     <div
       className={`mt-5 p-5 border rounded-lg shadow-md ${
         isDarkMode ? "bg-gray-900 text-light" : "bg-gray-200 text-black"
-      } `}
+      }`}
     >
       <h2 className="text-xl font-semibold mb-4">اتصل بنا والأسئلة الشائعة</h2>
-      <div className="flex space-x-2 mb-4">
-        {/* Button for Contact Messages tab */}
+
+      {/* التبويبات */}
+      <div className="flex space-x-4 mb-4">
         <button
-          onClick={() => handleTabChange("contact")}
-          className={`px-4 py-2 rounded-lg border transition-all duration-300 ${
-            activeTab === "contact" ? "bg-blue-500 text-white" : "bg-blue-300"
+          onClick={() => setActiveTab("messages")}
+          className={`px-4 py-2 ${
+            activeTab === "messages"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-300 text-black"
           }`}
         >
-          رسائل اتصل بنا
+          الرسائل
         </button>
-        {/* Button for FAQs tab */}
         <button
-          onClick={() => handleTabChange("faq")}
-          className={`px-4 py-2 rounded-lg border transition-all duration-300 ${
-            activeTab === "faq" ? "bg-blue-500 text-white" : "bg-blue-300"
+          onClick={() => setActiveTab("faqs")}
+          className={`px-4 py-2 ${
+            activeTab === "faqs"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-300 text-black"
           }`}
         >
           الأسئلة الشائعة
         </button>
       </div>
 
-      {/* Contact Messages */}
-      {activeTab === "contact" &&
-        !loadingContact &&
-        contactMessages.length > 0 && (
+      {/* محتوى الرسائل */}
+      {activeTab === "messages" &&
+        !isContactMessagesLoading &&
+        localContactMessages.length > 0 && (
           <ul className="space-y-4">
-            {contactMessages.map((message) => (
+            {localContactMessages.map((message) => (
               <li key={message.id} className="border rounded-lg p-4 shadow">
                 <div className="flex justify-between">
                   <h3 className="font-semibold">
@@ -204,10 +168,10 @@ const ContactUsAndFAQ: React.FC = () => {
           </ul>
         )}
 
-      {/* FAQs */}
-      {activeTab === "faq" && !loadingFAQ && faqs && faqs.length > 0 && (
+      {/* محتوى الأسئلة الشائعة */}
+      {activeTab === "faqs" && !isFAQsLoading && localFaqs.length > 0 && (
         <ul className="space-y-4">
-          {faqs.map((faq) => (
+          {localFaqs.map((faq) => (
             <li key={faq.id} className="border rounded-lg p-4 shadow">
               <div className="flex justify-between">
                 <h3 className="font-semibold">{faq.question}</h3>
@@ -219,7 +183,6 @@ const ContactUsAndFAQ: React.FC = () => {
               <p className="text-sm text-gray-500">
                 {faq.isPublished ? "منشور" : "غير منشور"}
               </p>
-              {/* Switch for toggling FAQ publish status */}
               <Switch
                 checked={faq.isPublished}
                 onChange={() => handleTogglePublish(faq.id, faq.isPublished)}

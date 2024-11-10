@@ -11,6 +11,7 @@ import Switch from "@mui/material/Switch";
 import { confirmAlert } from "react-confirm-alert";
 import { FiEdit, FiTrash } from "react-icons/fi";
 import { ClipLoader } from "react-spinners";
+import { useRepairRequests } from "@/app/context/RepairRequestsContext";
 
 interface DeviceModel {
   id: number;
@@ -32,12 +33,12 @@ interface Service {
 
 const ServicesComponent: React.FC = () => {
   // State hooks for managing services data, modal visibility, loading, etc.
-  const [services, setServices] = useState<Service[]>([]);
+  const { fetchServices, services, isServicesLoading } = useRepairRequests();
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [showServiceForm, setShowServiceForm] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [fetching, setFetching] = useState(true);
+  const [servicess, setServicess] = useState<Service[]>([]);
 
   // Function to retrieve the authorization token from cookies
   const getAuthToken = () => {
@@ -46,36 +47,12 @@ const ServicesComponent: React.FC = () => {
       .find((row) => row.startsWith("token="));
     return token ? token.split("=")[1] : "";
   };
-
-  // Fetch all services from the API
-  const fetchServices = useCallback(async () => {
-    setFetching(true);
-    try {
-      const authToken = getAuthToken();
-      const response = await axios.get(`${API_BASE_URL}/services`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      setServices(response.data.services || []);
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      const errorMessage =
-        axiosError.response &&
-        axiosError.response.data &&
-        typeof axiosError.response.data === "object" &&
-        "message" in axiosError.response.data
-          ? (axiosError.response.data as { message: string }).message
-          : "حدث خطأ أثناء جلب الخدمات.";
-      toast.error(errorMessage);
-    } finally {
-      setFetching(false);
-    }
-  }, []);
-
+  //
   useEffect(() => {
-    fetchServices();
-  }, [fetchServices]);
+    if (services) {
+      setServicess(services);
+    }
+  }, [services]);
 
   // Handler for adding a new service
   const handleAddService = async (data: {
@@ -93,14 +70,18 @@ const ServicesComponent: React.FC = () => {
         formData.append("serviceImage", data.serviceImage);
       }
 
-      await axios.post(`${API_BASE_URL}/services`, formData, {
+      // إرسال الطلب لإضافة الخدمة
+      const response = await axios.post(`${API_BASE_URL}/services`, formData, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           "Content-Type": "multipart/form-data",
         },
       });
+
+      // إضافة الخدمة الجديدة إلى القائمة المحلية
+      setServicess((prevServices) => [response.data.service, ...prevServices]);
+
       toast.success("تمت إضافة الخدمة بنجاح!");
-      fetchServices();
       handleCloseModal();
     } catch (error) {
       toast.error("حدث خطأ أثناء إضافة الخدمة.");
@@ -125,7 +106,7 @@ const ServicesComponent: React.FC = () => {
         formData.append("serviceImage", data.serviceImage);
       }
 
-      await axios.put(
+      const response = await axios.put(
         `${API_BASE_URL}/services/${editingService?.id}`,
         formData,
         {
@@ -135,8 +116,17 @@ const ServicesComponent: React.FC = () => {
           },
         }
       );
+
+      // تحديث الخدمة في الحالة المحلية
+      setServicess((prevServices) =>
+        prevServices.map((service) =>
+          service.id === editingService?.id
+            ? { ...service, ...response.data.serviceUpdate }
+            : service
+        )
+      );
+
       toast.success("تم تعديل الخدمة بنجاح!");
-      fetchServices();
       handleCloseModal();
       setEditingService(null);
     } catch (error) {
@@ -148,15 +138,28 @@ const ServicesComponent: React.FC = () => {
 
   // Handler for deleting a service with confirmation
   const handleDeleteService = async (id: number) => {
+    setLoading(true);
     const authToken = getAuthToken();
-    await axios.delete(`${API_BASE_URL}/services/${id}`, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-    toast.success("تم حذف الخدمة بنجاح!");
-    fetchServices();
+    try {
+      await axios.delete(`${API_BASE_URL}/services/${id}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      // إزالة الخدمة من الحالة المحلية
+      setServicess((prevServices) =>
+        prevServices.filter((service) => service.id !== id)
+      );
+
+      toast.success("تم حذف الخدمة بنجاح!");
+    } catch (error) {
+      toast.error("حدث خطأ أثناء حذف الخدمة.");
+    } finally {
+      setLoading(false);
+    }
   };
+
   // Confirmation before deletion
   const confirmDeleteService = (id: number) => {
     confirmAlert({
@@ -177,8 +180,8 @@ const ServicesComponent: React.FC = () => {
   // Toggle active state of a service
   const handleToggleActive = async (service: Service) => {
     setLoading(true);
+    const authToken = getAuthToken();
     try {
-      const authToken = getAuthToken();
       const isActiveValue = service.isActive ? "false" : "true";
 
       await axios.put(
@@ -190,8 +193,17 @@ const ServicesComponent: React.FC = () => {
           },
         }
       );
+
+      // تحديث حالة النشاط في الحالة المحلية
+      setServicess((prevServices) =>
+        prevServices.map((prevService) =>
+          prevService.id === service.id
+            ? { ...prevService, isActive: !prevService.isActive }
+            : prevService
+        )
+      );
+
       toast.success("تم تغيير حالة الخدمة بنجاح!");
-      fetchServices();
     } catch (error) {
       toast.error("حدث خطأ أثناء تغيير حالة الخدمة.");
     } finally {
@@ -226,13 +238,13 @@ const ServicesComponent: React.FC = () => {
         </button>
       </div>
 
-      {fetching ? (
+      {isServicesLoading ? (
         <div className="flex justify-center items-center">
-          <ClipLoader color="#4A90E2" loading={fetching} size={50} />
+          <ClipLoader color="#4A90E2" loading={loading} size={50} />
         </div>
-      ) : services && services.length > 0 ? (
+      ) : servicess && servicess.length > 0 ? (
         <ul>
-          {services.map((service) => (
+          {servicess.map((service) => (
             <li
               key={service.id}
               className="flex flex-col md:flex-row md:justify-between items-start md:items-center mb-4 p-4 border rounded"
@@ -267,11 +279,13 @@ const ServicesComponent: React.FC = () => {
                     />
                   </div>
                   <p className="text-sm text-gray-500 mt-2">
-                    الموديلات المتاحة: (
-                    {service.DevicesModels.map((device) => device.title).join(
-                      ", "
-                    )}
-                    )
+                    الموديلات المتاحة:{" "}
+                    {service.DevicesModels &&
+                    Array.isArray(service.DevicesModels)
+                      ? service.DevicesModels.map(
+                          (device) => device.title
+                        ).join(", ")
+                      : "لا توجد موديلات متاحة"}
                   </p>
                 </div>
               </div>

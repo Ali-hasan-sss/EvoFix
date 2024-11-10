@@ -3,12 +3,12 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "@/utils/api";
-import { Service } from "@/utils/types";
-import { DeviceModel } from "@/utils/types";
+import { Service, DeviceModel } from "@/utils/types";
 
 interface DeviceModelFormProps {
   initialData?: DeviceModel | null;
   onSubmit: (data: DeviceModel) => Promise<void>;
+  isActive: boolean;
   onClose: () => void;
   services: Service[];
 }
@@ -17,30 +17,28 @@ const DeviceModelForm: React.FC<DeviceModelFormProps> = ({
   initialData,
   onSubmit,
   onClose,
+  isActive, // استقبال isActive من المكون الأب
 }) => {
   const [title, setTitle] = useState(initialData?.title || "");
   const [serviceID, setServiceID] = useState(initialData?.serviceID || 0);
+  const [active, setActive] = useState(isActive); // حقل لحالة النشاط
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        // جلب التوكن من الكوكيز
         const authToken = Cookies.get("authToken");
-
         const response = await axios.get(`${API_BASE_URL}/services`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
         });
-
         setServices(response.data.services || []);
       } catch (error) {
         toast.error("حدث خطأ أثناء جلب الخدمات.");
       }
     };
-
     fetchServices();
   }, []);
 
@@ -49,13 +47,13 @@ const DeviceModelForm: React.FC<DeviceModelFormProps> = ({
     setLoading(true);
     try {
       await onSubmit({
-        id: initialData ? initialData.id : 0, // استخدم ID النموذج الحالي أو قيمة افتراضية جديدة
+        id: initialData ? initialData.id : 0,
         title,
         serviceID,
         createAt: new Date().toISOString(),
+        isActive: active, // إرسال حالة النشاط
         services: [],
       });
-      toast.success("تمت العملية بنجاح!");
       onClose();
     } catch (error) {
       toast.error("حدث خطأ أثناء حفظ البيانات.");
@@ -95,6 +93,16 @@ const DeviceModelForm: React.FC<DeviceModelFormProps> = ({
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="mb-4">
+        <label className="inline ml-1 text-sm font-medium">الموديل نشط</label>
+        <input
+          type="checkbox"
+          checked={active}
+          onChange={(e) => setActive(e.target.checked)}
+          className="mt-1"
+        />
       </div>
 
       <div className="flex justify-between">

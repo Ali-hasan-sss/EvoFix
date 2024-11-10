@@ -9,6 +9,7 @@ import Users from "./users/users";
 import { toast } from "react-toastify";
 import DashboardHome from "./DashboardHome";
 import TermsOfUseAdmin from "./TermsOfUseAdmin";
+import { RepairRequestsProvider } from "@/app/context/RepairRequestsContext";
 import RepairRequestsPage from "./RepairRequests";
 import { ClipLoader } from "react-spinners";
 import Cookies from "js-cookie";
@@ -172,6 +173,7 @@ const AdminDashboard: React.FC = () => {
         return <Users />;
       case "repairRequests":
         return <RepairRequestsPage />;
+
       case "notifications":
         return <Notifications />;
       case "contact-us":

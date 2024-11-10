@@ -132,6 +132,77 @@ export interface DeviceModel {
   isActive?: boolean;
   services: Service[];
 }
+// User interface defining the structure of user data
+export interface UserForADMIN {
+  displayId: number;
+  id: number;
+  fullName: string;
+  email: string;
+  phoneNO: string;
+  address: string;
+  governorate: string;
+  role: string;
+  isActive: boolean;
+}
+
+// Interface for the data used in the user form
+export interface UserFormDataForADMIN {
+  fullName: string;
+  phoneNO: string;
+  email: string;
+  governorate: string;
+  address: string;
+  role: "USER" | "SUBADMIN" | "TECHNICAL" | "ADMIN";
+  specialization?: string;
+  services?: string;
+}
 export type EditProfileData = Omit<UserFormInput, "password"> & {
   password?: string; // ستكون اختيارية هنا فقط
 };
+export interface APINotification {
+  id: number;
+  recipientId: number;
+  senderId: number;
+  requestId: number;
+  title: string;
+  content: string;
+  createdAt: string;
+  isRead: boolean;
+  request?: {
+    isPaid: boolean;
+    isPaidCheckFee: boolean;
+  };
+}
+
+export interface MappedNotification extends APINotification {
+  request?: {
+    isPaid: boolean;
+    isPaidCheckFee: boolean;
+  };
+}
+// Define the types for contact messages and FAQs
+export interface ContactMessage {
+  id: number;
+  content: string;
+  email: string;
+  subject: string;
+  sentAt: string;
+}
+
+export interface FAQ {
+  id: number;
+  question: string;
+  answer: string;
+  isPublished: boolean;
+}
+export interface Review {
+  id: number;
+  rating: number;
+  comment: string;
+  isActive: boolean;
+  user: {
+    fullName: string;
+    email: string;
+    phoneNO: string;
+  };
+}

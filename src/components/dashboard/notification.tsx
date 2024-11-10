@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+"use client";
+
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../../utils/api";
 import { ClipLoader } from "react-spinners";
@@ -7,32 +9,14 @@ import "react-toastify/dist/ReactToastify.css";
 import { ThemeContext } from "@/app/context/ThemeContext";
 import Modal from "react-modal";
 import PaymentForm from "@/components/forms/PaymentForm";
-import Switch from "react-switch";
 import { FaEye } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-
-interface APINotification {
-  id: number;
-  recipientId: number;
-  senderId: number;
-  requestId: number;
-  title: string;
-  content: string;
-  createdAt: string;
-  isRead: boolean;
-  request?: {
-    isPaid: boolean;
-    isPaidCheckFee: boolean;
-  };
-}
-
-interface MappedNotification extends APINotification {
-  isPaidCheckFee: boolean;
-  isPaid: boolean;
-}
+import { APINotification, MappedNotification } from "@/utils/types";
+import { useRepairRequests } from "@/app/context/RepairRequestsContext"; // استخدام الـ context
 
 const NotificationComponent: React.FC = () => {
-  const [notifications, setNotifications] = useState<MappedNotification[]>([]);
+  const { notifications, fetchNotifications, isNotificationsLoading } =
+    useRepairRequests(); // الحصول على الإشعارات من الـ context
   const [loading, setLoading] = useState(true);
   const [loadingAction, setLoadingAction] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -51,51 +35,6 @@ const NotificationComponent: React.FC = () => {
     Modal.setAppElement(document.body);
   }, []);
 
-  const fetchNotifications = useCallback(async () => {
-    try {
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="));
-      const authToken = token ? token.split("=")[1] : "";
-
-      const response = await axios.get(`${API_BASE_URL}/notifications`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      if (!Array.isArray(response.data)) {
-        throw new Error("البيانات المستلمة ليست مصفوفة");
-      }
-
-      const notificationsWithReadStatus = response.data.map(
-        (notification: APINotification) => {
-          console.log("Notification Request:", notification.request); // تحقق من القيم
-          return {
-            id: notification.id,
-            title: notification.title,
-            content: notification.content,
-            createdAt: notification.createdAt,
-            senderId: notification.senderId,
-            isRead: notification.isRead,
-            requestId: notification.requestId,
-            isPaidCheckFee: notification.request?.isPaidCheckFee ?? true,
-            isPaid: notification.request?.isPaid ?? false,
-            recipientId: notification.recipientId,
-          };
-        }
-      );
-
-      console.log("Mapped notifications:", notificationsWithReadStatus);
-      setNotifications(notificationsWithReadStatus);
-    } catch (err) {
-      setError("فشل في جلب الإشعارات");
-      console.error("Error fetching notifications:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   // استدعاء الدالة تلقائيًا كل دقيقة باستخدام useEffect
   useEffect(() => {
     fetchNotifications();
@@ -103,11 +42,7 @@ const NotificationComponent: React.FC = () => {
     const intervalId = setInterval(fetchNotifications, FETCH_INTERVAL);
 
     return () => clearInterval(intervalId);
-  }, [fetchNotifications]);
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+  }, []);
 
   const handleAcceptRequest = (requestId: number, inspectionFee: boolean) => {
     if (isModalOpen) {
@@ -184,17 +119,9 @@ const NotificationComponent: React.FC = () => {
         },
       }
     );
-
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification) =>
-        notification.id === notificationId
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
   };
 
-  if (loading) {
+  if (isNotificationsLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <ClipLoader color="#4A90E2" size={50} />
@@ -362,7 +289,8 @@ const NotificationComponent: React.FC = () => {
                       }
                     }}
                     disabled={
-                      loadingAction === notification.id || notification.isPaid
+                      loadingAction === notification.id ||
+                      notification.request?.isPaid
                     }
                   >
                     {loadingAction === notification.id ? (

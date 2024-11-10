@@ -51,6 +51,7 @@ const Users: React.FC = () => {
   const [loading, setLoading] = useState(true); // State for loading spinner
   const [error, setError] = useState<string | null>(null); // State for error messages
   const [deletingItemId, setDeletingItemId] = useState<number | null>(null);
+  const [usersByTab, setUsersByTab] = useState<{ [key: string]: User[] }>({});
   const [togglingUserId, setTogglingUserId] = useState<number | null>(null); // State for user ID being toggled
   const [selectedUser, setSelectedUser] = useState<User | null>(null); // State for currently selected user
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
@@ -110,6 +111,13 @@ const Users: React.FC = () => {
 
   // Function to fetch the list of users based on the selected tab
   const fetchUsers = async () => {
+    // تحقق إذا كانت البيانات الخاصة بالتاب الحالي موجودة بالفعل
+    if (usersByTab[selectedTab]) {
+      setUsers(usersByTab[selectedTab]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const token = document.cookie
@@ -129,18 +137,19 @@ const Users: React.FC = () => {
         },
       });
 
-      // Set the user list based on the selected tab
-      if (selectedTab === "technicians") {
-        setUsers(
-          userRole === "SUBADMIN"
-            ? response.data.subAdminTechnicians || [] // Sub-admins see only their technicians
-            : response.data.adminTechnicians || [] // Admins see all technicians
-        );
-      } else if (selectedTab === "subAdmins") {
-        setUsers(response.data.adminSubAdmins || []); // Admins see all sub-admins
-      } else {
-        setUsers(response.data || []); // Default to regular users
-      }
+      // تخزين البيانات حسب التاب لتجنب طلبها مرة أخرى
+      const newData =
+        selectedTab === "technicians"
+          ? userRole === "SUBADMIN"
+            ? response.data.subAdminTechnicians || []
+            : response.data.adminTechnicians || []
+          : selectedTab === "subAdmins"
+          ? response.data.adminSubAdmins || []
+          : response.data || [];
+
+      // تحديث حالة المستخدمين وكائن التخزين المؤقت للبيانات
+      setUsers(newData);
+      setUsersByTab((prev) => ({ ...prev, [selectedTab]: newData }));
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
         setError(err.response.data.message || "فشل في جلب البيانات");
@@ -151,7 +160,6 @@ const Users: React.FC = () => {
       setLoading(false);
     }
   };
-
   // useEffect to fetch users when the selected tab changes
   useEffect(() => {
     fetchUsers();
@@ -267,7 +275,6 @@ const Users: React.FC = () => {
   const handleCloseDetails = () => {
     setSelectedUser(null);
   };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-96">
@@ -275,7 +282,6 @@ const Users: React.FC = () => {
       </div>
     );
   }
-
   if (error) {
     return <div className="text-red-500">{error}</div>;
   }

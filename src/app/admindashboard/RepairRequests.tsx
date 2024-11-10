@@ -1,25 +1,19 @@
-import React, {
-  useState,
-  useEffect,
-  useContext,
-  useMemo,
-  useCallback,
-} from "react";
-import axios from "axios";
-import Cookies from "js-cookie";
-import { API_BASE_URL } from "../../utils/api";
-import GenericTable from "@/components/dashboard/GenericTable";
+import React, { useContext, useEffect, useMemo } from "react";
+import { useRepairRequests } from "@/app/context/RepairRequestsContext";
 import { ThemeContext } from "@/app/context/ThemeContext";
+import Cookies from "js-cookie";
+import GenericTable from "@/components/dashboard/GenericTable";
 import { FaTrash } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { confirmAlert } from "react-confirm-alert";
 import RepairRequestCard from "@/components/RepairRequestCard";
-import { RepairRequest, Technician } from "../../utils/types"; // استيراد الواجهة المشتركة
+import { RepairRequest } from "../../utils/types";
 import { useMediaQuery } from "react-responsive";
+import axios from "axios";
+import { API_BASE_URL } from "@/utils/api";
 
-// Define the status map outside of the component to avoid re-creation on each render
 const statusMap: { [key: string]: string } = {
   PENDING: "قيد الانتظار",
   ASSIGNED: "تم التعيين",
@@ -29,83 +23,68 @@ const statusMap: { [key: string]: string } = {
 };
 
 const RepairRequestsPage: React.FC = () => {
-  // State variables to manage data, loading states, and media queries
-  const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { repairRequests, fetchRepairRequests, isLoading } =
+    useRepairRequests();
+  const [isDeleting, setIsDeleting] = React.useState(false);
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
-
   const { isDarkMode } = useContext(ThemeContext);
 
-  // Handle delete action with confirmation and toast notifications
-  const handleDelete = useCallback(async (id: number) => {
-    confirmAlert({
-      title: "تأكيد الحذف",
-      message: "هل أنت متأكد من أنك تريد حذف هذا الطلب؟",
-      buttons: [
-        {
-          label: "نعم",
-          onClick: async () => {
-            setIsDeleting(true);
-            try {
-              const token = Cookies.get("token");
-              await axios.delete(`${API_BASE_URL}/maintenance-requests/${id}`, {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              });
+  useEffect(() => {
+    fetchRepairRequests();
+  }, [fetchRepairRequests]);
 
-              setRepairRequests((prev) => prev.filter((req) => req.id !== id));
-              toast.success("تم حذف الطلب بنجاح.");
-            } catch (error) {
-              console.error("حدث خطأ أثناء حذف الطلب:", error);
-              toast.error("حدث خطأ أثناء حذف الطلب. يرجى المحاولة مرة أخرى.");
-            } finally {
-              setIsDeleting(false);
-            }
-          },
-        },
-        {
-          label: "لا",
-          onClick: () => {
-            toast.info("تم إلغاء عملية الحذف.");
-          },
-        },
-      ],
-    });
-  }, []);
+  const handleDelete = React.useCallback(
+    async (id: number) => {
+      confirmAlert({
+        title: "تأكيد الحذف",
+        message: "هل أنت متأكد من أنك تريد حذف هذا الطلب؟",
+        buttons: [
+          {
+            label: "نعم",
+            onClick: async () => {
+              setIsDeleting(true);
+              try {
+                const token = Cookies.get("token");
+                await axios.delete(
+                  `${API_BASE_URL}/maintenance-requests/${id}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
 
-  // Define columns for the GenericTable, with render functions where necessary
+                toast.success("تم حذف الطلب بنجاح.");
+                fetchRepairRequests(); // تحديث البيانات بعد الحذف
+              } catch (error) {
+                console.error("حدث خطأ أثناء حذف الطلب:", error);
+                toast.error("حدث خطأ أثناء حذف الطلب. يرجى المحاولة مرة أخرى.");
+              } finally {
+                setIsDeleting(false);
+              }
+            },
+          },
+          {
+            label: "لا",
+            onClick: () => {
+              toast.info("تم إلغاء عملية الحذف.");
+            },
+          },
+        ],
+      });
+    },
+    [fetchRepairRequests]
+  );
+
   const columns = useMemo(
     () => [
-      {
-        title: "الاسم",
-        accessor: "user.fullName",
-      },
-      {
-        title: "المحافظة",
-        accessor: "governorate",
-      },
-      {
-        title: "رقم الهاتف",
-        accessor: "user.phoneNO",
-      },
-      {
-        title: "العنوان",
-        accessor: "user.address",
-      },
-      {
-        title: "نوع الجهاز",
-        accessor: "deviceType",
-      },
-      {
-        title: "وصف المشكلة",
-        accessor: "problemDescription",
-      },
-      {
-        title: "التقني المخصص",
-        accessor: "technician.user.fullName",
-      },
+      { title: "الاسم", accessor: "user.fullName" },
+      { title: "المحافظة", accessor: "governorate" },
+      { title: "رقم الهاتف", accessor: "user.phoneNO" },
+      { title: "العنوان", accessor: "user.address" },
+      { title: "نوع الجهاز", accessor: "deviceType" },
+      { title: "وصف المشكلة", accessor: "problemDescription" },
+      { title: "التقني المخصص", accessor: "technician.user.fullName" },
       {
         title: "الحالة",
         accessor: "status",
@@ -128,45 +107,6 @@ const RepairRequestsPage: React.FC = () => {
     [handleDelete, isDeleting]
   );
 
-  // Fetch repair requests data from the API on component mount
-  useEffect(() => {
-    const fetchRepairRequests = async () => {
-      setLoading(true);
-      try {
-        const token = Cookies.get("token");
-        const response = await axios.get(
-          `${API_BASE_URL}/maintenance-requests/all/admin`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (Array.isArray(response.data)) {
-            setRepairRequests(response.data);
-            console.log(response.data);
-          } else {
-            console.warn("Expected an array but got:", response.data);
-            setRepairRequests([]);
-          }
-        } else {
-          console.warn("لا توجد بيانات في الاستجابة.");
-          toast.warn("لا توجد بيانات متاحة.");
-        }
-      } catch (error) {
-        console.error("حدث خطأ أثناء جلب البيانات:", error);
-        toast.error("حدث خطأ أثناء جلب البيانات. يرجى المحاولة مرة أخرى.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRepairRequests();
-  }, []);
-
-  // Callback for handling request updates, e.g., refetching data
   const handleRequestUpdated = () => {
     console.log("done");
   };
@@ -179,25 +119,21 @@ const RepairRequestsPage: React.FC = () => {
     >
       <h1 className="text-2xl font-bold mb-6">طلبات الإصلاح</h1>
 
-      {loading && repairRequests.length === 0 ? (
+      {repairRequests.length === 0 ? (
         <div className="flex justify-center items-center h-96">
           <ClipLoader color="#4A90E2" size={50} />
         </div>
       ) : isMobile ? (
         <div>
-          {repairRequests.length > 0 ? (
-            repairRequests.map((request) => (
-              <RepairRequestCard
-                onRequestUpdated={handleRequestUpdated}
-                userRole={"ADMIN"}
-                key={request.id}
-                request={request}
-                statusMap={statusMap}
-              />
-            ))
-          ) : (
-            <div>لا توجد طلبات إصلاح متاحة.</div>
-          )}
+          {repairRequests.map((request) => (
+            <RepairRequestCard
+              onRequestUpdated={handleRequestUpdated}
+              userRole={"ADMIN"}
+              key={request.id}
+              request={request}
+              statusMap={statusMap}
+            />
+          ))}
         </div>
       ) : (
         <GenericTable<RepairRequest> data={repairRequests} columns={columns} />
