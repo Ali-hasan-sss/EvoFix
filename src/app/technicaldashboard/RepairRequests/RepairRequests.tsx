@@ -116,8 +116,8 @@ const RepairRequests: React.FC = () => {
   });
 
   return (
-    <PullToRefresh onRefresh={handleRefresh}>
-      <div className="flex flex-col mt-4 w-full" style={{ minHeight: "90vh" }}>
+    <div className="flex flex-col mt-4 w-full" style={{ minHeight: "90vh" }}>
+      <PullToRefresh onRefresh={handleRefresh}>
         <div className="flex justify-start mb-2">
           <button
             onClick={handleRefresh}
@@ -133,58 +133,58 @@ const RepairRequests: React.FC = () => {
             )}
           </button>
         </div>
+      </PullToRefresh>
 
-        <div
-          className={`w-full flex-grow p-2 rounded ${
-            isDarkMode ? "bg-gray-700" : "bg-gray-400"
-          }`}
-        >
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:flex lg:justify-center mb-4">
-            {tabs.map((tab) => {
-              const tabCount = getTabCount(tab.key);
-              return (
-                <button
-                  key={tab.key}
-                  className={`relative p-2 text-center rounded ${
-                    activeTab === tab.key
-                      ? "bg-blue-500 text-white"
-                      : "bg-white text-black"
-                  }`}
-                  onClick={() => setActiveTab(tab.key)}
-                >
-                  {tab.label}
-                  {tabCount > 0 && (
-                    <span className="absolute top-2 right-3 inline-block bg-yellow-500 text-white text-xs rounded-full px-2 py-1">
-                      {tabCount}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {filteredRequests.length === 0 ? (
-            <div className="flex justify-center items-center h-screen">
-              <p className="text-xl text-gray-700">
-                لا توجد طلبات في هذا التبويب.
-              </p>
-            </div>
-          ) : (
-            <div className="p-2 grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {filteredRequests.map((request) => (
-                <RepairRequestCard
-                  userRole={"TECHNICIAN"}
-                  key={request.id}
-                  request={request}
-                  statusMap={statusMap}
-                  onRequestUpdated={fetchRepairRequests}
-                />
-              ))}
-            </div>
-          )}
+      <div
+        className={`w-full flex-grow p-2 rounded ${
+          isDarkMode ? "bg-gray-700" : "bg-gray-400"
+        }`}
+      >
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:flex lg:justify-center mb-4">
+          {tabs.map((tab) => {
+            const tabCount = getTabCount(tab.key);
+            return (
+              <button
+                key={tab.key}
+                className={`relative p-2 text-center rounded ${
+                  activeTab === tab.key
+                    ? "bg-blue-500 text-white"
+                    : "bg-white text-black"
+                }`}
+                onClick={() => setActiveTab(tab.key)}
+              >
+                {tab.label}
+                {tabCount > 0 && (
+                  <span className="absolute top-2 right-3 inline-block bg-yellow-500 text-white text-xs rounded-full px-2 py-1">
+                    {tabCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
+
+        {filteredRequests.length === 0 ? (
+          <div className="flex justify-center items-center h-screen">
+            <p className="text-xl text-gray-700">
+              لا توجد طلبات في هذا التبويب.
+            </p>
+          </div>
+        ) : (
+          <div className="p-2 grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {filteredRequests.map((request) => (
+              <RepairRequestCard
+                userRole={"TECHNICIAN"}
+                key={request.id}
+                request={request}
+                statusMap={statusMap}
+                onRequestUpdated={fetchRepairRequests}
+              />
+            ))}
+          </div>
+        )}
       </div>
-    </PullToRefresh>
+    </div>
   );
 };
 

@@ -122,44 +122,44 @@ const RepairRequests: React.FC = () => {
 
   return (
     <div className="flex mt-5 flex-col w-full" style={{ minHeight: "90vh" }}>
-      <div className="flex justify-between items-center mb-4">
-        <RepairRequestButton />
-        <button
-          onClick={handleRefresh}
-          className={`flex items-center w-10 h-10 px-2 py-1 rounded ${
-            isRefreshing ? "bg-gray-500" : "bg-blue-500"
-          } text-white hover:bg-blue-600 focus:outline-none`}
-          disabled={isRefreshing}
-        >
-          {isRefreshing ? (
-            <ClipLoader color="#4A90E2" size={20} />
-          ) : (
-            <FaSync className="mr-1" />
-          )}
-        </button>
-      </div>
-
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="w-full flex-grow p-2 rounded">
-          <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
-
-          <div className="p-2 grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {filteredRequests.length === 0 ? (
-              <p>لا توجد طلبات في هذا التبويب.</p>
+        <div className="flex justify-between items-center mb-4">
+          <RepairRequestButton />
+          <button
+            onClick={handleRefresh}
+            className={`flex items-center w-10 h-10 px-2 py-1 rounded ${
+              isRefreshing ? "bg-gray-500" : "bg-blue-500"
+            } text-white hover:bg-blue-600 focus:outline-none`}
+            disabled={isRefreshing}
+          >
+            {isRefreshing ? (
+              <ClipLoader color="#4A90E2" size={20} />
             ) : (
-              filteredRequests.map((request) => (
-                <RepairRequestCard
-                  userRole={"USER"}
-                  key={request.id}
-                  request={request}
-                  statusMap={statusMap}
-                  onRequestUpdated={handleRefresh}
-                />
-              ))
+              <FaSync className="mr-1" />
             )}
-          </div>
+          </button>
         </div>
       </PullToRefresh>
+
+      <div className="w-full flex-grow p-2 rounded">
+        <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+
+        <div className="p-2 grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {filteredRequests.length === 0 ? (
+            <p>لا توجد طلبات في هذا التبويب.</p>
+          ) : (
+            filteredRequests.map((request) => (
+              <RepairRequestCard
+                userRole={"USER"}
+                key={request.id}
+                request={request}
+                statusMap={statusMap}
+                onRequestUpdated={handleRefresh}
+              />
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 };

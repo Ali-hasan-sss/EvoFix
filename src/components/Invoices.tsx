@@ -83,20 +83,22 @@ const Invoices: React.FC = () => {
 
   return (
     <div className="p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">الفواتير</h2>
-        <button
-          onClick={fetchInvoices}
-          className="p-2 rounded w-10 h-10 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
-          disabled={loading}
-        >
-          {loading ? (
-            <ClipLoader color="#ffffff" loading={loading} size={20} />
-          ) : (
-            <FaSync className="mr-1" />
-          )}
-        </button>
-      </div>
+      <PullToRefresh onRefresh={fetchInvoices}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">الفواتير</h2>
+          <button
+            onClick={fetchInvoices}
+            className="p-2 rounded w-10 h-10 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
+            disabled={loading}
+          >
+            {loading ? (
+              <ClipLoader color="#ffffff" loading={loading} size={20} />
+            ) : (
+              <FaSync className="mr-1" />
+            )}
+          </button>
+        </div>
+      </PullToRefresh>
 
       {/* مكونات الفلترة والبحث */}
       <div className="mb-4 flex gap-4">
@@ -118,63 +120,60 @@ const Invoices: React.FC = () => {
         />
       </div>
 
-      {/* إضافة السحب للتحديث */}
-      <PullToRefresh onRefresh={fetchInvoices}>
-        {/* عرض الفواتير */}
-        {filteredInvoices.map((invoice, index) => (
-          <div
-            key={index}
-            className={`border rounded-lg p-4 mb-4 shadow-md transition duration-300 ${
-              isDarkMode ? "bg-gray-900 text-light" : "bg-gray-200 text-black"
-            }`}
-          >
+      {/* عرض الفواتير */}
+      {filteredInvoices.map((invoice, index) => (
+        <div
+          key={index}
+          className={`border rounded-lg p-4 mb-4 shadow-md transition duration-300 ${
+            isDarkMode ? "bg-gray-900 text-light" : "bg-gray-200 text-black"
+          }`}
+        >
+          <p>
+            <strong>الاسم:</strong> {invoice.user.fullName}
+          </p>
+          <p>
+            <strong>المبلغ:</strong> {invoice.amount} ل.س
+          </p>
+          <p>
+            <strong>تاريخ الإصدار:</strong>{" "}
+            {new Date(invoice.issueDate).toLocaleDateString()}
+          </p>
+          <p>
+            <strong>تاريخ الاستحقاق:</strong>{" "}
+            {new Date(invoice.dueDate).toLocaleDateString()}
+          </p>
+          <p>
+            <strong>مدفوع:</strong> {invoice.isPaid ? "نعم" : "لا"}
+          </p>
+          {invoice.paidAt && (
             <p>
-              <strong>الاسم:</strong> {invoice.user.fullName}
+              <strong>تاريخ الدفع:</strong>{" "}
+              {new Date(invoice.paidAt).toLocaleDateString()}
             </p>
-            <p>
-              <strong>المبلغ:</strong> {invoice.amount} ل.س
-            </p>
-            <p>
-              <strong>تاريخ الإصدار:</strong>{" "}
-              {new Date(invoice.issueDate).toLocaleDateString()}
-            </p>
-            <p>
-              <strong>تاريخ الاستحقاق:</strong>{" "}
-              {new Date(invoice.dueDate).toLocaleDateString()}
-            </p>
-            <p>
-              <strong>مدفوع:</strong> {invoice.isPaid ? "نعم" : "لا"}
-            </p>
-            {invoice.paidAt && (
-              <p>
-                <strong>تاريخ الدفع:</strong>{" "}
-                {new Date(invoice.paidAt).toLocaleDateString()}
-              </p>
-            )}
-            <h4 className="font-semibold mt-2">تفاصيل الجهاز</h4>
-            <p>
-              <strong>نوع الجهاز:</strong> {invoice.request.deviceType}
-            </p>
-            <p>
-              <strong>موديل الجهاز:</strong> {invoice.request.deviceModel}
-            </p>
-            <p>
-              <strong>الوصف:</strong> {invoice.request.problemDescription}
-            </p>
-            <p>
-              <strong>المحافظة:</strong> {invoice.request.governorate}
-            </p>
-            <p>
-              <strong>رسوم الكشف:</strong> {invoice.request.Epaid[0]?.CheckFee}{" "}
-              ل.س
-            </p>
-            <p>
-              <strong>رسوم الكشف مدفوعة:</strong>{" "}
-              {invoice.request.isPaidCheckFee ? "نعم" : "لا"}
-            </p>
-          </div>
-        ))}
-      </PullToRefresh>
+          )}
+          <h4 className="font-semibold mt-2">تفاصيل الجهاز</h4>
+          <p>
+            <strong>نوع الجهاز:</strong> {invoice.request.deviceType}
+          </p>
+          <p>
+            <strong>موديل الجهاز:</strong> {invoice.request.deviceModel}
+          </p>
+          <p>
+            <strong>الوصف:</strong> {invoice.request.problemDescription}
+          </p>
+          <p>
+            <strong>المحافظة:</strong> {invoice.request.governorate}
+          </p>
+          <p>
+            <strong>رسوم الكشف:</strong> {invoice.request.Epaid[0]?.CheckFee}{" "}
+            ل.س
+          </p>
+          <p>
+            <strong>رسوم الكشف مدفوعة:</strong>{" "}
+            {invoice.request.isPaidCheckFee ? "نعم" : "لا"}
+          </p>
+        </div>
+      ))}
 
       {error && <p className="text-red-500">{error}</p>}
     </div>
