@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useContext, useEffect } from "react";
 import Navbar from "@/components/navBar";
 import Sidebar from "@/components/dashboard/Sidebar";
@@ -19,6 +20,7 @@ const RepairRequests = dynamic(
     ssr: false, // تعطيل العرض المسبق من جانب الخادم
   }
 );
+
 const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");
 
@@ -31,7 +33,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedOption = localStorage.getItem("activeOption");
-      if (storedOption) {
+      if (storedOption && storedOption !== "profile") {
         setSelectedOption(storedOption);
       }
     }
@@ -55,7 +57,7 @@ const Dashboard = () => {
 
   // حفظ الخيار النشط في localStorage عند تغييره
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && selectedOption !== "profile") {
       localStorage.setItem("activeOption", selectedOption);
     }
   }, [selectedOption]);
