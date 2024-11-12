@@ -11,7 +11,7 @@ import { RepairRequest } from "@/utils/types";
 import axios from "axios";
 import { API_BASE_URL } from "@/utils/api";
 import PullToRefresh from "react-pull-to-refresh";
-import { FaSync } from "react-icons/fa";
+import { FaAngleDoubleDown, FaSync } from "react-icons/fa";
 
 const RepairRequests: React.FC = () => {
   const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
@@ -122,24 +122,26 @@ const RepairRequests: React.FC = () => {
 
   return (
     <div className="flex mt-5 flex-col w-full" style={{ minHeight: "90vh" }}>
+      {/* حاوية ثابتة شفافة للسحب للتحديث */}
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="flex justify-between items-center mb-4">
-          <RepairRequestButton />
-          <button
-            onClick={handleRefresh}
-            className={`flex items-center w-10 h-10 px-2 py-1 rounded ${
-              isRefreshing ? "bg-gray-500" : "bg-blue-500"
-            } text-white hover:bg-blue-600 focus:outline-none`}
-            disabled={isRefreshing}
-          >
-            {isRefreshing ? (
-              <ClipLoader color="#4A90E2" size={20} />
-            ) : (
-              <FaSync className="mr-1" />
-            )}
-          </button>
+        <div className="fixed flex iterm-center justify-center top-50 text-center left-0 right-0 h-20 bg-transparent z-10">
+          <FaAngleDoubleDown className="mt-4 text-xl color-yellow-500 md:hidden" />
         </div>
       </PullToRefresh>
+      <div className="flex justify-between items-center mb-4">
+        <RepairRequestButton />
+        <button
+          onClick={handleRefresh}
+          className={`flex items-center w-10 h-10 px-2 py-1 rounded z-50 text-white hover:text-gray-600 `}
+          disabled={isRefreshing}
+        >
+          {isRefreshing ? (
+            <ClipLoader color="#4A90E2" size={20} />
+          ) : (
+            <FaSync className="mr-1" />
+          )}
+        </button>
+      </div>
 
       <div className="w-full flex-grow p-2 rounded">
         <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />

@@ -9,7 +9,7 @@ import { ThemeContext } from "@/app/context/ThemeContext";
 import { ClipLoader } from "react-spinners";
 import RepairRequestCard from "@/components/RepairRequestCard";
 import { RepairRequest } from "@/utils/types";
-import { FaSync } from "react-icons/fa";
+import { FaAngleDoubleDown, FaSync } from "react-icons/fa";
 import PullToRefresh from "react-pull-to-refresh";
 
 const RepairRequests: React.FC = () => {
@@ -117,23 +117,26 @@ const RepairRequests: React.FC = () => {
 
   return (
     <div className="flex flex-col mt-4 w-full" style={{ minHeight: "90vh" }}>
+      {/* حاوية ثابتة شفافة للسحب للتحديث */}
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="flex justify-start mb-2">
-          <button
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className={`flex items-center w-10 h-10 px-2 py-1 rounded ${
-              refreshing ? "bg-gray-500" : "bg-blue-500"
-            } text-white hover:bg-blue-600 focus:outline-none`}
-          >
-            {refreshing ? (
-              <ClipLoader color="#ffffff" size={18} />
-            ) : (
-              <FaSync className="mr-1" />
-            )}
-          </button>
+        <div className="fixed flex iterm-center justify-center top-50 text-center left-0 right-0 h-20 bg-transparent z-10">
+          <FaAngleDoubleDown className="mt-4 text-xl color-yellow-500 md:hidden" />
         </div>
       </PullToRefresh>
+      <div className="flex justify-start mb-2">
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className={`flex items-center w-10 h-10 px-2 py-1 rounded z-50 text-white hover:text-gray-600 focus:outline-none`}
+        >
+          {refreshing ? (
+            <ClipLoader color="#ffffff" size={18} />
+          ) : (
+            <FaSync className="mr-1" />
+          )}
+        </button>
+        <div className="w-full"></div>
+      </div>
 
       <div
         className={`w-full flex-grow p-2 rounded ${
@@ -155,7 +158,7 @@ const RepairRequests: React.FC = () => {
               >
                 {tab.label}
                 {tabCount > 0 && (
-                  <span className="absolute top-2 right-3 inline-block bg-yellow-500 text-white text-xs rounded-full px-2 py-1">
+                  <span className="absolute top-2 right-2 inline-block bg-yellow-500 text-white text-xs rounded-full px-2 py-1">
                     {tabCount}
                   </span>
                 )}
