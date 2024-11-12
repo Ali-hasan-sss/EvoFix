@@ -124,15 +124,15 @@ const RepairRequests: React.FC = () => {
     <div className="flex mt-5 flex-col w-full" style={{ minHeight: "90vh" }}>
       {/* حاوية ثابتة شفافة للسحب للتحديث */}
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="fixed flex iterm-center justify-center top-50 text-center left-0 right-0 h-20 bg-transparent z-10">
-          <FaAngleDoubleDown className="mt-4 text-xl color-yellow-500 md:hidden" />
+        <div className="fixed flex  iterm-center justify-center top-50 text-center left-0 right-0 h-15 bg-transparent">
+          <FaAngleDoubleDown className="mt-2 text-xl text-yellow-500 md:hidden" />
         </div>
       </PullToRefresh>
       <div className="flex justify-between items-center mb-4">
         <RepairRequestButton />
         <button
           onClick={handleRefresh}
-          className={`flex items-center w-10 h-10 px-2 py-1 rounded z-50 text-white hover:text-gray-600 `}
+          className={`flex fixed mt-5 items-center w-10 h-10 px-2 py-1 rounded z-50 text-white hover:text-gray-600 `}
           disabled={isRefreshing}
         >
           {isRefreshing ? (

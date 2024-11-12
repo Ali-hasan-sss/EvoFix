@@ -86,7 +86,7 @@ const Invoices: React.FC = () => {
       {/* حاوية ثابتة شفافة للسحب للتحديث */}
       <PullToRefresh onRefresh={fetchInvoices}>
         <div className="fixed flex iterm-center justify-center top-50 text-center left-0 right-0 h-20 bg-transparent z-10">
-          <FaAngleDoubleDown className="mt-4 text-xl color-yellow-500 md:hidden" />
+          <FaAngleDoubleDown className="mt-4 text-xl text-yellow-500 md:hidden" />
         </div>
       </PullToRefresh>
 
@@ -94,7 +94,7 @@ const Invoices: React.FC = () => {
         <h2 className="text-xl font-semibold">الفواتير</h2>
         <button
           onClick={fetchInvoices}
-          className={`flex items-center w-10 h-10 px-2 py-1 rounded z-50 text-white hover:text-gray-600 focus:outline-none`}
+          className={`flex fixed to-55 left-4 items-center w-10 h-10 px-2 py-1 rounded z-30 text-white hover:text-gray-600 focus:outline-none`}
           disabled={loading}
         >
           {loading ? (

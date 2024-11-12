@@ -119,15 +119,15 @@ const RepairRequests: React.FC = () => {
     <div className="flex flex-col mt-4 w-full" style={{ minHeight: "90vh" }}>
       {/* حاوية ثابتة شفافة للسحب للتحديث */}
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="fixed flex iterm-center justify-center top-50 text-center left-0 right-0 h-20 bg-transparent z-10">
-          <FaAngleDoubleDown className="mt-4 text-xl color-yellow-500 md:hidden" />
+        <div className="fixed flex iterm-center justify-center top-50 text-center left-0 right-0 h-15 bg-transparent z-10">
+          <FaAngleDoubleDown className="mt-4 text-xl text-yellow-500 md:hidden" />
         </div>
       </PullToRefresh>
       <div className="flex justify-start mb-2">
         <button
           onClick={handleRefresh}
           disabled={refreshing}
-          className={`flex items-center w-10 h-10 px-2 py-1 rounded z-50 text-white hover:text-gray-600 focus:outline-none`}
+          className={`flex fixed items-center w-10 h-10 px-2 py-1 rounded z-20 text-white hover:text-gray-600 focus:outline-none`}
         >
           {refreshing ? (
             <ClipLoader color="#ffffff" size={18} />
@@ -143,7 +143,7 @@ const RepairRequests: React.FC = () => {
           isDarkMode ? "bg-gray-700" : "bg-gray-400"
         }`}
       >
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:flex lg:justify-center mb-4">
+        <div className="grid grid-cols-2 gap-2 mt-10 sm:grid-cols-3 lg:flex lg:justify-center mb-4">
           {tabs.map((tab) => {
             const tabCount = getTabCount(tab.key);
             return (
