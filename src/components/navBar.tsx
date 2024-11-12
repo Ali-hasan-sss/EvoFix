@@ -70,7 +70,9 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
   const handleLogout = () => {
     logout();
     toast.success("تم تسجيل الخروج بنجاح!");
-    window.location.href = "/";
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
   };
 
   // إغلاق القائمة عند النقر خارجها

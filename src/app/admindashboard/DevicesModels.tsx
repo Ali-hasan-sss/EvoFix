@@ -10,7 +10,7 @@ import { Switch } from "@mui/material";
 import { FiEdit, FiTrash } from "react-icons/fi";
 import { confirmAlert } from "react-confirm-alert";
 import { DeviceModel } from "@/utils/types";
-import { useRepairRequests } from "@/app/context/RepairRequestsContext";
+import { useRepairRequests } from "@/app/context/adminData";
 
 const DevicesModels: React.FC = () => {
   const {

@@ -29,6 +29,8 @@ const RepairRequestButton: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [services, setServices] = useState<Service[]>([]);
+  const [hasFetchedServices, setHasFetchedServices] = useState(false); // new state to track if services are fetched
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
@@ -46,33 +48,35 @@ const RepairRequestButton: React.FC = () => {
     setDeviceType: (type: string) => void;
     setDeviceModels: (models: { id: string; title: string }[]) => void;
   }> = ({ deviceType, setDeviceType, setDeviceModels }) => {
-    const [services, setServices] = useState<Service[]>([]);
+    const fetchServices = async () => {
+      try {
+        const authToken = Cookies.get("authToken");
+        const response = await axios.get(`${API_BASE_URL}/services`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+        setServices(response.data.services || []);
+        setHasFetchedServices(true); // Mark services as fetched
+      } catch (error) {
+        console.error("حدث خطأ أثناء جلب الخدمات:", error);
+      }
+    };
 
     useEffect(() => {
-      const fetchServices = async () => {
-        try {
-          const authToken = Cookies.get("authToken");
-          const response = await axios.get(`${API_BASE_URL}/services`, {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          });
-          setServices(response.data.services || []);
-        } catch (error) {
-          console.error("حدث خطأ أثناء جلب الخدمات:", error);
-        }
-      };
-
-      fetchServices();
-    }, []);
+      if (isModalOpen && !hasFetchedServices) {
+        fetchServices(); // Fetch services only if not already fetched
+      }
+    }, [isModalOpen, hasFetchedServices]); // Dependency array now includes `hasFetchedServices`
 
     const handleDeviceTypeChange = (type: string) => {
       setDeviceType(type);
-
+      // العثور على الخدمة المحددة وتحديث الموديلات المرتبطة بها
       const selectedService = services.find(
         (service) => service.title === type
       );
       setDeviceModels(selectedService ? selectedService.DevicesModels : []);
+      setDeviceModel(""); // مسح الموديل المحدد عند تغيير نوع الجهاز
     };
 
     return (
@@ -162,31 +166,29 @@ const RepairRequestButton: React.FC = () => {
         طلب إصلاح
       </button>
       {!isLoggedIn && isModalOpen && (
-        <>
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div
-              className={`p-6 rounded-lg shadow-lg w-11/12 sm:w-96 ${
-                isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-black"
-              }`}
-              style={{ maxHeight: "80%", overflowY: "auto" }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div
+            className={`p-6 rounded-lg shadow-lg w-11/12 sm:w-96 custom-main-scroll ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-black"
+            }`}
+            style={{ maxHeight: "80%", overflowY: "auto" }}
+          >
+            <p>
+              يجب عليك
+              <a href="/login" className="text-blue-500">
+                تسجيل الدخول
+              </a>
+              لارسال طلب اصلاح
+            </p>
+            <button
+              type="button"
+              onClick={closeModal}
+              className="bg-red-500 hover:bg-red-600 mt-4 text-white px-4 py-2 rounded-lg focus:outline-none"
             >
-              <p>
-                يجب عليك
-                <a href="/login" className="text-blue-500">
-                  تسجيل الدخول
-                </a>
-                لارسال طلب اصلاح
-              </p>
-              <button
-                type="button"
-                onClick={closeModal}
-                className="bg-red-500 hover:bg-red-600 mt-4 text-white px-4 py-2 rounded-lg focus:outline-none"
-              >
-                إلغاء
-              </button>
-            </div>
+              إلغاء
+            </button>
           </div>
-        </>
+        </div>
       )}
 
       {isLoggedIn && isModalOpen && (
@@ -223,13 +225,40 @@ const RepairRequestButton: React.FC = () => {
                   <option value="القنيطرة">القنيطرة</option>
                   <option value="حلب">حلب</option>
                   <option value="الرقة">الرقة</option>
-                  <option value="الحسكة">الحسكة</option>
                   <option value="دير الزور">دير الزور</option>
-                  <option value="ادلب">ادلب</option>
                 </select>
               </div>
 
-              {/* حقل اختيار نوع الجهاز */}
+              <div className="mb-4">
+                <label className="block">رقم الهاتف</label>
+                <input
+                  type="text"
+                  value={phoneNO}
+                  onChange={(e) => setPhoneNO(e.target.value)}
+                  className={`w-full p-2 border-b focus:outline-none ${
+                    isDarkMode
+                      ? "bg-gray-700 text-white border-gray-600"
+                      : "bg-white text-gray-800 border-gray-300"
+                  }`}
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block">العنوان</label>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className={`w-full p-2 border-b focus:outline-none ${
+                    isDarkMode
+                      ? "bg-gray-700 text-white border-gray-600"
+                      : "bg-white text-gray-800 border-gray-300"
+                  }`}
+                  required
+                />
+              </div>
+
               <DeviceTypeSelector
                 deviceType={deviceType}
                 setDeviceType={setDeviceType}
@@ -237,7 +266,7 @@ const RepairRequestButton: React.FC = () => {
               />
 
               <div className="mb-4">
-                <label className="block">موديل الجهاز</label>
+                <label className="block">الموديل</label>
                 <select
                   value={deviceModel}
                   onChange={(e) => setDeviceModel(e.target.value)}
@@ -248,41 +277,13 @@ const RepairRequestButton: React.FC = () => {
                   }`}
                   required
                 >
-                  <option value="">اختر موديل الجهاز</option>
+                  <option value="">اختر الموديل</option>
                   {deviceModels.map((model) => (
                     <option key={model.id} value={model.title}>
                       {model.title}
                     </option>
                   ))}
                 </select>
-              </div>
-
-              <div className="mb-4">
-                <label className="block">صورة الجهاز</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full px-4 py-2 border rounded-lg"
-                />
-                {imagePreview && (
-                  <div className="mt-2">
-                    <Image
-                      src={imagePreview}
-                      alt="معاينة صورة الجهاز"
-                      width={500}
-                      height={128}
-                      className="object-cover rounded-lg"
-                    />
-                    <button
-                      type="button"
-                      onClick={removeImage}
-                      className="mt-2 text-red-500 hover:underline"
-                    >
-                      إزالة الصورة
-                    </button>
-                  </div>
-                )}
               </div>
 
               <div className="mb-4">
@@ -295,21 +296,52 @@ const RepairRequestButton: React.FC = () => {
                       ? "bg-gray-700 text-white border-gray-600"
                       : "bg-white text-gray-800 border-gray-300"
                   }`}
+                  required
                 />
               </div>
 
-              <div className="flex justify-between">
+              <div className="mb-4">
+                <label className="block">صورة الجهاز</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full p-2 border-b focus:outline-none"
+                />
+                {imagePreview && (
+                  <div className="mt-2">
+                    <Image
+                      src={imagePreview}
+                      alt="معاينة الصورة"
+                      width={100}
+                      height={100}
+                      className="rounded-md"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="text-red-500 mt-2"
+                    >
+                      إزالة الصورة
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-between ">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="bg-red-500 hover:bg-red-600 mr-4 text-white px-4 py-2 rounded-lg focus:outline-none"
+                  className="bg-gray-400 text-white p-2 rounded-lg"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none"
                   disabled={isLoading}
+                  className={`bg-blue-500 text-white p-2 rounded-lg ${
+                    isLoading ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 >
                   {isLoading ? "جاري الإرسال..." : "إرسال"}
                 </button>

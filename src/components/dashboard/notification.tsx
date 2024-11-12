@@ -12,11 +12,9 @@ import PaymentForm from "@/components/forms/PaymentForm";
 import { FaEye } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { APINotification, MappedNotification } from "@/utils/types";
-import { useRepairRequests } from "@/app/context/RepairRequestsContext"; // استخدام الـ context
 
 const NotificationComponent: React.FC = () => {
-  const { notifications, fetchNotifications, isNotificationsLoading } =
-    useRepairRequests(); // الحصول على الإشعارات من الـ context
+  const [notifications, setNotifications] = useState<MappedNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingAction, setLoadingAction] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +24,7 @@ const NotificationComponent: React.FC = () => {
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
     null
   );
+  const [isNotificationsLoading, setIsNotificationsLoading] = useState(true);
   const [isActivating, setIsActivating] = useState(false);
   const router = useRouter();
 
@@ -35,12 +34,44 @@ const NotificationComponent: React.FC = () => {
     Modal.setAppElement(document.body);
   }, []);
 
-  // استدعاء الدالة تلقائيًا كل دقيقة باستخدام useEffect
+  const fetchNotifications = async () => {
+    setIsNotificationsLoading(true);
+    try {
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("token="))
+        ?.split("=")[1];
+
+      const response = await axios.get(`${API_BASE_URL}/notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const mappedNotifications = response.data.map(
+        (notification: APINotification) => ({
+          id: notification.id,
+          title: notification.title,
+          content: notification.content,
+          createdAt: notification.createdAt,
+          senderId: notification.senderId,
+          isRead: notification.isRead,
+          requestId: notification.requestId,
+          isPaidCheckFee: notification.request?.isPaidCheckFee ?? true,
+          isPaid: notification.request?.isPaid ?? false,
+          recipientId: notification.recipientId,
+        })
+      );
+
+      setNotifications(mappedNotifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      toast.error("Failed to fetch notifications. Please try again later.");
+    } finally {
+      setIsNotificationsLoading(false);
+    }
+  };
   useEffect(() => {
     fetchNotifications();
-
-    const intervalId = setInterval(fetchNotifications, FETCH_INTERVAL);
-
+    const intervalId = setInterval(fetchNotifications, 60000);
     return () => clearInterval(intervalId);
   }, []);
 

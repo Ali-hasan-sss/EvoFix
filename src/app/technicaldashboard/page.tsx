@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useContext, useEffect } from "react";
 import Navbar from "@/components/navBar";
 import Sidebar from "@/components/dashboard/Sidebar";
@@ -7,42 +8,47 @@ import { AuthContext } from "@/app/context/AuthContext";
 import "../../components/dashboard/dashboard.css";
 import { ThemeContext } from "../context/ThemeContext";
 import { useRouter } from "next/navigation";
-import RepairRequests from "./RepairRequests/RepairRequests";
 import Notifications from "../../components/dashboard/notification";
-import Invoices from "@/components/Invoices";
+import { ClipLoader } from "react-spinners";
+import dynamic from "next/dynamic";
+const Invoices = dynamic(() => import("@/components/Invoices"), {
+  ssr: false, // تعطيل العرض المسبق من جانب الخادم
+});
+const RepairRequests = dynamic(
+  () => import("./RepairRequests/RepairRequests"),
+  {
+    ssr: false, // تعطيل العرض المسبق من جانب الخادم
+  }
+);
 const Dashboard = () => {
+  // استخدام useState مع localStorage فقط في بيئة العميل
   const [selectedOption, setSelectedOption] = useState("viewRequests");
+
   const { isDarkMode } = useContext(ThemeContext);
   const { isLoggedIn } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // التأكد من أن localStorage موجود في بيئة العميل
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedOption = localStorage.getItem("activeOption");
+      if (storedOption) {
+        setSelectedOption(storedOption);
+      }
+    }
+  }, []);
+
   const renderContent = () => {
     switch (selectedOption) {
       case "viewHome":
-        return (
-          <div>
-            <Home />
-          </div>
-        );
+        return <Home />;
       case "viewRequests":
-        return (
-          <div>
-            <RepairRequests />
-          </div>
-        );
+        return <RepairRequests />;
       case "notifications":
-        return (
-          <div>
-            <Notifications />
-          </div>
-        );
+        return <Notifications />;
       case "Invoices":
-        return (
-          <div>
-            <Invoices />
-          </div>
-        );
+        return <Invoices />;
       case "profile":
         const userId = localStorage.getItem("userId");
         if (userId) {
@@ -72,8 +78,19 @@ const Dashboard = () => {
     }
   }, [isLoggedIn, loading, router]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // حفظ الخيار النشط في localStorage عند تغييره
+      localStorage.setItem("activeOption", selectedOption);
+    }
+  }, [selectedOption]);
+
   if (loading) {
-    return <div>جاري التحقق من حالة تسجيل الدخول...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen min-w-screen">
+        <ClipLoader color="#4A90E2" size={50} />
+      </div>
+    );
   }
 
   if (!isLoggedIn) {

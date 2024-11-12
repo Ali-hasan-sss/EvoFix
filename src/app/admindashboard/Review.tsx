@@ -1,35 +1,72 @@
 import React, { useEffect, useState } from "react";
-import { useRepairRequests } from "@/app/context/RepairRequestsContext";
+import { useRepairRequests } from "@/app/context/adminData";
 import { ClipLoader } from "react-spinners";
 import { FaTrash } from "react-icons/fa";
 import Switch from "react-switch";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { confirmAlert } from "react-confirm-alert";
 import { API_BASE_URL } from "@/utils/api";
 
 const Review: React.FC = () => {
-  const { reviews = [], fetchReviews, isReviewsLoading } = useRepairRequests();
-  const [error, setError] = useState<string | null>(null);
+  const {
+    reviews: contextReviews = [],
+    fetchReviews,
+    isReviewsLoading,
+  } = useRepairRequests();
+  const [reviews, setReviews] = useState(contextReviews);
+
+  useEffect(() => {
+    setReviews(contextReviews);
+  }, [contextReviews]);
 
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);
 
-  const handleToggleActive = async (id: number) => {
+  const handleToggleActive = async (id: number, isActive: boolean) => {
     try {
       const token = Cookies.get("token");
+      const updatedIsActive = !isActive;
+
       await axios.put(
         `${API_BASE_URL}/review/${id}`,
-        { isActive: true },
+        { isActive: updatedIsActive },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
+
+      // تحديث حالة النشاط محليًا
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review.id === id ? { ...review, isActive: updatedIsActive } : review
+        )
+      );
+      toast.success("تم تحديث حالة النشر!");
     } catch (err) {
       console.error("خطأ أثناء تحديث الحالة:", err);
+      toast.error("حدث خطأ أثناء تحديث الحالة.");
     }
+  };
+
+  const confirmDeleteReview = (id: number) => {
+    confirmAlert({
+      title: "تاكيد الحذف",
+      message: "هل انت متاكد من حذف التقييم ؟",
+      buttons: [
+        {
+          label: "نعم",
+          onClick: () => handleDelete(id),
+        },
+        {
+          label: "لا",
+        },
+      ],
+    });
   };
 
   const handleDelete = async (id: number) => {
@@ -40,8 +77,19 @@ const Review: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      // تحديث المراجعات محليًا في الواجهة وفي السياق
+      setReviews((prevReviews) =>
+        prevReviews.filter((review) => review.id !== id)
+      );
+
+      // تحديث قائمة المراجعات في السياق لجلب البيانات الجديدة من السيرفر
+      await fetchReviews();
+
+      toast.success("تم حذف التقييم بنجاح!");
     } catch (err) {
       console.error("خطأ أثناء حذف التقييم:", err);
+      toast.error("حدث خطأ أثناء الحذف.");
     }
   };
 
@@ -49,13 +97,6 @@ const Review: React.FC = () => {
     return (
       <div className="flex justify-center items-center h-96">
         <ClipLoader color="#4A90E2" size={50} />
-      </div>
-    );
-
-  if (error)
-    return (
-      <div className="flex justify-center items-center h-96">
-        <p>{error}</p>
       </div>
     );
 
@@ -83,7 +124,9 @@ const Review: React.FC = () => {
                 <label className="ml-4">
                   <Switch
                     checked={review.isActive}
-                    onChange={() => handleToggleActive(review.id)}
+                    onChange={() =>
+                      handleToggleActive(review.id, review.isActive)
+                    }
                     onColor="#86d3ff"
                     offColor="#ccc"
                     width={40}
@@ -93,7 +136,7 @@ const Review: React.FC = () => {
                   />
                 </label>
                 <button
-                  onClick={() => handleDelete(review.id)}
+                  onClick={() => confirmDeleteReview(review.id)}
                   className="text-red-500"
                 >
                   <FaTrash />

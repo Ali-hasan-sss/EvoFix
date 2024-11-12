@@ -6,7 +6,6 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
 import { DataCountsProvider } from "./context/DataCountsContext";
-import { RepairRequestsProvider } from "./context/RepairRequestsContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -46,11 +45,9 @@ export default function RootLayout({
           pauseOnHover
         />
         <AuthProvider>
-          <RepairRequestsProvider>
-            <DataCountsProvider>
-              <ThemeProvider>{children}</ThemeProvider>
-            </DataCountsProvider>
-          </RepairRequestsProvider>
+          <DataCountsProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </DataCountsProvider>
         </AuthProvider>
       </body>
     </html>

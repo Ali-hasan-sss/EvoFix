@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useContext, useEffect } from "react";
 import Image from "next/image";
 import "./dashboard.css";
@@ -34,7 +36,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
   const { logout } = useContext(AuthContext);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [activeOption, setActiveOption] = useState<string>("viewRequests");
+
+  // تعيين activeOption من localStorage عند التحميل الأولي فقط
+  const [activeOption, setActiveOption] = useState<string>(() => {
+    return localStorage.getItem("activeOption") || "viewRequests";
+  });
+
+  // Declare the type of notificationsCount explicitly
   const [notificationsCount, setNotificationsCount] = useState<number>(0);
 
   useEffect(() => {
@@ -42,17 +50,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
     setIsLoggedIn(!!token);
     fetchUserData();
     fetchNotificationsCount();
-    const savedOption = localStorage.getItem("activeOption");
-    if (savedOption) {
-      setActiveOption(savedOption);
-    }
+  }, []);
+
+  useEffect(() => {
+    const intervalId = setInterval(fetchNotificationsCount, 60000);
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleOptionSelect = (option: string) => {
     setActiveOption(option);
-    localStorage.setItem("activeOption", option);
+    if (option !== "profile") {
+      localStorage.setItem("activeOption", option);
+    }
     onSelectOption(option);
   };
+
   const handleProfile = () => {
     setActiveOption("profile");
     onSelectOption("profile");
@@ -97,20 +109,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
             },
           }
         );
-        setNotificationsCount(response.data.count);
+        setNotificationsCount(response.data.count); // Make sure notificationsCount is set correctly
       } catch (error: unknown) {
         console.error("خطأ في جلب عدد الإشعارات", error);
       }
     }
   };
-
-  useEffect(() => {
-    fetchNotificationsCount();
-
-    const intervalId = setInterval(fetchNotificationsCount, 60000);
-
-    return () => clearInterval(intervalId);
-  }, []);
 
   const mainRow = [
     {
@@ -154,10 +158,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
   return (
     <div className="flex min-h-screen mt-4 text-white">
       <div
-        className={`hidden md:flex p-4 flex-col flex-shrink-0 ${
+        className={`hidden md:flex w-full  p-4 flex-col flex-shrink-0 ${
           isDarkMode ? "bg-gray-800" : "bg-gray-600"
         }`}
-        style={{ width: "250px", minHeight: "100vh" }}
+        style={{ minHeight: "100vh" }}
       >
         <div className="space-y-6 sticky top-0">
           <div className="flex items-center mt-4">
@@ -197,7 +201,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
           {isLoggedIn && (
             <button
               onClick={handleLogout}
-              className={`flex items-center m-2 text-red-500 hover:text-red-700 rounded p-2 transition-colors duration-200`}
+              className="flex items-center m-2 text-red-500 hover:text-red-700 rounded p-2 transition-colors duration-200"
             >
               <FaSignOutAlt className="text-2xl ml-2" />
               <span className="mr-2">تسجيل الخروج</span>

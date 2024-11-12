@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo } from "react";
-import { useRepairRequests } from "@/app/context/RepairRequestsContext";
+import { useRepairRequests } from "@/app/context/adminData";
 import { ThemeContext } from "@/app/context/ThemeContext";
 import Cookies from "js-cookie";
 import GenericTable from "@/components/dashboard/GenericTable";

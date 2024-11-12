@@ -14,6 +14,8 @@ import toast from "react-hot-toast";
 import { ToastContainer } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { FaArrowCircleRight } from "react-icons/fa";
+import { confirmAlert } from "react-confirm-alert";
+import { AuthContext } from "@/app/context/AuthContext";
 
 interface TechnicianDetails {
   id: number;
@@ -45,6 +47,7 @@ interface User {
 
 const UserPage = () => {
   const { id } = useParams();
+  const { logout } = useContext(AuthContext);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -208,6 +211,43 @@ const UserPage = () => {
   const handleEditClick = () => {
     setShowEditModal(true);
   };
+  const handleDeleteAccount = () => {
+    confirmAlert({
+      title: "تأكيد الحذف",
+      message: "هل أنت متأكد أنك تريد حذف هذا الحساب؟",
+      buttons: [
+        {
+          label: "نعم",
+          onClick: async () => {
+            const authToken =
+              document.cookie
+                .split("; ")
+                .find((row) => row.startsWith("token="))
+                ?.split("=")[1] || "";
+
+            try {
+              await axios.delete(`${API_BASE_URL}/users/${user.id}`, {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                },
+              });
+
+              toast.success("تم حذف الحساب بنجاح!");
+              logout();
+              router.push("/");
+            } catch (error) {
+              toast.error("حدث خطأ أثناء محاولة حذف الحساب.");
+              console.error("Error deleting user account:", error);
+            }
+          },
+        },
+        {
+          label: "لا",
+          onClick: () => {},
+        },
+      ],
+    });
+  };
 
   return (
     <>
@@ -317,12 +357,22 @@ const UserPage = () => {
               </p>
             </>
           )}
-          <button
-            onClick={handleEditClick}
-            className="mt-6 bg-blue-500 inline text-white px-6 py-2 rounded-md hover:bg-blue-600"
-          >
-            تعديل المستخدم
-          </button>
+          {user.role !== "ADMIN" && (
+            <>
+              <button
+                onClick={handleEditClick}
+                className="mt-6 bg-blue-500 inline text-white px-6 py-2 rounded-md hover:bg-blue-600"
+              >
+                تعديل الملف الشخصي
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                className="mt-6 bg-red-500 inline text-white px-6 py-2 rounded-md hover:bg-red-600"
+              >
+                حذف الحساب
+              </button>
+            </>
+          )}
         </div>
 
         {showEditModal && (

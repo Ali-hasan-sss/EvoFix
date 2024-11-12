@@ -11,7 +11,7 @@ import Switch from "@mui/material/Switch";
 import { confirmAlert } from "react-confirm-alert";
 import { FiEdit, FiTrash } from "react-icons/fi";
 import { ClipLoader } from "react-spinners";
-import { useRepairRequests } from "@/app/context/RepairRequestsContext";
+import { useRepairRequests } from "@/app/context/adminData";
 
 interface DeviceModel {
   id: number;

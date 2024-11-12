@@ -41,7 +41,7 @@ const RegisterTechnicianPage = () => {
         }
       );
 
-      if (response.data.success) {
+      if (response.status === 200 || response.status === 201) {
         const { id, email, role, token } = response.data;
 
         Cookies.set("token", token, {

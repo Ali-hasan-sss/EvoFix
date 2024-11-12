@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState, useContext } from "react";
 import { toast } from "react-toastify";
 import { ThemeContext } from "@/app/context/ThemeContext";
@@ -8,13 +10,17 @@ import RepairRequestButton from "@/components/requestbutton";
 import { RepairRequest } from "@/utils/types";
 import axios from "axios";
 import { API_BASE_URL } from "@/utils/api";
+import PullToRefresh from "react-pull-to-refresh";
+import { FaSync } from "react-icons/fa";
 
 const RepairRequests: React.FC = () => {
   const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false); // حالة التحديث
   const { isDarkMode } = useContext(ThemeContext);
   const [activeTab, setActiveTab] = useState<string>("available");
 
+  // للتعامل مع السحب
   const statusMap: { [key: string]: string } = {
     PENDING: "قيد الانتظار",
     IN_PROGRESS: "جارٍ التنفيذ",
@@ -24,7 +30,16 @@ const RepairRequests: React.FC = () => {
     QUOTED: "انتظار القبول",
   };
 
-  // تعريف دالة fetchRepairRequests لجلب البيانات
+  // تعريف التبويبات
+  const tabs = [
+    { label: "جميع الطلبات", key: "available" },
+    { label: "قيد التسعير", key: "pending" },
+    { label: "قيد الاصلاح", key: "in_progress" },
+    { label: "الطلبات المنجزة", key: "completed" },
+    { label: "الطلبات المرفوضة", key: "rejected" },
+  ];
+
+  // دالة لجلب البيانات من الخادم أو من الـ localStorage إذا كانت موجودة
   const fetchRepairRequests = async () => {
     setLoading(true);
     try {
@@ -36,14 +51,18 @@ const RepairRequests: React.FC = () => {
       const response = await axios.get<RepairRequest[]>(
         `${API_BASE_URL}/maintenance-requests/all/user`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       if (Array.isArray(response.data)) {
         setRepairRequests(response.data);
+
+        // التحقق من كوننا في بيئة العميل قبل استخدام localStorage
+        if (typeof window !== "undefined") {
+          localStorage.setItem("repairRequests", JSON.stringify(response.data)); // حفظ البيانات في localStorage
+        }
+
         toast.success("تم تحديث الطلبات بنجاح.");
       } else {
         console.warn("البيانات المستلمة ليست مصفوفة.");
@@ -54,26 +73,21 @@ const RepairRequests: React.FC = () => {
       toast.error("حدث خطأ أثناء جلب البيانات.");
     } finally {
       setLoading(false);
+      setIsRefreshing(false); // إيقاف التحديث عند اكتمال التحميل
     }
   };
 
+  // تحميل البيانات من localStorage عند التحميل الأول
   useEffect(() => {
-    fetchRepairRequests(); // استدعاء دالة جلب البيانات عند التحميل الأول
+    const storedRequests = localStorage.getItem("repairRequests");
+    if (storedRequests) {
+      setRepairRequests(JSON.parse(storedRequests));
+    } else {
+      fetchRepairRequests();
+    }
   }, []);
 
-  // تحديث الطلبات عند حذف أو تعديل البيانات
-  const onRequestUpdated = async () => {
-    await fetchRepairRequests();
-  };
-
-  const tabs = [
-    { label: "جميع الطلبات", key: "available" },
-    { label: "قيد التسعير", key: "pending" },
-    { label: "قيد الاصلاح", key: "in_progress" },
-    { label: "الطلبات المنجزة", key: "completed" },
-    { label: "الطلبات المرفوضة", key: "rejected" },
-  ];
-
+  // التصفية حسب التبويب النشط
   const getFilteredRequests = (): RepairRequest[] => {
     switch (activeTab) {
       case "pending":
@@ -100,19 +114,33 @@ const RepairRequests: React.FC = () => {
 
   const filteredRequests = getFilteredRequests();
 
+  // التعامل مع السحب
+  const handleRefresh = async (): Promise<void> => {
+    setIsRefreshing(true);
+    await fetchRepairRequests();
+  };
+
   return (
-    <div className="mt-4 flex flex-col w-full " style={{ minHeight: "90vh" }}>
-      {loading ? (
-        <div className="flex justify-center items-center h-screen">
-          <ClipLoader color="#4A90E2" size={50} />
-        </div>
-      ) : (
-        <div
-          className={`w-full flex-grow p-2 rounded ${
-            isDarkMode ? "bg-gray-700" : "bg-gray-500"
-          }`}
+    <div className="flex mt-5 flex-col w-full" style={{ minHeight: "90vh" }}>
+      <div className="flex justify-between items-center mb-4">
+        <RepairRequestButton />
+        <button
+          onClick={handleRefresh}
+          className={`flex items-center w-10 h-10 px-2 py-1 rounded ${
+            isRefreshing ? "bg-gray-500" : "bg-blue-500"
+          } text-white hover:bg-blue-600 focus:outline-none`}
+          disabled={isRefreshing}
         >
-          <RepairRequestButton />
+          {isRefreshing ? (
+            <ClipLoader color="#4A90E2" size={20} />
+          ) : (
+            <FaSync className="mr-1" />
+          )}
+        </button>
+      </div>
+
+      <PullToRefresh onRefresh={handleRefresh}>
+        <div className="w-full flex-grow p-2 rounded">
           <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
           <div className="p-2 grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -125,13 +153,13 @@ const RepairRequests: React.FC = () => {
                   key={request.id}
                   request={request}
                   statusMap={statusMap}
-                  onRequestUpdated={onRequestUpdated} // تمرير الدالة للتحديث
+                  onRequestUpdated={handleRefresh}
                 />
               ))
             )}
           </div>
         </div>
-      )}
+      </PullToRefresh>
     </div>
   );
 };

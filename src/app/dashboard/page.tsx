@@ -6,19 +6,37 @@ import { AuthContext } from "@/app/context/AuthContext";
 import "../../components/dashboard/dashboard.css";
 import { ThemeContext } from "../context/ThemeContext";
 import { useRouter } from "next/navigation";
-import RepairRequests from "./RepairRequests/RepairRequests";
 import Notifications from "../../components/dashboard/notification";
 import Home from "../page";
-import Invoices from "@/components/Invoices";
-
+import { ClipLoader } from "react-spinners";
+import dynamic from "next/dynamic";
+const Invoices = dynamic(() => import("@/components/Invoices"), {
+  ssr: false, // تعطيل العرض المسبق من جانب الخادم
+});
+const RepairRequests = dynamic(
+  () => import("./RepairRequests/RepairRequests"),
+  {
+    ssr: false, // تعطيل العرض المسبق من جانب الخادم
+  }
+);
 const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");
+
   const { isDarkMode } = useContext(ThemeContext);
   const { isLoggedIn } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
+  // استخدام useEffect للتأكد من أن localStorage يتم استخدامه فقط في بيئة العميل
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedOption = localStorage.getItem("activeOption");
+      if (storedOption) {
+        setSelectedOption(storedOption);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const checkAuth = async () => {
       setTimeout(() => {
@@ -29,26 +47,19 @@ const Dashboard = () => {
     checkAuth();
   }, []);
 
-  // التحقق من حالة تسجيل الدخول بعد انتهاء التحميل
   useEffect(() => {
     if (!loading && !isLoggedIn) {
       router.push("/unauthorized");
     }
   }, [isLoggedIn, loading, router]);
 
-  // تعيين العنصر النشط من localStorage عند التحميل
+  // حفظ الخيار النشط في localStorage عند تغييره
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("activeOption", selectedOption);
+    }
+  }, [selectedOption]);
 
-  // عرض رسالة أثناء التحقق من حالة تسجيل الدخول
-  if (loading) {
-    return <div>جاري التحقق من حالة تسجيل الدخول...</div>;
-  }
-
-  // عدم عرض الداشبورد إذا لم يكن المستخدم مسجلاً للدخول
-  if (!isLoggedIn) {
-    return null;
-  }
-
-  // دالة لتحديد المحتوى الذي سيتم عرضه بناءً على الخيار المختار
   const renderContent = () => {
     switch (selectedOption) {
       case "viewHome":
@@ -60,19 +71,37 @@ const Dashboard = () => {
       case "notifications":
         return <Notifications />;
       case "profile":
-        const userId = localStorage.getItem("userId");
-        if (userId) {
+        const userId =
+          typeof localStorage !== "undefined"
+            ? localStorage.getItem("userId")
+            : null;
+
+        if (userId && userId.trim() !== "") {
+          // إذا كان هناك userId صالح، يتم التوجيه إلى صفحة المستخدم
           router.push(`/users/${userId}`);
-          return null; // عدم عرض محتوى البروفايل لأنه يتم التوجيه
+          return null;
         } else {
+          // في حال لم يكن هناك userId صالح
           return <div>لم يتم العثور على معرف المستخدم</div>;
         }
+
       default:
         return null;
     }
   };
 
-  // عرض لوحة التحكم إذا كان المستخدم مسجلاً للدخول
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen min-w-screen">
+        <ClipLoader color="#4A90E2" size={50} />
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return null;
+  }
+
   return (
     <>
       <Navbar />
@@ -81,7 +110,6 @@ const Dashboard = () => {
           isDarkMode ? "bg-gray-900 text-white" : "bg-gray-300 text-black"
         }`}
       >
-        {/* Sidebar */}
         <div
           className="sidebar mt-20 custom-sidebar-scroll"
           style={{
@@ -93,7 +121,6 @@ const Dashboard = () => {
           <Sidebar onSelectOption={setSelectedOption} />
         </div>
 
-        {/* Main content */}
         <div
           className={`flex-grow p-6 mt-16 w-full md:w-4/5 pb-20 md:pb-0 custom-main-scroll`}
           style={{ overflowY: "auto", maxHeight: "calc(100vh - 4rem)" }}

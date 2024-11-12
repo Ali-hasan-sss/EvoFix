@@ -206,3 +206,23 @@ export interface Review {
     phoneNO: string;
   };
 }
+export interface Invoice {
+  amount: number;
+  issueDate: string;
+  dueDate: string;
+  isPaid: boolean;
+  paidAt?: string | null;
+  user: {
+    fullName: string;
+  };
+  request: {
+    deviceType: string;
+    deviceModel: string;
+    problemDescription: string;
+    isPaidCheckFee: boolean;
+    governorate: string;
+    Epaid: {
+      CheckFee: number;
+    }[];
+  };
+}
