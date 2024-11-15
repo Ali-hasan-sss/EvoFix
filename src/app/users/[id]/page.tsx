@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { FaArrowCircleRight } from "react-icons/fa";
 import { confirmAlert } from "react-confirm-alert";
 import { AuthContext } from "@/app/context/AuthContext";
+import PasswordResetForm from "@/components/forms/PasswordResetForm";
 
 interface TechnicianDetails {
   id: number;
@@ -52,11 +53,13 @@ const UserPage = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [editPassword, setEditPassword] = useState(false);
   const { isDarkMode } = useContext(ThemeContext);
   const isNew = false;
   const router = useRouter();
   const [formData, setFormData] = useState<CombinedUserFormInput | null>(null);
-
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   useEffect(() => {
     if (id) {
       const authToken =
@@ -160,6 +163,42 @@ const UserPage = () => {
       }
     }
   };
+  //تعديل كلمة المرور
+  const handleEditPassword = async (newPassword: string) => {
+    setEditing(true);
+    const authToken =
+      document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("token="))
+        ?.split("=")[1] || "";
+
+    if (user) {
+      try {
+        const dataToSend = {
+          password: newPassword, // إرسال كلمة المرور الجديدة
+        };
+
+        await axios.put(`${API_BASE_URL}/users/${user.id}`, dataToSend, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        toast.success("تم تحديث كلمة المرور بنجاح!");
+        setShowEditModal(false);
+        setEditPassword(false);
+
+        // يمكن إضافة تحديث للحالة أو إجراء آخر بعد تحديث كلمة المرور إذا لزم الأمر
+      } catch (error) {
+        toast.error("حدث خطأ أثناء تحديث كلمة المرور.");
+        console.error("Error updating password:", error);
+      } finally {
+        setEditing(false);
+        setLoading(false);
+      }
+    }
+  };
 
   //************* */
   const toggleActiveStatus = async () => {
@@ -210,6 +249,9 @@ const UserPage = () => {
 
   const handleEditClick = () => {
     setShowEditModal(true);
+  };
+  const handleEditPass = () => {
+    setEditPassword(true);
   };
   const handleDeleteAccount = () => {
     confirmAlert({
@@ -359,12 +401,20 @@ const UserPage = () => {
           )}
           {user.role !== "ADMIN" && (
             <>
-              <button
-                onClick={handleEditClick}
-                className="mt-6 bg-blue-500 inline text-white px-6 py-2 rounded-md hover:bg-blue-600"
-              >
-                تعديل الملف الشخصي
-              </button>
+              <div>
+                <button
+                  onClick={handleEditClick}
+                  className="mt-6 bg-blue-500 inline text-white px-6 py-2 rounded-md hover:bg-blue-600"
+                >
+                  تعديل الملف الشخصي
+                </button>
+                <button
+                  onClick={handleEditPass}
+                  className="mt-6 mr-5 bg-blue-500 inline text-white px-6 py-2 rounded-md hover:bg-blue-600"
+                >
+                  تعديل كلمة المرور
+                </button>
+              </div>
               <button
                 onClick={handleDeleteAccount}
                 className="mt-6 bg-red-500 inline text-white px-6 py-2 rounded-md hover:bg-red-600"
@@ -377,7 +427,13 @@ const UserPage = () => {
 
         {showEditModal && (
           <Modal open={showEditModal} onClose={() => setShowEditModal(false)}>
-            <div className="p-4 bg-gray-800 rounded-md shadow-md w-1/2 mx-auto my-20 max-w-md">
+            <div className=" p-4 bg-gray-800 rounded-md shadow-md w-1/2 mx-auto my-20 max-w-md">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="absolute top-50 left-50 text-white bg-gray-800 rounded-full p-2 hover:bg-gray-600"
+              >
+                <span className="text-xl font-bold">×</span>
+              </button>
               {formData && (
                 <UserForm
                   initialData={formData}
@@ -389,6 +445,30 @@ const UserPage = () => {
                   submitButtonLabel={isNew ? "إضافة" : "تعديل"}
                 />
               )}
+            </div>
+          </Modal>
+        )}
+        {editPassword && (
+          <Modal open={editPassword} onClose={() => setEditPassword(false)}>
+            <div className="relative flex items-center justify-center min-h-screen">
+              <div>
+                <button
+                  onClick={() => setEditPassword(false)}
+                  className="absolute top-50 left-50 text-white bg-gray-800 rounded-full p-2 hover:bg-gray-600"
+                >
+                  <span className="text-xl font-bold">×</span>
+                </button>
+
+                <PasswordResetForm
+                  onSubmit={handleEditPassword}
+                  password={password}
+                  confirmPassword={confirmPassword}
+                  setPassword={setPassword}
+                  setConfirmPassword={setConfirmPassword}
+                  darkMode={isDarkMode}
+                  loading={loading}
+                />
+              </div>
             </div>
           </Modal>
         )}
