@@ -13,7 +13,7 @@ import { CombinedUserFormInput } from "@/utils/types";
 import toast from "react-hot-toast";
 import { ToastContainer } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { FaArrowCircleRight } from "react-icons/fa";
+import { FaArrowCircleRight, FaKey, FaTrash, FaUserEdit } from "react-icons/fa";
 import { confirmAlert } from "react-confirm-alert";
 import { AuthContext } from "@/app/context/AuthContext";
 import PasswordResetForm from "@/components/forms/PasswordResetForm";
@@ -60,6 +60,7 @@ const UserPage = () => {
   const [formData, setFormData] = useState<CombinedUserFormInput | null>(null);
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const userRole = localStorage.getItem("userRole");
   useEffect(() => {
     if (id) {
       const authToken =
@@ -345,15 +346,17 @@ const UserPage = () => {
               <span className="absolute top-4 left-5 bg-red-500 rounded-full w-3 h-3"></span>
             )}
 
-            <Switch
-              checked={user.isActive}
-              onChange={toggleActiveStatus}
-              onColor="#4A90E2"
-              offColor="#FF6347"
-              height={20}
-              width={40}
-              className="mr-2"
-            />
+            {userRole === "ADMIN" && (
+              <Switch
+                checked={user.isActive}
+                onChange={toggleActiveStatus}
+                onColor="#4A90E2"
+                offColor="#FF6347"
+                height={20}
+                width={40}
+                className="mr-2"
+              />
+            )}
 
             {/* إضافة السبينر بجانب السويتش في حالة التحميل */}
             <div className="absolute top-4 right-20 mr-10 h-5 w-5">
@@ -399,38 +402,45 @@ const UserPage = () => {
               </p>
             </>
           )}
-          {user.role !== "ADMIN" && (
-            <>
-              <div>
-                <button
-                  onClick={handleEditClick}
-                  className="mt-6 bg-blue-500 inline text-white px-6 py-2 rounded-md hover:bg-blue-600"
-                >
-                  تعديل الملف الشخصي
-                </button>
-                <button
-                  onClick={handleEditPass}
-                  className="mt-6 mr-5 bg-blue-500 inline text-white px-6 py-2 rounded-md hover:bg-blue-600"
-                >
-                  تعديل كلمة المرور
-                </button>
-              </div>
+
+          <>
+            <div className="shadow-lg rounded-lg p-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-6">
+              <button
+                onClick={handleEditClick}
+                className="flex items-center gap-2 bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition"
+              >
+                <FaUserEdit />
+                تعديل الملف الشخصي
+              </button>
+
+              <button
+                onClick={handleEditPass}
+                className="flex items-center gap-2 bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition"
+              >
+                <FaKey />
+                تعديل كلمة المرور
+              </button>
+
               <button
                 onClick={handleDeleteAccount}
-                className="mt-6 bg-red-500 inline text-white px-6 py-2 rounded-md hover:bg-red-600"
+                className="flex items-center gap-2 bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition"
               >
+                <FaTrash />
                 حذف الحساب
               </button>
-            </>
-          )}
+            </div>
+          </>
         </div>
 
         {showEditModal && (
           <Modal open={showEditModal} onClose={() => setShowEditModal(false)}>
-            <div className=" p-4 bg-gray-800 rounded-md shadow-md w-1/2 mx-auto my-20 max-w-md">
+            <div
+              className="p-4 bg-gray-800 rounded-md shadow-md mx-auto my-20 
+                      max-w-md sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full"
+            >
               <button
                 onClick={() => setShowEditModal(false)}
-                className="absolute top-50 left-50 text-white bg-gray-800 rounded-full p-2 hover:bg-gray-600"
+                className="absolute top-2 left-2 text-white bg-gray-800 rounded-full p-2 hover:bg-gray-600"
               >
                 <span className="text-xl font-bold">×</span>
               </button>
@@ -466,7 +476,7 @@ const UserPage = () => {
                   setPassword={setPassword}
                   setConfirmPassword={setConfirmPassword}
                   darkMode={isDarkMode}
-                  loading={loading}
+                  loading={editing}
                 />
               </div>
             </div>

@@ -11,30 +11,32 @@ import Notifications from "../../components/dashboard/notification";
 import Home from "../page";
 import { ClipLoader } from "react-spinners";
 import dynamic from "next/dynamic";
+
 const Invoices = dynamic(() => import("@/components/Invoices"), {
-  ssr: false, // تعطيل العرض المسبق من جانب الخادم
+  ssr: false,
 });
 const RepairRequests = dynamic(
   () => import("./RepairRequests/RepairRequests"),
   {
-    ssr: false, // تعطيل العرض المسبق من جانب الخادم
+    ssr: false,
   }
 );
 
 const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");
+  const [isVerified, setIsVerified] = useState(true);
 
   const { isDarkMode } = useContext(ThemeContext);
   const { isLoggedIn } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // استخدام useEffect للتأكد من أن localStorage يتم استخدامه فقط في بيئة العميل
   useEffect(() => {
+    // جلب القيمة من localStorage
     if (typeof window !== "undefined") {
-      const storedOption = localStorage.getItem("activeOption");
-      if (storedOption && storedOption !== "profile") {
-        setSelectedOption(storedOption);
+      const verified = localStorage.getItem("isVerified");
+      if (verified === "false") {
+        setIsVerified(false);
       }
     }
   }, []);
@@ -55,7 +57,6 @@ const Dashboard = () => {
     }
   }, [isLoggedIn, loading, router]);
 
-  // حفظ الخيار النشط في localStorage عند تغييره
   useEffect(() => {
     if (typeof window !== "undefined" && selectedOption !== "profile") {
       localStorage.setItem("activeOption", selectedOption);
@@ -79,11 +80,9 @@ const Dashboard = () => {
             : null;
 
         if (userId && userId.trim() !== "") {
-          // إذا كان هناك userId صالح، يتم التوجيه إلى صفحة المستخدم
           router.push(`/users/${userId}`);
           return null;
         } else {
-          // في حال لم يكن هناك userId صالح
           return <div>لم يتم العثور على معرف المستخدم</div>;
         }
 
@@ -107,6 +106,16 @@ const Dashboard = () => {
   return (
     <>
       <Navbar />
+      {/* نافذة تغطي الشاشة بالكامل */}
+      {!isVerified && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+          <div className="bg-white text-black p-6 rounded-lg shadow-lg text-center w-11/12 md:w-1/2">
+            <h2 className="text-xl font-bold mb-4">حسابك غير مفعل</h2>
+            <p>يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب.</p>
+          </div>
+        </div>
+      )}
+
       <div
         className={`flex flex-row ${
           isDarkMode ? "bg-gray-900 text-white" : "bg-gray-300 text-black"

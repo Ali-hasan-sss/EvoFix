@@ -7,7 +7,7 @@ import { ThemeContext } from "@/app/context/ThemeContext";
 import { usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import "./assets/navbar.css";
-import { FaList } from "react-icons/fa";
+import { FaList, FaRegUser, FaUser } from "react-icons/fa";
 import Image from "next/image";
 import EVOFIX from "./assets/images/EVOFIX.png";
 
@@ -123,7 +123,10 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
             {isLoggedIn ? (
               <FaList className="text-2xl" />
             ) : (
-              <span className="text-bold btn">التسجيل</span>
+              <span className="flex items-center gap-2 text-bold btn">
+                <FaRegUser className="text-xl" />
+                <span>التسجيل</span>
+              </span>
             )}
           </button>
         </div>

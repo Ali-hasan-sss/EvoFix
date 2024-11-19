@@ -50,9 +50,13 @@ const Footer = () => {
           >
             <FaTwitter />
           </a>
-          <a href="evolutionfix8@gmail.com" className="hover:text-red-500">
+          <a
+            href="mailto:evolutionfix8@gmail.com"
+            className="hover:text-red-500"
+          >
             <FaEnvelope />
           </a>
+
           <a
             href="https://api.whatsapp.com/send/?phone=+963960950112"
             className="hover:text-green-500"

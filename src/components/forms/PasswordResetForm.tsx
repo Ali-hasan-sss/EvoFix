@@ -1,3 +1,4 @@
+import { CircularProgress } from "@mui/material";
 import React, { useState } from "react";
 
 interface Errors {
@@ -12,7 +13,7 @@ interface PasswordResetFormProps {
   setPassword: React.Dispatch<React.SetStateAction<string>>;
   setConfirmPassword: React.Dispatch<React.SetStateAction<string>>;
   darkMode: boolean;
-  loading: boolean; // استقبال حالة اللودينغ
+  loading: boolean;
 }
 
 const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
@@ -121,15 +122,17 @@ const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
 
       <button
         type="submit"
-        className={`w-full py-2 px-4 rounded hover:bg-blue-600 ${
-          darkMode ? "bg-blue-600 text-white" : "bg-blue-500 text-white"
+        className={`w-full py-2 px-4 rounded flex justify-center items-center ${
+          loading
+            ? "bg-gray-400 cursor-not-allowed"
+            : darkMode
+            ? "bg-blue-600 text-white hover:bg-blue-700"
+            : "bg-blue-500 text-white hover:bg-blue-600"
         }`}
         disabled={loading} // تعطيل الزر إذا كان اللودينغ مفعل
       >
         {loading ? (
-          <div className="flex justify-center">
-            <div className="w-5 h-5 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin"></div>
-          </div>
+          <CircularProgress size={16} className="inline ml-2" />
         ) : (
           "تحديث كلمة المرور"
         )}

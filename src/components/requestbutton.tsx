@@ -150,8 +150,24 @@ const RepairRequestButton: React.FC = () => {
         console.log("فشل في إرسال الطلب");
       }
     } catch (error) {
-      console.error("حدث خطأ:", error);
-      toast.error("حدث خطأ أثناء إرسال الطلب");
+      // تحقق مما إذا كان الخطأ يحتوي على استجابة من الخادم
+      if (axios.isAxiosError(error) && error.response) {
+        const { message, suggestions } = error.response.data;
+
+        // عرض الرسالة الأساسية من الخادم
+        toast.error(message || "حدث خطأ أثناء إرسال الطلب");
+
+        // إذا كانت هناك اقتراحات، عرضها واحدة تلو الأخرى
+        if (suggestions && Array.isArray(suggestions)) {
+          suggestions.forEach((suggestion) =>
+            toast.error(`اقتراح: ${suggestion}`)
+          );
+        }
+      } else {
+        // في حال كان الخطأ عام وغير متصل بالخادم
+        console.error("حدث خطأ:", error);
+        toast.error("حدث خطأ أثناء إرسال الطلب");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -217,6 +233,7 @@ const RepairRequestButton: React.FC = () => {
                   <option value="">اختر المحافظة</option>
                   <option value="دمشق">دمشق</option>
                   <option value="ريف دمشق">ريف دمشق</option>
+                  <option value="ريف دمشق">درعا</option>
                   <option value="حمص">حمص</option>
                   <option value="حماه">حماه</option>
                   <option value="طرطوس">طرطوس</option>
@@ -309,7 +326,7 @@ const RepairRequestButton: React.FC = () => {
                   className="w-full p-2 border-b focus:outline-none"
                 />
                 {imagePreview && (
-                  <div className="mt-2">
+                  <div className="mt-2 flex items-center">
                     <Image
                       src={imagePreview}
                       alt="معاينة الصورة"
@@ -320,7 +337,7 @@ const RepairRequestButton: React.FC = () => {
                     <button
                       type="button"
                       onClick={removeImage}
-                      className="text-red-500 mt-2"
+                      className="text-red-500 ml-2"
                     >
                       إزالة الصورة
                     </button>
