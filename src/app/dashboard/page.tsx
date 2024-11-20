@@ -11,6 +11,10 @@ import Notifications from "../../components/dashboard/notification";
 import Home from "../page";
 import { ClipLoader } from "react-spinners";
 import dynamic from "next/dynamic";
+import { ToastContainer } from "react-toastify";
+import toast, { Toaster } from "react-hot-toast";
+import axios from "axios";
+import { API_BASE_URL } from "@/utils/api";
 
 const Invoices = dynamic(() => import("@/components/Invoices"), {
   ssr: false,
@@ -25,21 +29,26 @@ const RepairRequests = dynamic(
 const Dashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");
   const [isVerified, setIsVerified] = useState(true);
-
+  const [isLoading, setIsLoading] = useState(false);
   const { isDarkMode } = useContext(ThemeContext);
   const { isLoggedIn } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // تحديث حالة isVerified عند تحميل المكون
   useEffect(() => {
-    // جلب القيمة من localStorage
     if (typeof window !== "undefined") {
       const verified = localStorage.getItem("isVerified");
-      if (verified === "false") {
-        setIsVerified(false);
-      }
+      setIsVerified(verified === "true");
     }
   }, []);
+
+  // التحقق المستمر عند تغيير حالة isVerified
+  useEffect(() => {
+    if (!isVerified) {
+      console.warn("الحساب غير مفعل");
+    }
+  }, [isVerified]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -62,7 +71,36 @@ const Dashboard = () => {
       localStorage.setItem("activeOption", selectedOption);
     }
   }, [selectedOption]);
+  const handleResendEmail = async () => {
+    setIsLoading(true);
+    try {
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("token="))
+        ?.split("=")[1];
 
+      if (!token) {
+        throw new Error("لم يتم العثور على رمز المصادقة.");
+      }
+
+      await axios.post(
+        `${API_BASE_URL}/users/resend-verify-email`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success("تم إرسال بريد التحقق بنجاح.");
+    } catch (error) {
+      console.error("حدث خطأ أثناء إعادة إرسال بريد التحقق:", error);
+      toast.error("حدث خطأ أثناء إعادة إرسال البريد. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const renderContent = () => {
     switch (selectedOption) {
       case "viewHome":
@@ -105,13 +143,38 @@ const Dashboard = () => {
 
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      <Toaster />
       <Navbar />
       {/* نافذة تغطي الشاشة بالكامل */}
       {!isVerified && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-          <div className="bg-white text-black p-6 rounded-lg shadow-lg text-center w-11/12 md:w-1/2">
-            <h2 className="text-xl font-bold mb-4">حسابك غير مفعل</h2>
-            <p>يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب.</p>
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-70 z-50">
+          <div
+            className="bg-red-400 text-white px-8 py-6 rounded-lg shadow-lg text-center"
+            style={{ maxWidth: "90%" }}
+          >
+            <p>
+              حسابك غير مفعل. يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب.
+            </p>
+            <button
+              onClick={handleResendEmail}
+              className={`mt-4 px-4 py-2 rounded-lg ${
+                isLoading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
+              }`}
+              disabled={isLoading}
+            >
+              {isLoading ? "جاري الإرسال..." : "إعادة إرسال بريد التحقق"}
+            </button>
           </div>
         </div>
       )}

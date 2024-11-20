@@ -8,6 +8,7 @@ import Modal from "react-modal";
 import axios from "axios";
 import { API_BASE_URL } from "@/utils/api";
 import { toast } from "react-toastify";
+import { confirmAlert } from "react-confirm-alert";
 
 interface RepairRequestCardProps {
   request: RepairRequest;
@@ -123,34 +124,51 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
   };
 
   const handleDeleteRequest = async () => {
-    setIsDeleting(true);
-    try {
-      const token = document.cookie.replace(
-        /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
-        "$1"
-      );
-
-      const response = await axios.delete(
-        `${API_BASE_URL}/maintenance-requests/${request.id}`,
+    confirmAlert({
+      title: "تأكيد الحذف",
+      message: "هل أنت متأكد أنك تريد حذف هذا الطلب؟",
+      buttons: [
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+          label: "نعم",
+          onClick: async () => {
+            setIsDeleting(true);
+            try {
+              const token = document.cookie.replace(
+                /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
+                "$1"
+              );
 
-      if (response.status === 200) {
-        toast.success("تم حذف الطلب بنجاح");
-        onRequestUpdated();
-      } else {
-        toast.error("فشل في حذف الطلب");
-      }
-    } catch (error) {
-      toast.error("خطأ في حذف الطلب");
-      console.error("خطأ في حذف الطلب", error);
-    } finally {
-      setIsDeleting(false);
-    }
+              const response = await axios.delete(
+                `${API_BASE_URL}/maintenance-requests/${request.id}`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+
+              if (response.status === 200) {
+                toast.success("تم حذف الطلب بنجاح");
+                onRequestUpdated();
+              } else {
+                toast.error("فشل في حذف الطلب");
+              }
+            } catch (error) {
+              toast.error("خطأ في حذف الطلب");
+              console.error("خطأ في حذف الطلب", error);
+            } finally {
+              setIsDeleting(false);
+            }
+          },
+        },
+        {
+          label: "لا",
+          onClick: () => {
+            toast.info("تم إلغاء الحذف");
+          },
+        },
+      ],
+    });
   };
 
   return (

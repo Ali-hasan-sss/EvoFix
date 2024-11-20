@@ -32,6 +32,7 @@ const Reviews = () => {
     slidesToScroll: 1,
     adaptiveHeight: true,
   };
+
   // جلب التقييمات من API
   const fetchReviews = async () => {
     try {
@@ -51,6 +52,13 @@ const Reviews = () => {
 
   const handleSubmitReview = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // التحقق من تسجيل الدخول
+    const userEmail = localStorage.getItem("email");
+    if (!userEmail) {
+      toast.error("يجب تسجيل الدخول لإضافة تقييم.");
+      return;
+    }
 
     if (!rating || !comment) {
       toast.error("يرجى تعبئة كل من التقييم والتعليق.");
@@ -72,7 +80,9 @@ const Reviews = () => {
         }
       );
       toast.success("تم إضافة التقييم بنجاح!");
+      // إعادة تعيين الحقول
       setRating(0);
+      setHover(0);
       setComment("");
       fetchReviews();
     } catch (error) {
@@ -164,13 +174,14 @@ const Reviews = () => {
           />
           <button
             type="submit"
-            className="absolute left-2 top-5 text-blue-500 hover:text-blue-700"
+            className="absolute left-2 top-5 text-blue-500 hover:text-blue-700 flex items-center"
             disabled={isLoading}
           >
             {isLoading ? (
-              <span className="animate-spin">
-                <FaPaperPlane size={30} />
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="animate-spin rounded-full border-2 border-t-blue-500 border-blue-300 h-5 w-5"></span>
+                <span>جاري الإرسال...</span>
+              </div>
             ) : (
               <FaPaperPlane size={30} />
             )}

@@ -45,17 +45,6 @@ export default function RootLayout({
           pauseOnHover
         />
         <AuthProvider>
-          <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
           <DataCountsProvider>
             <ThemeProvider>{children}</ThemeProvider>
           </DataCountsProvider>

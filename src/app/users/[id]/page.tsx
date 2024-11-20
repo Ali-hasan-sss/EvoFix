@@ -295,8 +295,17 @@ const UserPage = () => {
   return (
     <>
       <Navbar />
-      <ToastContainer />
-
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <div
         className={`pt-20 mt-10 w-full p-6 bg-gray-100 shadow-lg rounded-lg md:flex md:flex-col  text-right ${
           isDarkMode ? "bg-gray-900 text-white" : "bg-gray-200 text-black"
@@ -346,17 +355,18 @@ const UserPage = () => {
               <span className="absolute top-4 left-5 bg-red-500 rounded-full w-3 h-3"></span>
             )}
 
-            {userRole === "ADMIN" && (
-              <Switch
-                checked={user.isActive}
-                onChange={toggleActiveStatus}
-                onColor="#4A90E2"
-                offColor="#FF6347"
-                height={20}
-                width={40}
-                className="mr-2"
-              />
-            )}
+            {userRole === "ADMIN" ||
+              (userRole === "SUBADMIN" && (
+                <Switch
+                  checked={user.isActive}
+                  onChange={toggleActiveStatus}
+                  onColor="#4A90E2"
+                  offColor="#FF6347"
+                  height={20}
+                  width={40}
+                  className="mr-2"
+                />
+              ))}
 
             {/* إضافة السبينر بجانب السويتش في حالة التحميل */}
             <div className="absolute top-4 right-20 mr-10 h-5 w-5">

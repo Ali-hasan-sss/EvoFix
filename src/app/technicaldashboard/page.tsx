@@ -10,6 +10,10 @@ import { useRouter } from "next/navigation";
 import Notifications from "../../components/dashboard/notification";
 import { ClipLoader } from "react-spinners";
 import dynamic from "next/dynamic";
+import { ToastContainer } from "react-toastify";
+import toast, { Toaster } from "react-hot-toast";
+import axios from "axios";
+import { API_BASE_URL } from "@/utils/api";
 
 const RepairRequests = dynamic(
   () => import("./RepairRequests/RepairRequests"),
@@ -21,7 +25,7 @@ const RepairRequests = dynamic(
 const TechnicianDashboard = () => {
   const [selectedOption, setSelectedOption] = useState("viewRequests");
   const [isVerified, setIsVerified] = useState(true);
-
+  const [isLoading, setIsLoading] = useState(false);
   const { isDarkMode } = useContext(ThemeContext);
   const { isLoggedIn } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
@@ -64,7 +68,36 @@ const TechnicianDashboard = () => {
 
     checkAuth();
   }, []);
+  const handleResendEmail = async () => {
+    setIsLoading(true);
+    try {
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("token="))
+        ?.split("=")[1];
 
+      if (!token) {
+        throw new Error("لم يتم العثور على رمز المصادقة.");
+      }
+
+      await axios.post(
+        `${API_BASE_URL}/users/resend-verify-email`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success("تم إرسال بريد التحقق بنجاح.");
+    } catch (error) {
+      console.error("حدث خطأ أثناء إعادة إرسال بريد التحقق:", error);
+      toast.error("حدث خطأ أثناء إعادة إرسال البريد. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   useEffect(() => {
     if (!loading && !isLoggedIn) {
       router.push("/unauthorized");
@@ -97,14 +130,37 @@ const TechnicianDashboard = () => {
   return (
     <>
       <Navbar />
+      <Toaster />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       {/* رسالة التحذير */}
       {!isVerified && (
         <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-70 z-50">
           <div
-            className="bg-red-500 text-white px-8 py-6 rounded-lg shadow-lg text-center"
+            className="bg-red-400 text-white px-8 py-6 rounded-lg shadow-lg text-center"
             style={{ maxWidth: "90%" }}
           >
-            حسابك غير مفعل. يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب.
+            <p>
+              حسابك غير مفعل. يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب.
+            </p>
+            <button
+              onClick={handleResendEmail}
+              className={`mt-4 px-4 py-2 rounded-lg ${
+                isLoading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
+              }`}
+              disabled={isLoading}
+            >
+              {isLoading ? "جاري الإرسال..." : "إعادة إرسال بريد التحقق"}
+            </button>
           </div>
         </div>
       )}

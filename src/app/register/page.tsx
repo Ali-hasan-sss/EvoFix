@@ -40,6 +40,7 @@ const RegisterPage = () => {
         const userId = response.data.id;
         const email = response.data.email;
         const userRole = response.data.role;
+        const isVerified = response.data.isVerified;
         const token = response.data.token;
 
         // حفظ التوكن في الكوكيز
@@ -51,7 +52,8 @@ const RegisterPage = () => {
         // حفظ المعرف والبريد الإلكتروني في localStorage
         localStorage.setItem("userId", userId.toString());
         localStorage.setItem("email", email);
-        localStorage.setItem("userRole", userRole); //من اجل توجيه المستخدم الى الداشبورد المناسبه له
+        localStorage.setItem("userRole", userRole);
+        localStorage.setItem("isVerified", isVerified);
 
         toast.success("تم إنشاء الحساب بنجاح!");
         toast.success(
