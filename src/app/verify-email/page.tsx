@@ -30,6 +30,11 @@ const VerifyEmail: React.FC = () => {
         verifyToken: token,
         id: parseInt(id, 10),
       });
+
+      // تحديث localStorage بعد نجاح التحقق
+      localStorage.setItem("isVerified", "true");
+
+      // إعادة التوجيه إلى الصفحة الرئيسية أو أي صفحة أخرى
       router.push("/");
     } catch (error) {
       console.error("Verification failed:", error);
