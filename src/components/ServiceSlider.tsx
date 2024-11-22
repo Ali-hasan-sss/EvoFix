@@ -38,7 +38,9 @@ const ServiceSlider: React.FC = () => {
   };
 
   if (loading) return <div>جارٍ تحميل الخدمات...</div>;
-
+  if (!services || services.length === 0) {
+    return <p className="text-center text-gray-500">لا توجد خدمات متاحة.</p>;
+  }
   return (
     <div className="w-full sm:w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/3 mx-auto my-4">
       <Slider {...settings}>
