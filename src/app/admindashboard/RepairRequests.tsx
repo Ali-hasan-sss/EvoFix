@@ -23,8 +23,12 @@ const statusMap: { [key: string]: string } = {
 };
 
 const RepairRequestsPage: React.FC = () => {
-  const { repairRequests, fetchRepairRequests, isLoading } =
-    useRepairRequests();
+  const {
+    repairRequests = [],
+    fetchRepairRequests,
+    isLoading,
+  } = useRepairRequests();
+
   const [isDeleting, setIsDeleting] = React.useState(false);
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
   const { isDarkMode } = useContext(ThemeContext);
@@ -130,15 +134,16 @@ const RepairRequestsPage: React.FC = () => {
         </div>
       ) : isMobile ? (
         <div>
-          {repairRequests.map((request) => (
-            <RepairRequestCard
-              onRequestUpdated={handleRequestUpdated}
-              userRole={"ADMIN"}
-              key={request.id}
-              request={request}
-              statusMap={statusMap}
-            />
-          ))}
+          {Array.isArray(repairRequests) &&
+            repairRequests.map((request) => (
+              <RepairRequestCard
+                onRequestUpdated={handleRequestUpdated}
+                userRole={"ADMIN"}
+                key={request.id}
+                request={request}
+                statusMap={statusMap}
+              />
+            ))}
         </div>
       ) : (
         <GenericTable<RepairRequest> data={repairRequests} columns={columns} />
