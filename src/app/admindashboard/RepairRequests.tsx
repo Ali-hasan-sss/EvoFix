@@ -31,7 +31,7 @@ const RepairRequestsPage: React.FC = () => {
 
   useEffect(() => {
     fetchRepairRequests();
-  }, [fetchRepairRequests]);
+  }, []);
 
   const handleDelete = React.useCallback(
     async (id: number) => {
@@ -119,9 +119,14 @@ const RepairRequestsPage: React.FC = () => {
     >
       <h1 className="text-2xl font-bold mb-6">طلبات الإصلاح</h1>
 
-      {repairRequests.length === 0 ? (
+      {/* Check if repairRequests is loading or empty */}
+      {isLoading ? (
         <div className="flex justify-center items-center h-96">
           <ClipLoader color="#4A90E2" size={50} />
+        </div>
+      ) : !repairRequests || repairRequests.length === 0 ? (
+        <div className="text-center text-gray-500">
+          لا توجد طلبات إصلاح حالياً.
         </div>
       ) : isMobile ? (
         <div>

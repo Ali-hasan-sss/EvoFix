@@ -35,16 +35,22 @@ const GenericTable = <T extends Record<string, unknown>>({
   } | null>(null);
 
   useEffect(() => {
+    if (!Array.isArray(data)) {
+      console.error("Expected 'data' to be an array but received:", data);
+      setSortedData([]);
+      return;
+    }
+
     const filteredData = data.filter((item) =>
       columns.some((column) =>
         "accessor" in column && typeof column.accessor === "string"
-          ? (item[column.accessor] as string)
-              ?.toString()
-              .toLowerCase()
-              .includes(searchValue.toLowerCase())
+          ? (item[column.accessor]?.toString()?.toLowerCase() || "").includes(
+              searchValue.toLowerCase()
+            )
           : false
       )
     );
+
     setSortedData(filteredData);
   }, [data, searchValue, columns]);
 
