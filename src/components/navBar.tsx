@@ -7,7 +7,7 @@ import { ThemeContext } from "@/app/context/ThemeContext";
 import { usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import "./assets/navbar.css";
-import { FaList, FaRegUser, FaUser } from "react-icons/fa";
+import { FaList, FaRegUser, FaSignOutAlt, FaUser } from "react-icons/fa";
 import Image from "next/image";
 import EVOFIX from "./assets/images/EVOFIX.png";
 
@@ -99,7 +99,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
     <div>
       {/* Navbar for larger screens */}
       <nav
-        className={`p-4 fixed w-full z-10 top-0 shadow-lg md:flex md:justify-between items-center border-b border-yellow-500 ${
+        className={`p-4 fixed w-full z-50 top-0 shadow-lg md:flex md:justify-between items-center border-b border-yellow-500 ${
           isDarkMode ? "bg-gray-900 text-white" : "bg-gray-700 text-black"
         }`}
       >
@@ -165,39 +165,48 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
             </Link>
           </li>
           {isLoggedIn ? (
-            <li>
-              {userRole === "ADMIN" || userRole === "SUBADMIN" ? (
-                <Link
-                  href="/admindashboard"
-                  className={`hover:text-gray-300 ${
-                    activeItem === "dashboard" ? "text-yellow-400" : ""
-                  }`}
-                  onClick={() => handleItemClick("dashboard")}
-                >
-                  لوحة التحكم
-                </Link>
-              ) : userRole === "USER" ? (
-                <Link
-                  href="/dashboard"
-                  className={`hover:text-gray-300 ${
-                    activeItem === "dashboard" ? "text-yellow-400" : ""
-                  }`}
-                  onClick={() => handleItemClick("dashboard")}
-                >
-                  لوحة التحكم
-                </Link>
-              ) : userRole === "TECHNICAL" ? (
-                <Link
-                  href="/dashboard"
-                  className={`hover:text-gray-300 ${
-                    activeItem === "dashboard" ? "text-yellow-400" : ""
-                  }`}
-                  onClick={() => handleItemClick("technicaldashboard")}
-                >
-                  لوحة التحكم
-                </Link>
-              ) : null}
-            </li>
+            <>
+              <li>
+                {userRole === "ADMIN" || userRole === "SUBADMIN" ? (
+                  <Link
+                    href="/admindashboard"
+                    className={`hover:text-gray-300 ${
+                      activeItem === "dashboard" ? "text-yellow-400" : ""
+                    }`}
+                    onClick={() => handleItemClick("dashboard")}
+                  >
+                    لوحة التحكم
+                  </Link>
+                ) : userRole === "USER" ? (
+                  <Link
+                    href="/dashboard"
+                    className={`hover:text-gray-300 ${
+                      activeItem === "dashboard" ? "text-yellow-400" : ""
+                    }`}
+                    onClick={() => handleItemClick("dashboard")}
+                  >
+                    لوحة التحكم
+                  </Link>
+                ) : userRole === "TECHNICAL" ? (
+                  <Link
+                    href="/dashboard"
+                    className={`hover:text-gray-300 ${
+                      activeItem === "dashboard" ? "text-yellow-400" : ""
+                    }`}
+                    onClick={() => handleItemClick("technicaldashboard")}
+                  >
+                    لوحة التحكم
+                  </Link>
+                ) : null}
+              </li>
+
+              <button
+                onClick={handleLogout}
+                className="  text-red-500 hover:text-red-700 rounded p-2 transition-colors duration-200"
+              >
+                <FaSignOutAlt className="text-2xl ml-2" />
+              </button>
+            </>
           ) : (
             <>
               <li>

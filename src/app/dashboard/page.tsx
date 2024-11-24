@@ -89,6 +89,7 @@ const Dashboard = () => {
   const handleResendEmail = async () => {
     setIsLoading(true);
     try {
+      // جلب التوكن من الكوكيز
       const token = document.cookie
         .split("; ")
         .find((row) => row.startsWith("token="))
@@ -98,15 +99,17 @@ const Dashboard = () => {
         throw new Error("لم يتم العثور على رمز المصادقة.");
       }
 
-      await axios.post(
-        `${API_BASE_URL}/users/resend-verify-email`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // جلب userId من localStorage
+      const id = localStorage.getItem("userId");
+      if (!id) {
+        throw new Error("لم يتم العثور على معرف المستخدم في localStorage.");
+      }
+
+      // إرسال الطلب مع تضمين التوكن وuserId
+      await axios.post(`${API_BASE_URL}/users/resend-verify-email`, {
+        id: id,
+        token: token,
+      });
 
       toast.success("تم إرسال بريد التحقق بنجاح.");
     } catch (error) {
@@ -116,6 +119,7 @@ const Dashboard = () => {
       setIsLoading(false);
     }
   };
+
   const renderContent = () => {
     switch (selectedOption) {
       case "viewHome":
@@ -173,9 +177,9 @@ const Dashboard = () => {
       <Navbar />
       {/* نافذة تغطي الشاشة بالكامل */}
       {!isVerified && (
-        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-70 z-50">
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-70 z-40">
           <div
-            className="bg-red-400 text-white px-8 py-6 rounded-lg shadow-lg text-center"
+            className="bg-red-500 text-white px-8 py-6 rounded-lg shadow-lg text-center"
             style={{ maxWidth: "90%" }}
           >
             <p>
@@ -184,7 +188,7 @@ const Dashboard = () => {
             <button
               onClick={handleResendEmail}
               className={`mt-4 px-4 py-2 rounded-lg ${
-                isLoading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
+                isLoading ? "bg-gray-400" : "bg-gray-500 hover:bg-gray-600"
               }`}
               disabled={isLoading}
             >

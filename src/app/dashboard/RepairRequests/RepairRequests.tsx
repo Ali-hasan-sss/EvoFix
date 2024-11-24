@@ -16,7 +16,7 @@ import { FaAngleDoubleDown, FaSync } from "react-icons/fa";
 const RepairRequests: React.FC = () => {
   const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [isRefreshing, setIsRefreshing] = useState<boolean>(false); // حالة التحديث
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const { isDarkMode } = useContext(ThemeContext);
   const [activeTab, setActiveTab] = useState<string>("available");
 
@@ -66,14 +66,13 @@ const RepairRequests: React.FC = () => {
         toast.success("تم تحديث الطلبات بنجاح.");
       } else {
         console.warn("البيانات المستلمة ليست مصفوفة.");
-        toast.warn("البيانات المستلمة غير صحيحة.");
       }
     } catch (error) {
       console.error("حدث خطأ أثناء جلب البيانات:", error);
       toast.error("حدث خطأ أثناء جلب البيانات.");
     } finally {
       setLoading(false);
-      setIsRefreshing(false); // إيقاف التحديث عند اكتمال التحميل
+      setIsRefreshing(false);
     }
   };
 
