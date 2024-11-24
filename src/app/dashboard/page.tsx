@@ -15,6 +15,7 @@ import { ToastContainer } from "react-toastify";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import { API_BASE_URL } from "@/utils/api";
+import Cookies from "js-cookie";
 
 const Invoices = dynamic(() => import("@/components/Invoices"), {
   ssr: false,
@@ -37,11 +38,25 @@ const Dashboard = () => {
 
   // تحديث حالة isVerified عند تحميل المكون
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const verified = localStorage.getItem("isVerified");
-      setIsVerified(verified === "true");
-    }
-  }, []);
+    const fetchVerificationStatus = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        const token = Cookies.get("token"); // افترض أن اسم الكوكيز هو "token"
+
+        const response = await axios.get(`${API_BASE_URL}/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`, // إضافة التوكن إلى الهيدر
+          },
+        });
+
+        setIsVerified(response.data.isVerified);
+        console.log(isVerified);
+      } catch (error) {
+        console.error("Failed to fetch verification status:", error);
+      }
+    };
+    fetchVerificationStatus();
+  }, [isVerified]);
 
   // التحقق المستمر عند تغيير حالة isVerified
   useEffect(() => {
@@ -185,7 +200,7 @@ const Dashboard = () => {
         }`}
       >
         <div
-          className="sidebar mt-20 custom-sidebar-scroll"
+          className="sidebar mt-20 md:w-1/5 custom-sidebar-scroll"
           style={{
             overflowY: "auto",
             height: "calc(100vh - 4rem)",

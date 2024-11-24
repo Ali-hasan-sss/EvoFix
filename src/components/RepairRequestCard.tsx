@@ -149,6 +149,33 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
 
               if (response.status === 200) {
                 toast.success("تم حذف الطلب بنجاح");
+
+                // تحديث البيانات في localStorage
+                const storedData = localStorage.getItem("repairRequests");
+                if (storedData) {
+                  const parsedData = JSON.parse(storedData);
+                  console.log("قبل الحذف من localStorage:", parsedData);
+
+                  const updatedData = parsedData.filter(
+                    (item: RepairRequest) => item.id !== request.id
+                  );
+
+                  console.log("بعد الحذف من localStorage:", updatedData);
+
+                  localStorage.setItem(
+                    "repairRequests",
+                    JSON.stringify(updatedData)
+                  );
+
+                  // تحقق من البيانات في localStorage
+                  const newStoredData = localStorage.getItem("repairRequests");
+                  console.log(
+                    "البيانات المحدثة في localStorage:",
+                    JSON.parse(newStoredData || "[]")
+                  );
+                }
+
+                // تحديث الطلبات في الواجهة
                 onRequestUpdated();
               } else {
                 toast.error("فشل في حذف الطلب");
