@@ -16,6 +16,7 @@ import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import { API_BASE_URL } from "@/utils/api";
 import Cookies from "js-cookie";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const Invoices = dynamic(() => import("@/components/Invoices"), {
   ssr: false,
@@ -41,11 +42,11 @@ const Dashboard = () => {
     const fetchVerificationStatus = async () => {
       try {
         const userId = localStorage.getItem("userId");
-        const token = Cookies.get("token"); // افترض أن اسم الكوكيز هو "token"
+        const token = Cookies.get("token");
 
         const response = await axios.get(`${API_BASE_URL}/users/${userId}`, {
           headers: {
-            Authorization: `Bearer ${token}`, // إضافة التوكن إلى الهيدر
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -89,26 +90,10 @@ const Dashboard = () => {
   const handleResendEmail = async () => {
     setIsLoading(true);
     try {
-      // جلب التوكن من الكوكيز
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="))
-        ?.split("=")[1];
+      const email = localStorage.getItem("email");
 
-      if (!token) {
-        throw new Error("لم يتم العثور على رمز المصادقة.");
-      }
-
-      // جلب userId من localStorage
-      const id = localStorage.getItem("userId");
-      if (!id) {
-        throw new Error("لم يتم العثور على معرف المستخدم في localStorage.");
-      }
-
-      // إرسال الطلب مع تضمين التوكن وuserId
       await axios.post(`${API_BASE_URL}/users/resend-verify-email`, {
-        id: id,
-        token: token,
+        email: email,
       });
 
       toast.success("تم إرسال بريد التحقق بنجاح.");
@@ -149,11 +134,7 @@ const Dashboard = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen min-w-screen">
-        <ClipLoader color="#4A90E2" size={50} />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!isLoggedIn) {

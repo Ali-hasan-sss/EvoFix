@@ -15,6 +15,7 @@ import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import { API_BASE_URL } from "@/utils/api";
 import Cookies from "js-cookie";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const RepairRequests = dynamic(
   () => import("./RepairRequests/RepairRequests"),
@@ -85,24 +86,11 @@ const TechnicianDashboard = () => {
   const handleResendEmail = async () => {
     setIsLoading(true);
     try {
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="))
-        ?.split("=")[1];
+      const email = localStorage.getItem("email");
 
-      if (!token) {
-        throw new Error("لم يتم العثور على رمز المصادقة.");
-      }
-
-      await axios.post(
-        `${API_BASE_URL}/users/resend-verify-email`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.post(`${API_BASE_URL}/users/resend-verify-email`, {
+        email: email,
+      });
 
       toast.success("تم إرسال بريد التحقق بنجاح.");
     } catch (error) {
@@ -130,11 +118,7 @@ const TechnicianDashboard = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen min-w-screen">
-        <ClipLoader color="#4A90E2" size={50} />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!isLoggedIn) {

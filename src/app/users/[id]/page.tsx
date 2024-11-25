@@ -17,6 +17,7 @@ import { FaArrowCircleRight, FaKey, FaTrash, FaUserEdit } from "react-icons/fa";
 import { confirmAlert } from "react-confirm-alert";
 import { AuthContext } from "@/app/context/AuthContext";
 import PasswordResetForm from "@/components/forms/PasswordResetForm";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface TechnicianDetails {
   id: number;
@@ -235,15 +236,7 @@ const UserPage = () => {
 
   // عرض السبينر أثناء التحميل
   if (loading) {
-    return (
-      <div
-        className={`flex items-center justify-center h-screen ${
-          isDarkMode ? "bg-gray-900" : "bg-gray-200"
-        }`}
-      >
-        <CircularProgress />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!user) return <p>لم يتم العثور على المستخدم</p>;

@@ -223,14 +223,13 @@ const RepairRequestCard: React.FC<RepairRequestCardProps> = ({
             ? String(request.user.fullName)
             : "اسم غير معروف"}
         </h2>
-        {userRole !== "TECHNICIAN" && (
-          <p className="mb-2 border-b pb-2">
-            <strong>المحافظة:</strong>
-            <strong className="mr-2">
-              {String(request.governorate) || "غير محدد"}
-            </strong>
-          </p>
-        )}
+
+        <p className="mb-2 border-b pb-2">
+          <strong>المحافظة:</strong>
+          <strong className="mr-2">
+            {String(request.governorate) || "غير محدد"}
+          </strong>
+        </p>
 
         <div className="flex justify-between mb-2 border-b pb-2">
           <p className="border-l pl-2">

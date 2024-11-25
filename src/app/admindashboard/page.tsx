@@ -41,6 +41,7 @@ import ContactUsAndFAQ from "./ContactUsAndFAQ";
 import { API_BASE_URL } from "@/utils/api";
 import axios from "axios";
 import { useDataCounts } from "../context/DataCountsContext";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const Invoices = dynamic(() => import("@/components/Invoices"), {
   ssr: false, // تعطيل العرض المسبق من جانب الخادم
@@ -217,11 +218,7 @@ const AdminDashboard: React.FC = () => {
 
   // Show loading message while checking auth
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen min-w-screen">
-        <ClipLoader color="#4A90E2" size={50} />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
