@@ -85,7 +85,7 @@ const Invoices: React.FC = () => {
     <div className="p-4">
       {/* حاوية ثابتة شفافة للسحب للتحديث */}
       <PullToRefresh onRefresh={fetchInvoices}>
-        <div className="fixed flex iterm-center justify-center top-50 text-center left-0 right-0 h-20 bg-transparent z-10">
+        <div className="fixed flex iterm-center justify-center top-50 text-center left-0 right-0 h-10 bg-transparent z-10">
           <FaAngleDoubleDown className="mt-4 text-xl text-yellow-500 md:hidden" />
         </div>
       </PullToRefresh>

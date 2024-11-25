@@ -37,12 +37,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
 
-  // تعيين activeOption من localStorage عند التحميل الأولي فقط
+  // استرجاع الخيار النشط من localStorage أو تعيين القيمة الافتراضية
   const [activeOption, setActiveOption] = useState<string>(() => {
-    return localStorage.getItem("activeOption") || "viewRequests";
+    return localStorage.getItem("activeOption") || "viewHome";
   });
 
-  // Declare the type of notificationsCount explicitly
   const [notificationsCount, setNotificationsCount] = useState<number>(0);
 
   useEffect(() => {
@@ -59,6 +58,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
 
   const handleOptionSelect = (option: string) => {
     setActiveOption(option);
+
+    // حفظ الخيار النشط في localStorage مع استثناء "profile"
     if (option !== "profile") {
       localStorage.setItem("activeOption", option);
     }
@@ -109,7 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
             },
           }
         );
-        setNotificationsCount(response.data.count); // Make sure notificationsCount is set correctly
+        setNotificationsCount(response.data.count);
       } catch (error: unknown) {
         console.error("خطأ في جلب عدد الإشعارات", error);
       }
@@ -158,7 +159,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
   return (
     <div className="flex min-h-screen mt-4 text-white">
       <div
-        className={`hidden md:flex w-full  p-4 flex-col flex-shrink-0 ${
+        className={`hidden md:flex w-full p-4 flex-col flex-shrink-0 ${
           isDarkMode ? "bg-gray-800" : "bg-gray-600"
         }`}
         style={{ minHeight: "100vh" }}

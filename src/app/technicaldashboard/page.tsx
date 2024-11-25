@@ -16,6 +16,7 @@ import axios from "axios";
 import { API_BASE_URL } from "@/utils/api";
 import Cookies from "js-cookie";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Invoices from "@/components/Invoices";
 
 const RepairRequests = dynamic(
   () => import("./RepairRequests/RepairRequests"),
@@ -110,10 +111,14 @@ const TechnicianDashboard = () => {
     switch (selectedOption) {
       case "viewRequests":
         return <RepairRequests />;
+      case "Invoices":
+        return <Invoices />;
       case "notifications":
         return <Notifications />;
       default:
-        return null;
+        if (!selectedOption) {
+          return null;
+        }
     }
   };
 
