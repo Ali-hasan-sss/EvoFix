@@ -117,7 +117,18 @@ const Dashboard = () => {
       setIsLoading(false);
     }
   };
+  useEffect(() => {
+    if (selectedOption === "profile") {
+      const userId =
+        typeof localStorage !== "undefined"
+          ? localStorage.getItem("userId")
+          : null;
 
+      if (userId && userId.trim() !== "") {
+        router.push(`/users/${userId}`);
+      }
+    }
+  }, [selectedOption, router]);
   const renderContent = () => {
     if (!selectedOption) {
       return <LoadingSpinner />;
@@ -132,17 +143,7 @@ const Dashboard = () => {
       case "notifications":
         return <Notifications />;
       case "profile":
-        const userId =
-          typeof localStorage !== "undefined"
-            ? localStorage.getItem("userId")
-            : null;
-
-        if (userId && userId.trim() !== "") {
-          router.push(`/users/${userId}`);
-          return null;
-        } else {
-          return <div>لم يتم العثور على معرف المستخدم</div>;
-        }
+        return <LoadingSpinner />;
 
       default:
         return null;

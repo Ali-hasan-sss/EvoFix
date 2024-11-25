@@ -15,6 +15,7 @@ import axios from "axios";
 import { API_BASE_URL } from "@/utils/api";
 import Cookies from "js-cookie";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Home from "../page";
 
 const Invoices = dynamic(() => import("@/components/Invoices"), { ssr: false });
 
@@ -107,9 +108,22 @@ const TechnicianDashboard = () => {
       router.push("/unauthorized");
     }
   }, [isLoggedIn, loading, router]);
+  useEffect(() => {
+    if (selectedOption === "profile") {
+      const userId =
+        typeof localStorage !== "undefined"
+          ? localStorage.getItem("userId")
+          : null;
 
+      if (userId && userId.trim() !== "") {
+        router.push(`/users/${userId}`);
+      }
+    }
+  }, [selectedOption, router]);
   const renderContent = () => {
     switch (selectedOption) {
+      case "viewHome":
+        return <Home />;
       case "viewRequests":
         return <RepairRequests />;
       case "Invoices":
@@ -117,17 +131,7 @@ const TechnicianDashboard = () => {
       case "notifications":
         return <Notifications />;
       case "profile":
-        const userId =
-          typeof localStorage !== "undefined"
-            ? localStorage.getItem("userId")
-            : null;
-
-        if (userId && userId.trim() !== "") {
-          router.push(`/users/${userId}`);
-          return null;
-        } else {
-          return <div>لم يتم العثور على معرف المستخدم</div>;
-        }
+        return <LoadingSpinner />;
       default:
         if (!selectedOption) {
           return null;
