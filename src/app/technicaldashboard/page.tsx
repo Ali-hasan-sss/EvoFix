@@ -37,11 +37,11 @@ const TechnicianDashboard = () => {
     const fetchVerificationStatus = async () => {
       try {
         const userId = localStorage.getItem("userId");
-        const token = Cookies.get("token"); // افترض أن اسم الكوكيز هو "token"
+        const token = Cookies.get("token");
 
         const response = await axios.get(`${API_BASE_URL}/users/${userId}`, {
           headers: {
-            Authorization: `Bearer ${token}`, // إضافة التوكن إلى الهيدر
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -158,7 +158,7 @@ const TechnicianDashboard = () => {
       />
       {/* رسالة التحذير */}
       {!isVerified && (
-        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-70 z-50">
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-70 z-20">
           <div
             className="bg-red-400 text-white px-8 py-6 rounded-lg shadow-lg text-center"
             style={{ maxWidth: "90%" }}

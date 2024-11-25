@@ -76,7 +76,7 @@ const RepairRequests: React.FC = () => {
     } else {
       fetchRepairRequests();
     }
-  }, [repairRequests]);
+  }, []);
 
   const handleRefresh = async (): Promise<void> => {
     setRefreshing(true);

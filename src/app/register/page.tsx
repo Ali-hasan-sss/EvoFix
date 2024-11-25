@@ -40,7 +40,6 @@ const RegisterPage = () => {
         const userId = response.data.id;
         const email = response.data.email;
         const userRole = response.data.role;
-        const isVerified = response.data.isVerified;
         const token = response.data.token;
 
         // حفظ التوكن في الكوكيز
@@ -53,7 +52,6 @@ const RegisterPage = () => {
         localStorage.setItem("userId", userId.toString());
         localStorage.setItem("email", email);
         localStorage.setItem("userRole", userRole);
-        localStorage.setItem("isVerified", isVerified);
 
         toast.success("تم إنشاء الحساب بنجاح!");
         toast.success(
@@ -68,7 +66,13 @@ const RegisterPage = () => {
 
         // إعادة توجيه المستخدم بعد التسجيل
         setTimeout(() => {
-          router.push("/dashboard");
+          if (userRole === "ADMIN" || userRole === "SUBADMIN") {
+            router.push("/admindashboard");
+          } else if (userRole === "TECHNICAL") {
+            router.push("/technicaldashboard");
+          } else {
+            router.push("/dashboard");
+          }
         }, 5000);
       } else {
         toast.error("حدث خطأ أثناء إنشاء الحساب.");

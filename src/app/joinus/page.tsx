@@ -42,16 +42,19 @@ const RegisterTechnicianPage = () => {
       );
 
       if (response.status === 200 || response.status === 201) {
-        const { id, email, role, token } = response.data;
+        const userId = response.data.id;
+        const email = response.data.email;
+        const userRole = response.data.role;
+        const token = response.data.token;
 
         Cookies.set("token", token, {
           expires: 7,
           secure: process.env.NODE_ENV === "production",
         });
 
-        localStorage.setItem("userId", id.toString());
+        localStorage.setItem("userId", userId.toString());
         localStorage.setItem("email", email);
-        localStorage.setItem("userRole", role);
+        localStorage.setItem("userRole", userRole);
 
         toast.success("تم إنشاء حساب تقني بنجاح!");
         toast.success(
@@ -62,11 +65,17 @@ const RegisterTechnicianPage = () => {
         );
 
         // تسجيل الدخول تلقائيًا
-        login(email, id);
+        login(email, userId);
 
         // إعادة توجيه المستخدم بعد التسجيل
         setTimeout(() => {
-          router.push("/dashboard");
+          if (userRole === "ADMIN" || userRole === "SUBADMIN") {
+            router.push("/admindashboard");
+          } else if (userRole === "TECHNICAL") {
+            router.push("/technicaldashboard");
+          } else {
+            router.push("/dashboard");
+          }
         }, 5000);
       } else {
         toast.error("حدث خطأ أثناء إنشاء الحساب");

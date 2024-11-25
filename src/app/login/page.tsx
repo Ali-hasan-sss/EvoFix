@@ -68,7 +68,6 @@ const LoginForm = () => {
         const userId = response.data.info.id;
         const userRole = response.data.info.role;
         const userEmail = response.data.info.email;
-        const isVerified = response.data.info.isVerified;
         const token = response.data.token;
 
         Cookies.set("token", token, {
@@ -79,7 +78,6 @@ const LoginForm = () => {
         localStorage.setItem("userId", userId);
         localStorage.setItem("email", userEmail);
         localStorage.setItem("userRole", userRole);
-        localStorage.setItem("isVerified", isVerified);
 
         toast.success(response.data.message || "تم تسجيل الدخول بنجاح!");
         login(userEmail, userId);
