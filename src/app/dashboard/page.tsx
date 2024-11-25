@@ -29,7 +29,7 @@ const RepairRequests = dynamic(
 );
 
 const Dashboard = () => {
-  const [selectedOption, setSelectedOption] = useState("viewRequests");
+  const [selectedOption, setSelectedOption] = useState("");
   const [isVerified, setIsVerified] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const { isDarkMode } = useContext(ThemeContext);
@@ -76,6 +76,19 @@ const Dashboard = () => {
     checkAuth();
   }, []);
 
+  // استرجاع الخيار النشط من localStorage
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedOption = localStorage.getItem("activeOption");
+      if (storedOption) {
+        setSelectedOption(storedOption);
+      } else {
+        setSelectedOption("viewRequests");
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (!loading && !isLoggedIn) {
       router.push("/unauthorized");
@@ -106,6 +119,9 @@ const Dashboard = () => {
   };
 
   const renderContent = () => {
+    if (!selectedOption) {
+      return <LoadingSpinner />;
+    }
     switch (selectedOption) {
       case "viewHome":
         return <Home />;

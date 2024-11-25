@@ -8,7 +8,6 @@ import "../../components/dashboard/dashboard.css";
 import { ThemeContext } from "../context/ThemeContext";
 import { useRouter } from "next/navigation";
 import Notifications from "../../components/dashboard/notification";
-import { ClipLoader } from "react-spinners";
 import dynamic from "next/dynamic";
 import { ToastContainer } from "react-toastify";
 import toast, { Toaster } from "react-hot-toast";
@@ -16,7 +15,8 @@ import axios from "axios";
 import { API_BASE_URL } from "@/utils/api";
 import Cookies from "js-cookie";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import Invoices from "@/components/Invoices";
+
+const Invoices = dynamic(() => import("@/components/Invoices"), { ssr: false });
 
 const RepairRequests = dynamic(
   () => import("./RepairRequests/RepairRequests"),
@@ -55,9 +55,10 @@ const TechnicianDashboard = () => {
     };
 
     fetchVerificationStatus();
-  }, [isVerified]);
+  }, []);
 
   // استرجاع الخيار النشط من localStorage
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedOption = localStorage.getItem("activeOption");
@@ -115,6 +116,18 @@ const TechnicianDashboard = () => {
         return <Invoices />;
       case "notifications":
         return <Notifications />;
+      case "profile":
+        const userId =
+          typeof localStorage !== "undefined"
+            ? localStorage.getItem("userId")
+            : null;
+
+        if (userId && userId.trim() !== "") {
+          router.push(`/users/${userId}`);
+          return null;
+        } else {
+          return <div>لم يتم العثور على معرف المستخدم</div>;
+        }
       default:
         if (!selectedOption) {
           return null;

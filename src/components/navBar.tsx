@@ -189,7 +189,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                   </Link>
                 ) : userRole === "TECHNICAL" ? (
                   <Link
-                    href="/dashboard"
+                    href="/technicaldashboard"
                     className={`hover:text-gray-300 ${
                       activeItem === "dashboard" ? "text-yellow-400" : ""
                     }`}
