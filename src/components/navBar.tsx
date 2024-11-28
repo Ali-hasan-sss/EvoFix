@@ -125,7 +125,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
             ) : (
               <span className="flex items-center gap-2 text-bold btn">
                 <FaRegUser className="text-xl" />
-                <span>التسجيل</span>
+                <span className="mr-5">التسجيل</span>
               </span>
             )}
           </button>

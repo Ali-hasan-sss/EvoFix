@@ -8,6 +8,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { confirmAlert } from "react-confirm-alert";
 import { API_BASE_URL } from "@/utils/api";
+import { CircularProgress } from "@mui/material";
 
 const Review: React.FC = () => {
   const {
@@ -16,6 +17,7 @@ const Review: React.FC = () => {
     isReviewsLoading,
   } = useRepairRequests();
   const [reviews, setReviews] = useState(contextReviews);
+  const [loding, setLoding] = useState(false);
 
   useEffect(() => {
     setReviews(contextReviews);
@@ -28,11 +30,10 @@ const Review: React.FC = () => {
   const handleToggleActive = async (id: number, isActive: boolean) => {
     try {
       const token = Cookies.get("token");
-      const updatedIsActive = !isActive;
-
+      setLoding(true);
       await axios.put(
         `${API_BASE_URL}/review/${id}`,
-        { isActive: updatedIsActive },
+        {},
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -43,13 +44,15 @@ const Review: React.FC = () => {
       // تحديث حالة النشاط محليًا
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
-          review.id === id ? { ...review, isActive: updatedIsActive } : review
+          review.id === id ? { ...review, isActive: !isActive } : review
         )
       );
       toast.success("تم تحديث حالة النشر!");
     } catch (err) {
       console.error("خطأ أثناء تحديث الحالة:", err);
       toast.error("حدث خطأ أثناء تحديث الحالة.");
+    } finally {
+      setLoding(false);
     }
   };
 
@@ -121,6 +124,9 @@ const Review: React.FC = () => {
                 <p>{review.comment}</p>
               </div>
               <div className="flex items-center space-x-4">
+                {loding && (
+                  <CircularProgress size={16} className="inline ml-2" />
+                )}
                 <label className="ml-4">
                   <Switch
                     checked={review.isActive}

@@ -18,6 +18,7 @@ import { confirmAlert } from "react-confirm-alert";
 import { AuthContext } from "@/app/context/AuthContext";
 import PasswordResetForm from "@/components/forms/PasswordResetForm";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { ClipLoader } from "react-spinners";
 
 interface TechnicianDetails {
   id: number;
@@ -53,6 +54,7 @@ const UserPage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [delleting, setDelleting] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editPassword, setEditPassword] = useState(false);
   const { isDarkMode } = useContext(ThemeContext);
@@ -247,6 +249,7 @@ const UserPage = () => {
   const handleEditPass = () => {
     setEditPassword(true);
   };
+  //*********************************************************************** */
   const handleDeleteAccount = () => {
     confirmAlert({
       title: "تأكيد الحذف",
@@ -255,6 +258,7 @@ const UserPage = () => {
         {
           label: "نعم",
           onClick: async () => {
+            setDelleting(true);
             const authToken =
               document.cookie
                 .split("; ")
@@ -267,7 +271,7 @@ const UserPage = () => {
                   Authorization: `Bearer ${authToken}`,
                 },
               });
-
+              setDelleting(false);
               toast.success("تم حذف الحساب بنجاح!");
               logout();
               router.push("/");
@@ -423,14 +427,15 @@ const UserPage = () => {
                 <FaKey />
                 تعديل كلمة المرور
               </button>
-
-              <button
-                onClick={handleDeleteAccount}
-                className="flex items-center gap-2 bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition"
-              >
-                <FaTrash />
-                حذف الحساب
-              </button>
+              {!(userRole === "ADMIN" || userRole === "SUBADMIN") && (
+                <button
+                  onClick={handleDeleteAccount}
+                  className="flex items-center gap-2 bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition"
+                >
+                  {delleting ? <ClipLoader /> : <FaTrash />}
+                  {delleting ? "جارٍ الحذف ..." : "حذف الحساب"}
+                </button>
+              )}
             </div>
           </>
         </div>

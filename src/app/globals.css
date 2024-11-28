@@ -75,11 +75,11 @@ a:hover {
   font-size: 18px;
   border: 1px solid #fcd71dd6;
   border-radius: 20px;
-  padding: 2px 5px;
+  padding: 2px 10px;
 }
 .btn:hover {
-  background: #3c0404;
-  color: gold;
+  border: 1px solid #4dfc1dd6;
+  color: #94fc1dd6;
 }
 .logo:hover {
   background-color: transparent;

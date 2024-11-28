@@ -107,7 +107,7 @@ export const RepairRequestsProvider: React.FC<{ children: ReactNode }> = ({
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setRepairRequests(response.data.repairRequests || []);
+      setRepairRequests(response.data || []);
       setIsLoaded(true);
     } catch (error) {
       console.error("Error fetching repair requests:", error);

@@ -35,6 +35,7 @@ const RepairRequestsPage: React.FC = () => {
 
   useEffect(() => {
     fetchRepairRequests();
+    console.log(repairRequests); // للتحقق من شكل البيانات
   }, []);
 
   const handleDelete = React.useCallback(

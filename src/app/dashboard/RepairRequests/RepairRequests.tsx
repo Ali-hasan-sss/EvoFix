@@ -33,7 +33,8 @@ const RepairRequests: React.FC = () => {
   // تعريف التبويبات
   const tabs = [
     { label: "جميع الطلبات", key: "available" },
-    { label: "قيد التسعير", key: "pending" },
+    { label: " الطلبات المعلقة", key: "pending" },
+    { label: "قيد التسعير", key: "assigned" },
     { label: "قيد الاصلاح", key: "in_progress" },
     { label: "الطلبات المنجزة", key: "completed" },
     { label: "الطلبات المرفوضة", key: "rejected" },
@@ -58,7 +59,6 @@ const RepairRequests: React.FC = () => {
       if (Array.isArray(response.data)) {
         setRepairRequests(response.data);
 
-        // التحقق من كوننا في بيئة العميل قبل استخدام localStorage
         if (typeof window !== "undefined") {
           localStorage.setItem("repairRequests", JSON.stringify(response.data)); // حفظ البيانات في localStorage
         }
@@ -92,6 +92,10 @@ const RepairRequests: React.FC = () => {
       case "pending":
         return repairRequests.filter(
           (req) => req.status.toUpperCase() === "PENDING"
+        );
+      case "assigned":
+        return repairRequests.filter(
+          (req) => req.status.toUpperCase() === "ASSIGNED"
         );
       case "in_progress":
         return repairRequests.filter(
