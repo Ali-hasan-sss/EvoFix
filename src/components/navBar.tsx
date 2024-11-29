@@ -10,7 +10,10 @@ import "./assets/navbar.css";
 import { FaList, FaRegUser, FaSignOutAlt, FaUser } from "react-icons/fa";
 import Image from "next/image";
 import EVOFIX from "./assets/images/EVOFIX.png";
-
+import {
+  fetchNotificationsCount,
+  startNotificationsCount,
+} from "@/utils/notification-count";
 interface NavbarProps {
   className?: string;
 }
@@ -34,6 +37,25 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
   useEffect(() => {
     const role = localStorage.getItem("userRole");
     setUserRole(role);
+  }, []);
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const count = await fetchNotificationsCount();
+        setNotificationsCount(count);
+      } catch (error) {
+        console.error("Error fetching notifications count:", error);
+      }
+    };
+    fetchCount();
+  }, []);
+  useEffect(() => {
+    // بدء التحديث التلقائي
+    const stopPolling = startNotificationsCount(setNotificationsCount);
+
+    // تنظيف عند إزالة المكون
+    return () => stopPolling();
   }, []);
 
   // تحديث العنصر النشط بناءً على المسار الحالي
@@ -61,7 +83,6 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
-
   const handleItemClick = (item: string) => {
     setActiveItem(item);
     setIsOpen(false);
@@ -74,6 +95,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
       window.location.href = "/";
     }
   };
+  const [notificationsCount, setNotificationsCount] = useState<number>(0);
 
   // إغلاق القائمة عند النقر خارجها
   useEffect(() => {
@@ -121,7 +143,16 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
             onClick={toggleMenu}
           >
             {isLoggedIn ? (
-              <FaList className="text-2xl" />
+              //////////////////////////////////////
+
+              <div className="relative">
+                <FaList className="text-2xl" />{" "}
+                {notificationsCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5">
+                    {notificationsCount}
+                  </span>
+                )}
+              </div>
             ) : (
               <span className="flex items-center gap-2 text-bold btn">
                 <FaRegUser className="text-xl" />

@@ -14,12 +14,14 @@ import { ClipLoader } from "react-spinners";
 interface PaymentFormProps {
   requestId: number | null;
   closeModal: () => void;
+  update: () => void;
   isInspectionPayment: boolean;
 }
 
 const PaymentForm: React.FC<PaymentFormProps> = ({
   requestId,
   closeModal,
+  update,
   isInspectionPayment,
 }) => {
   const [step, setStep] = useState(1);
@@ -81,6 +83,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       });
       toast.success("تمت عملية الدفع بنجاح");
       closeModal();
+      update();
     } catch (error: unknown) {
       if (
         axios.isAxiosError(error) &&

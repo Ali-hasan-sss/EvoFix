@@ -18,7 +18,7 @@ import FAQ from "@/components/FAQ";
 import Footer from "@/components/footer";
 const Home: NextPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
-
+  const update = () => console.log("done");
   return (
     <div>
       {/* Meta Information */}
@@ -54,7 +54,7 @@ const Home: NextPage = () => {
           pauseOnHover
         />
         <Navbar />
-        <RepairRequestButton />
+        <RepairRequestButton update={update} />
         <Toaster
           position="top-right"
           reverseOrder={false}

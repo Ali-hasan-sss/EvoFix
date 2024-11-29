@@ -171,6 +171,8 @@ export interface APINotification {
   request?: {
     isPaid: boolean;
     isPaidCheckFee: boolean;
+    status: string;
+    rejected: boolean;
   };
 }
 
@@ -178,6 +180,8 @@ export interface MappedNotification extends APINotification {
   request?: {
     isPaid: boolean;
     isPaidCheckFee: boolean;
+    status: string;
+    rejected: boolean;
   };
 }
 // Define the types for contact messages and FAQs

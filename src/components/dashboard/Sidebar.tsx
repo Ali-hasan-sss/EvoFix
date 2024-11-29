@@ -8,6 +8,7 @@ import { ThemeContext } from "@/app/context/ThemeContext";
 import { AuthContext } from "@/app/context/AuthContext";
 import technicalImage from "@/components/assets/images/technicalImage.png";
 import userImage from "@/components/assets/images/userImage.png";
+
 import {
   FaBell,
   FaUser,
@@ -19,6 +20,10 @@ import {
 import { API_BASE_URL } from "../../utils/api";
 import Cookies from "js-cookie";
 import axios from "axios";
+import {
+  fetchNotificationsCount,
+  startNotificationsCount,
+} from "@/utils/notification-count";
 
 interface SidebarProps {
   onSelectOption: (option: string) => void;
@@ -48,14 +53,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
     const token = localStorage.getItem("email");
     setIsLoggedIn(!!token);
     fetchUserData();
-    fetchNotificationsCount();
   }, []);
 
   useEffect(() => {
-    const intervalId = setInterval(fetchNotificationsCount, 60000);
-    return () => clearInterval(intervalId);
+    const fetchCount = async () => {
+      try {
+        const count = await fetchNotificationsCount();
+        setNotificationsCount(count);
+      } catch (error) {
+        console.error("Error fetching notifications count:", error);
+      }
+    };
+    fetchCount();
   }, []);
+  useEffect(() => {
+    // بدء التحديث التلقائي
+    const stopPolling = startNotificationsCount(setNotificationsCount);
 
+    // تنظيف عند إزالة المكون
+    return () => stopPolling();
+  }, []);
   const handleOptionSelect = (option: string) => {
     setActiveOption(option);
 
@@ -95,25 +112,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
       }
     } else {
       console.error("User ID أو token مفقود.");
-    }
-  };
-
-  const fetchNotificationsCount = async () => {
-    const token = Cookies.get("token");
-    if (token) {
-      try {
-        const response = await axios.get(
-          `${API_BASE_URL}/notifications/count`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setNotificationsCount(response.data.count);
-      } catch (error: unknown) {
-        console.error("خطأ في جلب عدد الإشعارات", error);
-      }
     }
   };
 

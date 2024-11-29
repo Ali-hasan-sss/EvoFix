@@ -16,7 +16,9 @@ import { APINotification, MappedNotification } from "@/utils/types";
 const NotificationComponent: React.FC = () => {
   const [notifications, setNotifications] = useState<MappedNotification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFirstLoading, setIsFirstLoading] = useState(true);
   const [loadingAction, setLoadingAction] = useState<number | null>(null);
+  const [loadingAction1, setLoadingAction1] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { isDarkMode } = useContext(ThemeContext);
   const [isInspectionFee, setIsInspectionFee] = useState(false);
@@ -34,8 +36,8 @@ const NotificationComponent: React.FC = () => {
     Modal.setAppElement(document.body);
   }, []);
 
-  const fetchNotifications = async () => {
-    setIsNotificationsLoading(true);
+  const fetchNotifications = async (showSpinner: boolean = false) => {
+    if (showSpinner) setIsNotificationsLoading(true); // عرض السبينر فقط إذا تم التحديد
     try {
       const token = document.cookie
         .split("; ")
@@ -46,6 +48,8 @@ const NotificationComponent: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      //  console.log("Response from API:", response.data);
+
       const mappedNotifications = response.data.map(
         (notification: APINotification) => ({
           id: notification.id,
@@ -55,11 +59,18 @@ const NotificationComponent: React.FC = () => {
           senderId: notification.senderId,
           isRead: notification.isRead,
           requestId: notification.requestId,
-          isPaidCheckFee: notification.request?.isPaidCheckFee ?? true,
-          isPaid: notification.request?.isPaid ?? false,
+          isPaidCheckFee: notification.request
+            ? notification.request.isPaidCheckFee
+            : false,
+          isPaid: notification.request ? notification.request.isPaid : false,
+          rejected: notification.request?.status === "REJECTED" || false,
+          status: notification.request?.status,
           recipientId: notification.recipientId,
+          request: notification.request || null,
         })
       );
+
+      //   console.log("Mapped Notifications:", mappedNotifications);
 
       setNotifications(mappedNotifications);
     } catch (error) {
@@ -67,11 +78,18 @@ const NotificationComponent: React.FC = () => {
       toast.error("Failed to fetch notifications. Please try again later.");
     } finally {
       setIsNotificationsLoading(false);
+      setIsFirstLoading(false); // بعد أول تحميل، قم بتعطيل حالة التحميل الأول
     }
   };
+
   useEffect(() => {
-    fetchNotifications();
-    const intervalId = setInterval(fetchNotifications, 60000);
+    // عند أول تحميل، قم بإظهار السبينر
+    fetchNotifications(true);
+    // استدعاء الدالة كل دقيقة بدون السبينر
+    const intervalId = setInterval(
+      () => fetchNotifications(false),
+      FETCH_INTERVAL
+    );
     return () => clearInterval(intervalId);
   }, []);
 
@@ -95,7 +113,7 @@ const NotificationComponent: React.FC = () => {
   };
 
   const handleRejectRequest = async (id: number, requestId: number) => {
-    setLoadingAction(id);
+    setLoadingAction1(id);
     try {
       const token = document.cookie
         .split("; ")
@@ -116,7 +134,7 @@ const NotificationComponent: React.FC = () => {
       console.error("حدث خطأ أثناء رفض الطلب:", error);
       toast.error("حدث خطأ أثناء رفض الطلب. يرجى المحاولة مرة أخرى.");
     } finally {
-      setLoadingAction(null);
+      setLoadingAction1(null);
     }
   };
 
@@ -152,7 +170,7 @@ const NotificationComponent: React.FC = () => {
     );
   };
 
-  if (isNotificationsLoading) {
+  if (isFirstLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <ClipLoader color="#4A90E2" size={50} />
@@ -194,161 +212,168 @@ const NotificationComponent: React.FC = () => {
               <p className="text-sm text-gray-500">
                 {new Date(notification.createdAt).toLocaleString()}
               </p>
-
-              {notification.title === "دفع أجور الكشف" && (
-                <div className="mt-2 flex">
-                  <button
-                    className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
-                    type="button"
-                    onClick={() =>
-                      handleAcceptRequest(notification.requestId, true)
-                    }
-                    disabled={
-                      loadingAction === notification.id ||
-                      notification.request?.isPaidCheckFee ||
-                      notification.request?.isPaid ||
-                      isModalOpen
-                    }
-                  >
-                    {loadingAction === notification.id ? (
-                      <ClipLoader color="#ffffff" size={20} />
-                    ) : (
-                      "دفع أجور الكشف"
-                    )}
-                  </button>
-
-                  <button
-                    className="bg-red-500 text-white px-4 mx-4 py-2 rounded-md"
-                    onClick={() =>
-                      handleRejectRequest(
-                        notification.id,
-                        notification.requestId
-                      )
-                    }
-                    disabled={
-                      loadingAction === notification.id ||
-                      notification.request?.isPaidCheckFee ||
-                      notification.request?.isPaid
-                    }
-                  >
-                    {loadingAction === notification.id ? (
-                      <ClipLoader color="#ffffff" size={20} />
-                    ) : (
-                      "رفض"
-                    )}
-                  </button>
-                </div>
-              )}
-              {notification.title === "إنجاز الطلب" && (
-                <div className="mt-2 flex">
-                  <button
-                    className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
-                    type="button"
-                    onClick={() =>
-                      handleBaiedRequest(notification.requestId, false)
-                    }
-                    disabled={
-                      loadingAction === notification.id ||
-                      notification.request?.isPaidCheckFee ||
-                      notification.request?.isPaid ||
-                      isModalOpen
-                    }
-                  >
-                    {loadingAction === notification.id ? (
-                      <ClipLoader color="#ffffff" size={20} />
-                    ) : (
-                      "دفع رسوم الطلب"
-                    )}
-                  </button>
-
-                  <button
-                    className="bg-red-500 text-white px-4 mx-4 py-2 rounded-md"
-                    onClick={() =>
-                      handleRejectRequest(
-                        notification.id,
-                        notification.requestId
-                      )
-                    }
-                    disabled={
-                      loadingAction === notification.id ||
-                      notification.request?.isPaidCheckFee ||
-                      notification.request?.isPaid
-                    }
-                  >
-                    {loadingAction === notification.id ? (
-                      <ClipLoader color="#ffffff" size={20} />
-                    ) : (
-                      "رفض"
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {notification.title === "تكلفة الطلب" && (
-                <div className="mt-2 flex">
-                  <button
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
-                    onClick={async () => {
-                      setLoadingAction(notification.id);
-                      try {
-                        const token = document.cookie
-                          .split("; ")
-                          .find((row) => row.startsWith("token="));
-                        const authToken = token ? token.split("=")[1] : "";
-
-                        await axios.put(
-                          `${API_BASE_URL}/maintenance-requests/${notification.requestId}/accept`,
-                          {},
-                          {
-                            headers: {
-                              Authorization: `Bearer ${authToken}`,
-                            },
-                          }
-                        );
-                        toast.success("تمت الموافقة على السعر بنجاح.");
-                        fetchNotifications();
-                      } catch (error) {
-                        console.error(
-                          "حدث خطأ أثناء الموافقة على السعر:",
-                          error
-                        );
-                        toast.error(
-                          "حدث خطأ أثناء الموافقة على السعر. يرجى المحاولة مرة أخرى."
-                        );
-                      } finally {
-                        setLoadingAction(null);
+              {/************************************************************************************************* */}
+              {notification.title === "دفع أجور الكشف" &&
+                !notification.request?.isPaidCheckFee === true &&
+                notification.request?.status !== "REJECTED" && (
+                  <div className="mt-2 flex">
+                    <button
+                      className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
+                      type="button"
+                      onClick={() => {
+                        handleAcceptRequest(notification.requestId, true);
+                      }}
+                      disabled={
+                        loadingAction === notification.id ||
+                        notification.request?.isPaidCheckFee ||
+                        notification.request?.isPaid ||
+                        isModalOpen
                       }
-                    }}
-                    disabled={
-                      loadingAction === notification.id ||
-                      notification.request?.isPaid
-                    }
-                  >
-                    {loadingAction === notification.id ? (
-                      <ClipLoader color="#ffffff" size={20} />
-                    ) : (
-                      "موافق"
-                    )}
-                  </button>
+                    >
+                      {loadingAction === notification.id ? (
+                        <ClipLoader color="#ffffff" size={20} />
+                      ) : (
+                        "دفع أجور الكشف"
+                      )}
+                    </button>
 
-                  <button
-                    className="bg-red-500 text-white px-4 mx-4 py-2 rounded-md"
-                    onClick={() =>
-                      handleRejectRequest(
-                        notification.id,
-                        notification.requestId
-                      )
-                    }
-                    disabled={loadingAction === notification.id}
-                  >
-                    {loadingAction === notification.id ? (
-                      <ClipLoader color="#ffffff" size={20} />
-                    ) : (
-                      "رفض"
-                    )}
-                  </button>
-                </div>
-              )}
+                    <button
+                      className="bg-red-500 text-white px-4 mx-4 py-2 rounded-md"
+                      onClick={() => {
+                        handleRejectRequest(
+                          notification.id,
+                          notification.requestId
+                        );
+                      }}
+                      disabled={
+                        loadingAction1 === notification.id ||
+                        notification.request?.isPaidCheckFee ||
+                        notification.request?.isPaid
+                      }
+                    >
+                      {loadingAction1 === notification.id ? (
+                        <ClipLoader color="#ffffff" size={20} />
+                      ) : (
+                        "رفض"
+                      )}
+                    </button>
+                  </div>
+                )}
+
+              {notification.title === "إنجاز الطلب" &&
+                !notification.request?.isPaid &&
+                notification.request?.status !== "REJECTED" && (
+                  <div className="mt-2 flex">
+                    <button
+                      className="bg-green-500 text-white px-4 py-2 rounded-md mr-2"
+                      type="button"
+                      onClick={() =>
+                        handleBaiedRequest(notification.requestId, false)
+                      }
+                      disabled={
+                        loadingAction === notification.id ||
+                        notification.request?.isPaid ||
+                        isModalOpen
+                      }
+                    >
+                      {loadingAction === notification.id ? (
+                        <ClipLoader color="#ffffff" size={20} />
+                      ) : (
+                        "دفع رسوم الطلب"
+                      )}
+                    </button>
+
+                    <button
+                      className="bg-red-500 text-white px-4 mx-4 py-2 rounded-md"
+                      onClick={() =>
+                        handleRejectRequest(
+                          notification.id,
+                          notification.requestId
+                        )
+                      }
+                      disabled={
+                        loadingAction1 === notification.id ||
+                        notification.request?.isPaidCheckFee ||
+                        notification.request?.isPaid
+                      }
+                    >
+                      {loadingAction1 === notification.id ? (
+                        <ClipLoader color="#ffffff" size={20} />
+                      ) : (
+                        "رفض"
+                      )}
+                    </button>
+                  </div>
+                )}
+
+              {notification.title === "تكلفة الطلب" &&
+                notification.request?.status !== "IN_PROGRESS" &&
+                notification.request?.status !== "COMPLETED" &&
+                notification.request?.status !== "REJECTED" && (
+                  <div className="mt-2 flex">
+                    <button
+                      className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
+                      onClick={async () => {
+                        setLoadingAction(notification.id);
+                        try {
+                          const token = document.cookie
+                            .split("; ")
+                            .find((row) => row.startsWith("token="));
+                          const authToken = token ? token.split("=")[1] : "";
+
+                          await axios.put(
+                            `${API_BASE_URL}/maintenance-requests/${notification.requestId}/accept`,
+                            {},
+                            {
+                              headers: {
+                                Authorization: `Bearer ${authToken}`,
+                              },
+                            }
+                          );
+                          toast.success("تمت الموافقة على السعر بنجاح.");
+                          fetchNotifications();
+                        } catch (error) {
+                          console.error(
+                            "حدث خطأ أثناء الموافقة على السعر:",
+                            error
+                          );
+                          toast.error(
+                            "حدث خطأ أثناء الموافقة على السعر. يرجى المحاولة مرة أخرى."
+                          );
+                        } finally {
+                          setLoadingAction(null);
+                        }
+                      }}
+                      disabled={
+                        loadingAction === notification.id ||
+                        notification.request?.isPaid
+                      }
+                    >
+                      {loadingAction === notification.id ? (
+                        <ClipLoader color="#ffffff" size={20} />
+                      ) : (
+                        "موافق"
+                      )}
+                    </button>
+
+                    <button
+                      className="bg-red-500 text-white px-4 mx-4 py-2 rounded-md"
+                      onClick={() =>
+                        handleRejectRequest(
+                          notification.id,
+                          notification.requestId
+                        )
+                      }
+                      disabled={loadingAction1 === notification.id}
+                    >
+                      {loadingAction1 === notification.id ? (
+                        <ClipLoader color="#ffffff" size={20} />
+                      ) : (
+                        "رفض"
+                      )}
+                    </button>
+                  </div>
+                )}
               {notification.title === "طلب تفعيل حساب تقني" && (
                 <div className="mt-2 flex items-center ">
                   <button
@@ -393,6 +418,7 @@ const NotificationComponent: React.FC = () => {
           <PaymentForm
             requestId={selectedRequestId}
             closeModal={closeModal}
+            update={fetchNotifications}
             isInspectionPayment={isInspectionFee}
           />
         )}

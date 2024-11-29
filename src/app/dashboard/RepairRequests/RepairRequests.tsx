@@ -132,7 +132,7 @@ const RepairRequests: React.FC = () => {
         </div>
       </PullToRefresh>
       <div className="flex justify-between items-center mb-4">
-        <RepairRequestButton />
+        <RepairRequestButton update={fetchRepairRequests} />
         <button
           onClick={handleRefresh}
           className={`flex fixed mt-5 items-center w-10 h-10 px-2 py-1 rounded z-50 text-white hover:text-gray-600 `}

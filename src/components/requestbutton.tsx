@@ -15,8 +15,11 @@ interface Service {
   title: string;
   DevicesModels: { id: string; title: string }[];
 }
+interface requestbuttonProps {
+  update: () => void;
+}
 
-const RepairRequestButton: React.FC = () => {
+const RepairRequestButton: React.FC<requestbuttonProps> = ({ update }) => {
   const { isLoggedIn } = useContext(AuthContext);
   const { isDarkMode } = useContext(ThemeContext);
   const [governorate, setGovernorate] = useState("");
@@ -145,7 +148,7 @@ const RepairRequestButton: React.FC = () => {
           },
         }
       );
-
+      update();
       if (response.status >= 200 && response.status <= 299) {
         // الطلب ناجح
         toast.success("تم إرسال الطلب بنجاح!");
