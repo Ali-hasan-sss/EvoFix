@@ -76,6 +76,7 @@ const UserPage = () => {
         .get(`${API_BASE_URL}/users/${id}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
           },
         })
         .then((response) => {
@@ -105,6 +106,8 @@ const UserPage = () => {
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
+          console.log("Request config:", error.config);
+          console.log("Response data:", error.response?.data);
           setLoading(false);
           setEditing(false);
         });
