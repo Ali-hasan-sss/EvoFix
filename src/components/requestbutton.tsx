@@ -7,7 +7,6 @@ import { ThemeContext } from "@/app/context/ThemeContext";
 import Image from "next/image";
 import toast, { Toaster } from "react-hot-toast";
 import { ToastContainer } from "react-toastify";
-import Router from "next/navigation";
 import { useRouter } from "next/navigation";
 
 interface Service {
@@ -205,7 +204,11 @@ const RepairRequestButton: React.FC<requestbuttonProps> = ({ update }) => {
       />
       <button
         onClick={openModal}
-        className="fixed bottom-20 mb-5 left-5 bg-blue-400 text-white p-2 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-20"
+        className={`fixed bottom-20 mb-5 left-5 bg-blue-400 text-white p-2 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-20  ${
+          isDarkMode
+            ? "bg-gray-700 text-white hover:bg-gray-600"
+            : "bg-blue-500 text-black hover:bg-blue-600"
+        }`}
       >
         طلب إصلاح
       </button>

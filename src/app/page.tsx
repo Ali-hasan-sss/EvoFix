@@ -102,13 +102,26 @@ const Home: NextPage = () => {
         {/* Contact Section */}
         <section
           id="contact"
-          className={`py-20 my-5 ${
+          className={`py-10 my-5 ${
             isDarkMode ? "bg-gray-800 text-light" : "bg-blue-200 text-black"
           }`}
         >
-          <ContactForm />
-          <FAQ />
+          <div
+            className="flex flex-col lg:flex-row gap-6 lg:gap-12 items-center lg:items-start justify-center lg:justify-between"
+            style={{ minHeight: "100vh" }}
+          >
+            {/* مكون الفورم */}
+            <div className="w-full lg:flex-1">
+              <ContactForm />
+            </div>
+
+            {/* مكون الأسئلة الشائعة */}
+            <div className="w-full lg:flex-1">
+              <FAQ />
+            </div>
+          </div>
         </section>
+
         {/* Footer */}
         <footer className="bg-gray-800 text-white py-6">
           <Footer></Footer>

@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import ChatWindow from "./ChatWindow";
+import { ThemeContext } from "@/app/context/ThemeContext";
 import Image from "next/image";
 import icon from "@/components/assets/images/chat.png";
 const ChatBotButton: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const { isDarkMode } = useContext(ThemeContext);
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
@@ -15,7 +17,11 @@ const ChatBotButton: React.FC = () => {
     <>
       <button
         onClick={toggleChat}
-        className="fixed  bottom-20 right-5 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-20"
+        className={`fixed  bottom-20 right-5 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-20 ${
+          isDarkMode
+            ? "bg-gray-700 text-white hover:bg-gray-600"
+            : "bg-blue-500 text-black hover:bg-blue-600"
+        }`}
       >
         <Image
           src={icon}

@@ -312,6 +312,7 @@ const UserForm: React.FC<UserFormProps> = ({
                 <option value="">اختر المحافظة</option>
                 <option value="دمشق">دمشق</option>
                 <option value="ريف دمشق">ريف دمشق</option>
+                <option value="ريف دمشق">درعا</option>
                 <option value="حمص">حمص</option>
                 <option value="حماه">حماه</option>
                 <option value="طرطوس">طرطوس</option>
