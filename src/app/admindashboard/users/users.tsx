@@ -49,7 +49,7 @@ const Users: React.FC = () => {
   const [searchValue, setSearchValue] = useState("");
   const [users, setUsers] = useState<User[]>([]); // State for user list
   const [loading, setLoading] = useState(true); // State for loading spinner
-  const [loding, setLoding] = useState(true); // State for loading spinner
+  const [loding, setLoding] = useState(false); // State for loading spinner
   const [error, setError] = useState<string | null>(null); // State for error messages
   const [deletingItemId, setDeletingItemId] = useState<number | null>(null);
   const [usersByTab, setUsersByTab] = useState<{ [key: string]: User[] }>({});
@@ -334,7 +334,6 @@ const Users: React.FC = () => {
       title: "الحالة",
       render: (item: User) => (
         <div style={{ display: "flex", alignItems: "center" }}>
-          {loding && <CircularProgress size={16} className="inline ml-2" />}
           <Switch
             onChange={() => handleToggleActive(item.id, item.isActive)}
             checked={item.isActive}
