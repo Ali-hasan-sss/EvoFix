@@ -283,7 +283,10 @@ const UserForm: React.FC<UserFormProps> = ({
             </div>
             {isNew && (
               <p className="m-2">
-                <a className="text-blue-200 p-1" href="login">
+                <a
+                  className="text-blue-500 hover:text-blue-600 p-1"
+                  href="login"
+                >
                   لدي حساب بالفعل
                 </a>
               </p>

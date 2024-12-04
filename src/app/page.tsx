@@ -51,7 +51,7 @@ const Home: NextPage = () => {
       <section
         className={`hero ${
           isDarkMode ? "dark text-white" : "light text-black"
-        } py-20`}
+        } py-10`}
       >
         <div className="hero-overlay"></div>
         <div className="container mx-auto px-4 text-center md:text-left flex flex-col md:flex-row items-center justify-between ">
@@ -82,36 +82,31 @@ const Home: NextPage = () => {
       </section>
 
       <About />
-      <section className="py-20">
-        {/* Reviews Section */}
+      <section className={` ${isDarkMode ? "dark-bg-2" : "light-bg-2"}  py-10`}>
         <Reviews />
       </section>
-      {/* Contact Section */}
       <section
         id="contact"
-        className={`py-20 my-5 ${
-          isDarkMode ? "bg-gray-800 text-light" : "bg-blue-200 text-black"
-        }`}
+        className={`py-10  ${isDarkMode ? "dark-bg-1" : "light-bg-1"}`}
       >
-        <div
-          className="flex flex-col lg:flex-row gap-6 lg:gap-12 items-center lg:items-start justify-center lg:justify-between"
-          style={{ minHeight: "100vh" }}
-        >
-          {/* مكون الفورم */}
-          <div className="w-full lg:flex-1">
+        <div className="flex   items-center ">
+          <div className="w-full">
             <ContactForm />
           </div>
-
-          {/* مكون الأسئلة الشائعة */}
-          <div className="w-full lg:flex-1">
+        </div>
+      </section>
+      <section
+        id="contact"
+        className={`py-10  ${isDarkMode ? "dark-bg-2" : "light-bg-2"}`}
+      >
+        <div className="flex   items-center ">
+          <div className="w-full">
             <FAQ />
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-6">
-        <Footer></Footer>
+      <footer className={`py-6 ${isDarkMode ? "dark-bg-1" : "light-bg-1"}`}>
+        <Footer />
       </footer>
     </div>
   );

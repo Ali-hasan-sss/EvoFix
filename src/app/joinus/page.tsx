@@ -97,14 +97,10 @@ const RegisterTechnicianPage = () => {
       <Toaster />
       <div
         className={`min-h-screen flex items-center justify-center ${
-          isDarkMode ? "bg-gray-900" : "bg-gray-100"
+          isDarkMode ? "dark-bg-1" : "light-bg-1"
         }`}
       >
-        <div
-          className={`p-8 rounded shadow-md w-full max-w-sm ${
-            isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
-          }`}
-        >
+        <div className="p-8 rounded login w-full max-w-sm ">
           <h2 className="text-xl font-bold mb-4">تسجيل حساب تقني جديد</h2>
           <UserForm
             onSubmit={handleRegisterTechnician}

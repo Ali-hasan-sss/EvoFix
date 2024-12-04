@@ -94,11 +94,7 @@ const Reviews = () => {
   };
 
   return (
-    <div
-      className={`max-w-xl mx-auto p-4 rounded shadow-md ${
-        isDarkMode ? "bg-gray-700 text-light" : "bg-blue-200 text-black"
-      }`}
-    >
+    <div className={`max-w-xl mx-auto p-4 rounded`}>
       <h2 className="text-2xl font-bold mb-6 text-center">
         تقييمات المستخدمين
       </h2>
@@ -139,7 +135,7 @@ const Reviews = () => {
       <form
         onSubmit={handleSubmitReview}
         className={`p-4 rounded ${
-          isDarkMode ? "bg-gray-700 text-light" : "bg-blue-200 text-black"
+          isDarkMode ? "shadow-dark " : "shadow-light "
         }`}
       >
         <h3 className="text-xl font-semibold mb-4">أضف تقييمك</h3>

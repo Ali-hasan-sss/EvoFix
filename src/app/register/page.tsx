@@ -95,12 +95,12 @@ const RegisterPage = () => {
       <Toaster />
       <div
         className={`min-h-screen flex items-center justify-center ${
-          isDarkMode ? "dark-bg-2" : "light-bg-2"
+          isDarkMode ? "dark-bg-1" : "light-bg-1"
         }`}
       >
         <div
-          className={`p-8 rounded shadow-md w-full max-w-sm login ${
-            isDarkMode ? "dark-bg-1" : "light-bg-1"
+          className={`p-8 rounded  w-full max-w-sm login ${
+            isDarkMode ? "" : ""
           }`}
         >
           <h2 className="text-xl font-bold mb-4">تسجيل حساب جديد</h2>

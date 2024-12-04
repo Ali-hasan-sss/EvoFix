@@ -113,14 +113,12 @@ const LoginForm = () => {
       <Toaster />
       <div
         className={`flex justify-center opacity-90 login items-center h-screen ${
-          isDarkMode ? "dark-bg-2" : "light-bg-2"
+          isDarkMode ? "dark-bg-1" : "light-bg-1"
         }`}
       >
         <form
           onSubmit={handleSubmit}
-          className={`p-8 rounded shadow-md w-full login max-w-sm ${
-            isDarkMode ? "dark-bg-1" : "light-bg-1"
-          }`}
+          className="p-8 rounded w-full login max-w-sm form"
         >
           <h2 className="text-2xl font-bold mb-4">تسجيل الدخول</h2>
 

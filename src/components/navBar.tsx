@@ -6,20 +6,14 @@ import { AuthContext } from "@/app/context/AuthContext";
 import { ThemeContext } from "@/app/context/ThemeContext";
 import { usePathname } from "next/navigation";
 import { toast } from "react-toastify";
-import {
-  FaList,
-  FaMoon,
-  FaRegUser,
-  FaSignOutAlt,
-  FaSun,
-  FaUser,
-} from "react-icons/fa";
+import { FaList, FaMoon, FaSun } from "react-icons/fa";
 import Image from "next/image";
 import EVOFIX from "./assets/images/EVOFIX.png";
 import {
   fetchNotificationsCount,
   startNotificationsCount,
 } from "@/utils/notification-count";
+import { FiSun } from "react-icons/fi";
 interface NavbarProps {
   className?: string;
 }
@@ -127,15 +121,15 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
     <div>
       {/* Navbar for larger screens */}
       <nav
-        className={`p-4 fixed w-full z-50 top-0 md:flex md:justify-between items-center navbar opacity-95  ${
+        className={`p-4 fixed w-full z-50 top-0 md:flex md:justify-between items-center navbar   ${
           isDarkMode
-            ? "dark-bg-1 shadow-custom-dark "
-            : "light-bg-1 shadow-custom-light"
+            ? "text-white shadow-custom-dark "
+            : "text-black shadow-custom-light"
         }`}
       >
         <div className="flex justify-between items-center">
           <button onClick={toggleTheme} className="p-2 mr-4 ">
-            {isDarkMode ? <FaMoon /> : <FaSun />}
+            {isDarkMode ? <FaMoon /> : <FiSun className="text-blue-400" />}
           </button>
           <Link href="/" className="logo">
             <Image
@@ -153,8 +147,12 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
             {isLoggedIn ? (
               //////////////////////////////////////
 
-              <div className="relative">
-                <FaList className="text-2xl" />{" "}
+              <div className="relative ">
+                <FaList
+                  className={`text-2xl ${
+                    isDarkMode ? "text-white" : "-blue-400"
+                  }`}
+                />
                 {notificationsCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5">
                     {notificationsCount}
@@ -163,7 +161,11 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
               </div>
             ) : (
               <span className="flex items-center gap-2 text-bold">
-                <FaList className="text-xl" />
+                <FaList
+                  className={`text-2xl ${
+                    isDarkMode ? "text-white" : "text-blue-400"
+                  }`}
+                />
               </span>
             )}
           </button>
@@ -306,7 +308,11 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
       {isOpen && (
         <div
           ref={dropdownRef}
-          className="md:hidden menu  w-1/2 p-4 fixed left-1 top-20 z-50 rounded opacity-95 dark-bg-1"
+          className={`md:hidden menu  w-1/2 p-4 fixed left-1 top-20 z-50 rounded  ${
+            isDarkMode
+              ? "text-white shadow-dark border-dark"
+              : "text-black shadow-light border-light"
+          }`}
         >
           <ul className="space-y-4">
             {isLoggedIn ? (
@@ -314,7 +320,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                 {userRole === "ADMIN" ? (
                   <Link
                     href="/admindashboard"
-                    className={`hover:text-gray-300 ${
+                    className={`nav-item ${
                       activeItem === "dashboard" ? "text-yellow-400" : ""
                     }`}
                     onClick={() => handleItemClick("admindashboard")}
@@ -324,7 +330,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                 ) : userRole === "TECHNICAL" ? (
                   <Link
                     href="/technicaldashboard"
-                    className={`hover:text-gray-300 ${
+                    className={`nav-item ${
                       activeItem === "dashboard" ? "text-yellow-400" : ""
                     }`}
                     onClick={() => handleItemClick("technicaldashboard")}
@@ -334,7 +340,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                 ) : userRole === "USER" ? (
                   <Link
                     href="/dashboard"
-                    className={`hover:text-gray-300 ${
+                    className={`nav-item ${
                       activeItem === "dashboard" ? "text-yellow-400" : ""
                     }`}
                     onClick={() => handleItemClick("dashboard")}

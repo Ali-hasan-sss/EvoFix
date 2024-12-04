@@ -48,9 +48,7 @@ const ContactForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className={`max-w-md mx-auto p-6 rounded shadow-md ${
-        isDarkMode ? "bg-gray-700 text-light" : "bg-blue-200 text-black"
-      }`}
+      className={`max-w-md mx-auto p-6 rounded login `}
     >
       <h2 className="text-2xl font-bold mb-4 text-center">اتصل بنا</h2>
 
@@ -63,7 +61,9 @@ const ContactForm = () => {
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded text-black"
+          className={`w-full p-2  rounded outline-none ${
+            isDarkMode ? "shadow-dark dark-bg-1" : "shadow-light light-bg-1"
+          }`}
           required
         />
       </div>
@@ -77,7 +77,9 @@ const ContactForm = () => {
           id="subject"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          className="w-full p-2 border rounded text-black"
+          className={`w-full p-2  rounded outline-none ${
+            isDarkMode ? "shadow-dark dark-bg-1" : "shadow-light light-bg-1"
+          }`}
           required
         />
       </div>
@@ -90,7 +92,9 @@ const ContactForm = () => {
           id="content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full p-2 border rounded text-black"
+          className={`w-full p-2  rounded outline-none  ${
+            isDarkMode ? "shadow-dark dark-bg-1" : "shadow-light light-bg-1"
+          }`}
           rows={4}
           required
         ></textarea>
@@ -98,7 +102,7 @@ const ContactForm = () => {
 
       <button
         type="submit"
-        className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600"
+        className="w-full py-2 px-4  text-white mt-4 btn-submit "
         disabled={isLoading}
       >
         {isLoading ? "جاري الإرسال..." : "إرسال"}

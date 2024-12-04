@@ -73,20 +73,18 @@ const FAQ = () => {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">الأسئلة الشائعة</h2>
+    <div
+      className={`p-4 rounded ${isDarkMode ? "shadow-dark" : "shadow-light"}`}
+    >
+      <h2 className="text-2xl font-bold mb-4 ">الأسئلة الشائعة</h2>
 
       {/* عرض الأسئلة الشائعة */}
-      <div
-        className={`space-y-1 ${
-          isDarkMode ? "bg-gray-800 text-light" : "bg-blue-200 text-black"
-        }`}
-      >
+      <div className={`space-y-1 `}>
         {faqs && faqs.length > 0 ? (
           faqs.map((faq, index) => (
             <div
               key={faq.id}
-              className="border border-yellow-500 rounded-lg p-4"
+              className="border border-yellow-500 rounded-lg py-4"
             >
               <button
                 onClick={() => toggleExpand(index)}
@@ -114,7 +112,7 @@ const FAQ = () => {
       </div>
 
       {/* إضافة سؤال جديد */}
-      <div className="mt-2 p-4 border border-yellow-500 rounded-lg ">
+      <div className="mt-2 py-4  s rounded-lg ">
         <h3 className="text-lg font-bold mb-2">طرح سؤال جديد</h3>
         <form onSubmit={handleNewQuestionSubmit}>
           <div className="mb-2">
@@ -123,13 +121,13 @@ const FAQ = () => {
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}
               placeholder="أدخل السؤال هنا"
-              className="w-full p-2 border rounded text-black"
+              className="w-full md:w-1/2 lg:w-1/4 p-2 border rounded text-black"
               required
             />
           </div>
           <button
             type="submit"
-            className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-700 flex justify-center items-center"
+            className="submit-btn py-2 px-4  flex justify-center items-center btn-submit"
             disabled={isLoading}
           >
             {isLoading ? (
