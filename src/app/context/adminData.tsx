@@ -101,7 +101,7 @@ export const RepairRequestsProvider: React.FC<{ children: ReactNode }> = ({
     if (userRole === "ADMIN") {
       setEndPoint("admin");
     } else {
-      setEndPoint("subadmin");
+      setEndPoint("sub-admin");
     }
   }, []);
 

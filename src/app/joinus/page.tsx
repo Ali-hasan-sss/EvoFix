@@ -93,10 +93,9 @@ const RegisterTechnicianPage = () => {
 
   return (
     <>
-      <Navbar />
       <Toaster />
       <div
-        className={`min-h-screen flex items-center justify-center ${
+        className={`min-h-screen login-page flex items-center justify-center ${
           isDarkMode ? "dark-bg-1" : "light-bg-1"
         }`}
       >

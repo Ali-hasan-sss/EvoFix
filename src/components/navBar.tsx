@@ -316,39 +316,74 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
         >
           <ul className="space-y-4">
             {isLoggedIn ? (
-              <li>
-                {userRole === "ADMIN" ? (
+              <>
+                <li>
                   <Link
-                    href="/admindashboard"
+                    href="/"
                     className={`nav-item ${
-                      activeItem === "dashboard" ? "text-yellow-400" : ""
+                      activeItem === "home" ? "active" : ""
                     }`}
-                    onClick={() => handleItemClick("admindashboard")}
+                    onClick={() => handleItemClick("home")}
                   >
-                    لوحة التحكم
+                    الرئيسية
                   </Link>
-                ) : userRole === "TECHNICAL" ? (
+                </li>
+                <li>
                   <Link
-                    href="/technicaldashboard"
+                    href="/#about"
                     className={`nav-item ${
-                      activeItem === "dashboard" ? "text-yellow-400" : ""
+                      activeItem === "about" ? "active" : ""
                     }`}
-                    onClick={() => handleItemClick("technicaldashboard")}
+                    onClick={() => handleItemClick("about")}
                   >
-                    لوحة التحكم
+                    من نحن
                   </Link>
-                ) : userRole === "USER" ? (
+                </li>
+                <li>
                   <Link
-                    href="/dashboard"
+                    href="/services"
                     className={`nav-item ${
-                      activeItem === "dashboard" ? "text-yellow-400" : ""
+                      activeItem === "services" ? "active" : ""
                     }`}
-                    onClick={() => handleItemClick("dashboard")}
+                    onClick={() => handleItemClick("services")}
                   >
-                    لوحة التحكم
+                    الخدمات
                   </Link>
-                ) : null}
-              </li>
+                </li>
+                <li>
+                  {userRole === "ADMIN" ? (
+                    <Link
+                      href="/admindashboard"
+                      className={`nav-item ${
+                        activeItem === "dashboard" ? "text-yellow-400" : ""
+                      }`}
+                      onClick={() => handleItemClick("admindashboard")}
+                    >
+                      لوحة التحكم
+                    </Link>
+                  ) : userRole === "TECHNICAL" ? (
+                    <Link
+                      href="/technicaldashboard"
+                      className={`nav-item ${
+                        activeItem === "dashboard" ? "text-yellow-400" : ""
+                      }`}
+                      onClick={() => handleItemClick("technicaldashboard")}
+                    >
+                      لوحة التحكم
+                    </Link>
+                  ) : userRole === "USER" ? (
+                    <Link
+                      href="/dashboard"
+                      className={`nav-item ${
+                        activeItem === "dashboard" ? "text-yellow-400" : ""
+                      }`}
+                      onClick={() => handleItemClick("dashboard")}
+                    >
+                      لوحة التحكم
+                    </Link>
+                  ) : null}
+                </li>
+              </>
             ) : (
               <>
                 <li>

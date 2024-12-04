@@ -109,10 +109,9 @@ const LoginForm = () => {
 
   return (
     <>
-      <Navbar />
       <Toaster />
       <div
-        className={`flex justify-center opacity-90 login items-center h-screen ${
+        className={`flex justify-center opacity-90 login-page login items-center h-screen ${
           isDarkMode ? "dark-bg-1" : "light-bg-1"
         }`}
       >

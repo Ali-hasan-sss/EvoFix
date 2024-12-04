@@ -47,7 +47,7 @@ const ServiceSlider: React.FC = () => {
     // عرض الخدمة فقط بدون سلايدر إذا كانت هناك خدمة واحدة فقط
     const service = services[0];
     return (
-      <div className="relative w-full  mx-auto">
+      <div className="relative w-full">
         <Image
           src={service.serviceImage}
           alt={service.title}
@@ -69,7 +69,7 @@ const ServiceSlider: React.FC = () => {
 
   // عرض السلايدر إذا كانت هناك أكثر من خدمة
   return (
-    <div className="w-full   mx-auto ">
+    <div className="w-full w-full">
       <Slider {...settings}>
         {services.map((service) => (
           <div key={service.id} className="relative">
@@ -80,7 +80,7 @@ const ServiceSlider: React.FC = () => {
               height={400}
               className="rounded-lg object-cover w-full h-[400px]"
             />
-            <div className="absolute bottom-0 left-0 w-full bg-gray-800 bg-opacity-60 p-4 rounded-b-lg">
+            <div className="absolute bottom-0 left-0 w-full bg-blue-900 bg-opacity-60 p-4 rounded-b-lg">
               <h2 className="text-lg font-bold text-white text-center">
                 {service.title}
               </h2>

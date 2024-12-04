@@ -213,7 +213,7 @@ const Dashboard = () => {
         </div>
 
         <div
-          className={`flex-grow p-6 mt-16 w-full md:w-4/5 pb-20 md:pb-0 custom-main-scroll`}
+          className={`flex-grow  mt-16 w-full pb-20 md:pb-0 custom-main-scroll`}
           style={{ overflowY: "auto", maxHeight: "calc(100vh - 4rem)" }}
         >
           {renderContent()}

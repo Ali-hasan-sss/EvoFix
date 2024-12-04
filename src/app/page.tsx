@@ -1,7 +1,6 @@
 "use client";
 import { NextPage } from "next";
 import React, { useContext } from "react";
-import Navbar from "@/components/navBar";
 import ChatBotButton from "@/components/ChatbotButton";
 import ServiceSlider from "@/components/ServiceSlider";
 import { Toaster } from "react-hot-toast";
@@ -34,7 +33,6 @@ const Home: NextPage = () => {
         draggable
         pauseOnHover
       />
-      <Navbar />
       <RepairRequestButton update={update} />
       <Toaster
         position="top-right"
@@ -49,12 +47,12 @@ const Home: NextPage = () => {
       />
       <ChatBotButton />
       <section
-        className={`hero ${
-          isDarkMode ? "dark text-white" : "light text-black"
+        className={`hero pt-20 bg-fixed ${
+          isDarkMode ? "dark  text-white" : "light  text-black"
         } py-10`}
       >
         <div className="hero-overlay"></div>
-        <div className="container mx-auto px-4 text-center md:text-left flex flex-col md:flex-row items-center justify-between ">
+        <div className="md:m-4 mx-auto text-center md:text-left flex flex-col md:flex-row items-center justify-between ">
           {/* Hero Text Section (Right Column) */}
           <div className="md:w-1/2 flex flex-col items-center text-center md:text-left z-20">
             <h2 className="text-4xl font-bold">
@@ -75,14 +73,18 @@ const Home: NextPage = () => {
           </div>
 
           {/* Slider Section (Left Column) */}
-          <div className="md:w-1/2 w-full z-20  mt-8 mr-2 md:mt-0 ">
+          <div className="md:w-1/2 w-full z-20  mt-8  md:mt-0 ">
             <ServiceSlider />
           </div>
         </div>
       </section>
 
       <About />
-      <section className={` ${isDarkMode ? "dark-bg-2" : "light-bg-2"}  py-10`}>
+      <section
+        className={`reviews bg-fixed ${
+          isDarkMode ? "dark-bg-2" : "light-bg-2"
+        }  py-10`}
+      >
         <Reviews />
       </section>
       <section
@@ -97,7 +99,9 @@ const Home: NextPage = () => {
       </section>
       <section
         id="contact"
-        className={`py-10  ${isDarkMode ? "dark-bg-2" : "light-bg-2"}`}
+        className={`reviews bg-fixed ${
+          isDarkMode ? "dark-bg-2" : "light-bg-2"
+        }  py-10`}
       >
         <div className="flex   items-center ">
           <div className="w-full">
