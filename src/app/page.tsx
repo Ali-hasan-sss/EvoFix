@@ -92,7 +92,7 @@ const Home: NextPage = () => {
             </div>
 
             {/* Slider Section (Left Column) */}
-            <div className="md:w-1/2 w-full  mt-8 mr-2 md:mt-0 ">
+            <div className="md:w-1/2 w-full z-20  mt-8 mr-2 md:mt-0 ">
               <ServiceSlider />
             </div>
           </div>
