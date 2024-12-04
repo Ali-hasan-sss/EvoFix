@@ -204,10 +204,8 @@ const RepairRequestButton: React.FC<requestbuttonProps> = ({ update }) => {
       />
       <button
         onClick={openModal}
-        className={`fixed bottom-20 mb-5 left-5 bg-blue-400 text-white p-2 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none z-20  ${
-          isDarkMode
-            ? "bg-gray-700 text-white hover:bg-gray-600"
-            : "bg-blue-500 text-black hover:bg-blue-600"
+        className={`fixed bottom-20 mb-5 left-5 p-2 rounded-full border fixed-btn z-20  ${
+          isDarkMode ? " text-white" : "text-black"
         }`}
       >
         طلب إصلاح

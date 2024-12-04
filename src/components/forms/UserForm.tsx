@@ -510,7 +510,7 @@ const UserForm: React.FC<UserFormProps> = ({
                   اوافق علي سياسة الخصوصية و
                   <a
                     href="/privacy-and-terms"
-                    className="text-blue-500 m-0 p-0"
+                    className="text-blue-900 hover:text-blue-500 m-0 p-0"
                   >
                     شروط الاستخدام
                   </a>
@@ -557,7 +557,7 @@ const UserForm: React.FC<UserFormProps> = ({
             disabled={
               (isNew && (isLoading || !isChecked)) || (!isNew && isLoading)
             }
-            className={`px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600
+            className={`btn-submit w-full mr-3
           ${
             (isLoading && isNew) || (!isChecked && isNew)
               ? "opacity-50 cursor-not-allowed"

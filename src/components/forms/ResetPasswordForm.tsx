@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { API_BASE_URL } from "@/utils/api";
+import { ThemeContext } from "@/app/context/ThemeContext";
 
 interface ResetPasswordFormProps {
   onClose: () => void;
@@ -11,6 +12,7 @@ interface ResetPasswordFormProps {
 const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onClose }) => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const { isDarkMode } = useContext(ThemeContext);
 
   // تحقق من صحة البريد الإلكتروني
   const validateEmail = (email: string) => {
@@ -45,7 +47,11 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white text-black rounded-lg shadow-md">
+    <div
+      className={`max-w-md mx-auto p-6 rounded-lg shadow-md ${
+        isDarkMode ? "dark-bg-1" : "light-bg-1"
+      }`}
+    >
       <h2 className="text-2xl font-semibold text-center mb-4">
         استعادة كلمة المرور
       </h2>
@@ -67,7 +73,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onClose }) => {
         />
         <button
           type="submit"
-          className="mt-4 w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400"
+          className="mt-4 w-full btn-submit"
           disabled={loading}
         >
           {loading ? "جاري الإرسال..." : "إرسال"}

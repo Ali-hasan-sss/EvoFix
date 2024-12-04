@@ -112,14 +112,14 @@ const LoginForm = () => {
       <Navbar />
       <Toaster />
       <div
-        className={`flex justify-center items-center h-screen ${
-          isDarkMode ? "bg-gray-900" : "bg-gray-100"
+        className={`flex justify-center opacity-90 login items-center h-screen ${
+          isDarkMode ? "dark-bg-2" : "light-bg-2"
         }`}
       >
         <form
           onSubmit={handleSubmit}
-          className={`p-8 rounded shadow-md w-full max-w-sm ${
-            isDarkMode ? "bg-gray-800 text-white" : "bg-gray-500 text-gray-800"
+          className={`p-8 rounded shadow-md w-full login max-w-sm ${
+            isDarkMode ? "dark-bg-1" : "light-bg-1"
           }`}
         >
           <h2 className="text-2xl font-bold mb-4">تسجيل الدخول</h2>
@@ -178,7 +178,10 @@ const LoginForm = () => {
 
           <div className="flex p-1 mb-2 items-center justify-between w-full">
             <p className="m-2 ">
-              <a className="text-blue-500 m-0 p-0 " href="register">
+              <a
+                className="text-blue-800 hover:text-blue-500 m-0 p-0 "
+                href="register"
+              >
                 ليس لدي حساب
               </a>
             </p>
@@ -186,7 +189,7 @@ const LoginForm = () => {
             <button
               type="button"
               onClick={toggleModal}
-              className="text-blue-500"
+              className="text-blue-800 hover:text-blue-500"
             >
               نسيت كلمة المرور
             </button>
@@ -195,9 +198,9 @@ const LoginForm = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`w-full btn-submit ${
+              isDarkMode ? "text-white" : "text-black"
+            } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {loading ? "جارٍ تسجيل الدخول..." : "تسجيل الدخول"}
           </button>

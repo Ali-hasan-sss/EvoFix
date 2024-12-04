@@ -94,15 +94,26 @@ export const RepairRequestsProvider: React.FC<{ children: ReactNode }> = ({
   const [isReviewsLoading, setIsReviewsLoading] = useState(false);
   const [isServicesLoading, setIsServicesLoading] = useState(false);
   const [isDeviceLoading, setIsDeviceLoading] = useState(false);
+  const [endPoint, setEndPoint] = useState("");
 
-  // دالة جلب طلبات الإصلاح
+  useEffect(() => {
+    const userRole = localStorage.getItem("userRole");
+    if (userRole === "ADMIN") {
+      setEndPoint("admin");
+    } else {
+      setEndPoint("subadmin");
+    }
+  }, []);
+
   const fetchRepairRequests = async () => {
     if (repairRequests.length > 0) return;
     setIsLoading(true);
     try {
       const token = Cookies.get("token");
+      if (!endPoint) return;
+
       const response = await axios.get(
-        `${API_BASE_URL}/maintenance-requests/all/admin`,
+        `${API_BASE_URL}/maintenance-requests/all/${endPoint}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -115,6 +126,13 @@ export const RepairRequestsProvider: React.FC<{ children: ReactNode }> = ({
       setIsLoading(false);
     }
   };
+
+  // استدعاء دالة جلب البيانات عندما يتم تحميل المكون
+  useEffect(() => {
+    if (endPoint) {
+      fetchRepairRequests();
+    }
+  }, [endPoint]);
 
   // دالة جلب الإشعارات
   const fetchNotifications = async () => {

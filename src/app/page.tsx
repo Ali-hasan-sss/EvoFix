@@ -16,6 +16,8 @@ import ContactForm from "@/components/forms/ContactForm";
 import Reviews from "@/components/Review";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/footer";
+import Link from "next/link";
+
 const Home: NextPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
   const update = () => console.log("done");
@@ -67,19 +69,35 @@ const Home: NextPage = () => {
           }}
         />
         <ChatBotButton />
-        <section className="bg-blue-500 text-white py-20 hero">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-4xl font-bold">
-              We Fix Your Electronics Quickly & Professionally
-            </h2>
-            <p className="mt-4 text-lg">
-              Screen repairs, battery replacements, and more. Get your device
-              working like new again.
-            </p>
+        <section className={`hero ${isDarkMode ? "dark" : "light"} py-20`}>
+          <div className="hero-overlay"></div>
+          <div className="container mx-auto px-4 text-center md:text-left flex flex-col md:flex-row items-center justify-between ">
+            {/* Hero Text Section (Right Column) */}
+            <div className="md:w-1/2 flex flex-col items-center text-center md:text-left z-20">
+              <h2 className="text-4xl font-bold">
+                نحن نصلح أجهزتك الإلكترونية بسرعة واحترافية
+              </h2>
+              <p className="mt-4 text-lg">
+                إصلاح الشاشات، استبدال البطاريات، والمزيد. اجعل جهازك يعمل كما
+                لو كان جديدًا مرة أخرى.
+              </p>
+              <Link
+                href="/register"
+                className={` ${
+                  isDarkMode ? "text-white" : "text-black"
+                } btn mt-6`}
+              >
+                إنشاء حساب
+              </Link>
+            </div>
+
+            {/* Slider Section (Left Column) */}
+            <div className="md:w-1/2 w-full  mt-8 mr-2 md:mt-0 ">
+              <ServiceSlider />
+            </div>
           </div>
         </section>
-        {/* Services Section */}
-        <ServiceSlider />
+
         {/* About Us Section */}
         <section id="about" className="py-20">
           <div
@@ -102,7 +120,7 @@ const Home: NextPage = () => {
         {/* Contact Section */}
         <section
           id="contact"
-          className={`py-10 my-5 ${
+          className={`py-20 my-5 ${
             isDarkMode ? "bg-gray-800 text-light" : "bg-blue-200 text-black"
           }`}
         >

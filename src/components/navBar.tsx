@@ -6,8 +6,14 @@ import { AuthContext } from "@/app/context/AuthContext";
 import { ThemeContext } from "@/app/context/ThemeContext";
 import { usePathname } from "next/navigation";
 import { toast } from "react-toastify";
-import "./assets/navbar.css";
-import { FaList, FaRegUser, FaSignOutAlt, FaUser } from "react-icons/fa";
+import {
+  FaList,
+  FaMoon,
+  FaRegUser,
+  FaSignOutAlt,
+  FaSun,
+  FaUser,
+} from "react-icons/fa";
 import Image from "next/image";
 import EVOFIX from "./assets/images/EVOFIX.png";
 import {
@@ -121,13 +127,15 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
     <div>
       {/* Navbar for larger screens */}
       <nav
-        className={`p-4 fixed w-full z-50 top-0 shadow-lg md:flex md:justify-between items-center border-b border-yellow-500 ${
-          isDarkMode ? "bg-gray-900 text-white" : "bg-gray-700 text-black"
+        className={`p-4 fixed w-full z-50 top-0 md:flex md:justify-between items-center navbar opacity-95  ${
+          isDarkMode
+            ? "dark-bg-1 shadow-custom-dark "
+            : "light-bg-1 shadow-custom-light"
         }`}
       >
         <div className="flex justify-between items-center">
           <button onClick={toggleTheme} className="p-2 mr-4 ">
-            {isDarkMode ? "🌙" : "☀️"}
+            {isDarkMode ? <FaMoon /> : <FaSun />}
           </button>
           <Link href="/" className="logo">
             <Image
@@ -154,20 +162,17 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                 )}
               </div>
             ) : (
-              <span className="flex items-center gap-2 text-bold btn">
-                <FaRegUser className="text-xl" />
-                <span className="mr-5">التسجيل</span>
+              <span className="flex items-center gap-2 text-bold">
+                <FaList className="text-xl" />
               </span>
             )}
           </button>
         </div>
-        <ul className="hidden md:flex space-x-4">
+        <ul className="hidden md:flex ">
           <li>
             <Link
               href="/"
-              className={`hover:text-gray-300 ${
-                activeItem === "home" ? "text-yellow-400" : ""
-              }`}
+              className={`nav-item ${activeItem === "home" ? "active" : ""}`}
               onClick={() => handleItemClick("home")}
             >
               الرئيسية
@@ -176,19 +181,17 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
           <li>
             <Link
               href="/about"
-              className={`hover:text-gray-300 ${
-                activeItem === "about" ? "text-yellow-400" : ""
-              }`}
+              className={`nav-item ${activeItem === "about" ? "active" : ""}`}
               onClick={() => handleItemClick("about")}
             >
-              عننا
+              من نحن
             </Link>
           </li>
           <li>
             <Link
               href="/services"
-              className={`hover:text-gray-300 ${
-                activeItem === "services" ? "text-yellow-400" : ""
+              className={`nav-item ${
+                activeItem === "services" ? "active" : ""
               }`}
               onClick={() => handleItemClick("services")}
             >
@@ -199,35 +202,56 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
             <>
               <li>
                 {userRole === "ADMIN" || userRole === "SUBADMIN" ? (
-                  <Link
-                    href="/admindashboard"
-                    className={`hover:text-gray-300 ${
-                      activeItem === "dashboard" ? "text-yellow-400" : ""
-                    }`}
-                    onClick={() => handleItemClick("dashboard")}
-                  >
-                    لوحة التحكم
-                  </Link>
+                  <div className="relative">
+                    {notificationsCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5">
+                        {notificationsCount}
+                      </span>
+                    )}
+                    <Link
+                      href="/admindashboard"
+                      className={`nav-item ${
+                        activeItem === "dashboard" ? "active" : ""
+                      }`}
+                      onClick={() => handleItemClick("dashboard")}
+                    >
+                      لوحة التحكم
+                    </Link>
+                  </div>
                 ) : userRole === "USER" ? (
-                  <Link
-                    href="/dashboard"
-                    className={`hover:text-gray-300 ${
-                      activeItem === "dashboard" ? "text-yellow-400" : ""
-                    }`}
-                    onClick={() => handleItemClick("dashboard")}
-                  >
-                    لوحة التحكم
-                  </Link>
+                  <div className="relative">
+                    {notificationsCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5">
+                        {notificationsCount}
+                      </span>
+                    )}
+                    <Link
+                      href="/dashboard"
+                      className={`nav-item ${
+                        activeItem === "dashboard" ? "active" : ""
+                      }`}
+                      onClick={() => handleItemClick("dashboard")}
+                    >
+                      لوحة التحكم
+                    </Link>
+                  </div>
                 ) : userRole === "TECHNICAL" ? (
-                  <Link
-                    href="/technicaldashboard"
-                    className={`hover:text-gray-300 ${
-                      activeItem === "dashboard" ? "text-yellow-400" : ""
-                    }`}
-                    onClick={() => handleItemClick("technicaldashboard")}
-                  >
-                    لوحة التحكم
-                  </Link>
+                  <div className="relative">
+                    {notificationsCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5">
+                        {notificationsCount}
+                      </span>
+                    )}
+                    <Link
+                      href="/technicaldashboard"
+                      className={`hover:text-gray-300 ${
+                        activeItem === "dashboard" ? "text-yellow-400" : ""
+                      }`}
+                      onClick={() => handleItemClick("technicaldashboard")}
+                    >
+                      لوحة التحكم
+                    </Link>
+                  </div>
                 ) : null}
               </li>
 
@@ -235,7 +259,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                 onClick={handleLogout}
                 className="  text-red-500 hover:text-red-700 rounded p-2 transition-colors duration-200"
               >
-                <FaSignOutAlt className="text-2xl ml-2" />
+                تسجيل الخروج
               </button>
             </>
           ) : (
@@ -243,8 +267,8 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
               <li>
                 <Link
                   href="/login"
-                  className={`hover:text-gray-300 ${
-                    activeItem === "login" ? "text-yellow-400" : ""
+                  className={`nav-item  ${
+                    activeItem === "login" ? "active" : ""
                   }`}
                   onClick={() => handleItemClick("login")}
                 >
@@ -254,8 +278,8 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
               <li>
                 <Link
                   href="/register"
-                  className={`hover:text-gray-300 ${
-                    activeItem === "register" ? "text-yellow-400" : ""
+                  className={`nav-item ${
+                    activeItem === "register" ? "active" : ""
                   }`}
                   onClick={() => handleItemClick("register")}
                 >
@@ -265,8 +289,8 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
               <li>
                 <Link
                   href="/joinus"
-                  className={`hover:text-gray-300 ${
-                    activeItem === "joinus" ? "text-yellow-400" : ""
+                  className={`nav-item ${
+                    activeItem === "joinus" ? "active" : ""
                   }`}
                   onClick={() => handleItemClick("joinus")}
                 >
@@ -282,9 +306,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
       {isOpen && (
         <div
           ref={dropdownRef}
-          className={`md:hidden bg-blue-500 text-black border border-yellow-500 shadow-lg w-1/2 p-4 fixed left-2 top-20 z-50 rounded opacity-98 ${
-            isDarkMode ? "bg-gray-800" : "bg-gray-600"
-          }`}
+          className="md:hidden menu  w-1/2 p-4 fixed left-1 top-20 z-50 rounded opacity-95 dark-bg-1"
         >
           <ul className="space-y-4">
             {isLoggedIn ? (
@@ -325,9 +347,42 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
               <>
                 <li>
                   <Link
+                    href="/"
+                    className={`nav-item ${
+                      activeItem === "home" ? "active" : ""
+                    }`}
+                    onClick={() => handleItemClick("home")}
+                  >
+                    الرئيسية
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/about"
+                    className={`nav-item ${
+                      activeItem === "about" ? "active" : ""
+                    }`}
+                    onClick={() => handleItemClick("about")}
+                  >
+                    من نحن
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/services"
+                    className={`nav-item ${
+                      activeItem === "services" ? "active" : ""
+                    }`}
+                    onClick={() => handleItemClick("services")}
+                  >
+                    الخدمات
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/login"
-                    className={`hover:text-gray-300 ${
-                      activeItem === "login" ? "text-yellow-400" : ""
+                    className={`nav-item ${
+                      activeItem === "login" ? "active" : ""
                     }`}
                     onClick={() => handleItemClick("login")}
                   >
@@ -337,8 +392,8 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                 <li>
                   <Link
                     href="/register"
-                    className={`hover:text-gray-300 ${
-                      activeItem === "register" ? "text-yellow-400" : ""
+                    className={`nav-item ${
+                      activeItem === "register" ? "active" : ""
                     }`}
                     onClick={() => handleItemClick("register")}
                   >
@@ -348,8 +403,8 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                 <li>
                   <Link
                     href="/joinus"
-                    className={`hover:text-gray-300 ${
-                      activeItem === "joinus" ? "text-yellow-400" : ""
+                    className={`nav-item  ${
+                      activeItem === "joinus" ? "active" : ""
                     }`}
                     onClick={() => handleItemClick("joinus")}
                   >
@@ -362,7 +417,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
               <li>
                 <button
                   onClick={handleLogout}
-                  className="text-red-600 hover:text-red-500 text-light"
+                  className="text-red-600 hover:text-red-500 "
                 >
                   تسجيل الخروج
                 </button>
