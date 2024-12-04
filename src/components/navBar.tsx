@@ -180,7 +180,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
           </li>
           <li>
             <Link
-              href="/about"
+              href="/#about"
               className={`nav-item ${activeItem === "about" ? "active" : ""}`}
               onClick={() => handleItemClick("about")}
             >
@@ -358,7 +358,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                 </li>
                 <li>
                   <Link
-                    href="/about"
+                    href="/#about"
                     className={`nav-item ${
                       activeItem === "about" ? "active" : ""
                     }`}

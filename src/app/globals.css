@@ -13,7 +13,9 @@
     --foreground: #ededed;
   }
 }
-
+html {
+  scroll-behavior: smooth;
+}
 body {
   color: var(--foreground);
   background: var(--background);
@@ -21,6 +23,7 @@ body {
   direction: rtl;
   text-align: right;
 }
+
 /**************************** hero ********************************/
 .hero {
   margin-top: 65px;
@@ -64,16 +67,16 @@ body {
 .btn {
   font-size: 18px;
   font-weight: bold;
-  border: 2px solid #14034dd6;
-  box-shadow: 5px 5px 15px 0px #1f2951;
+  border: 1px solid #e2dfecd6;
+  box-shadow: 2px 2px 5px 0px #1f29517d;
   backdrop-filter: blur(10px);
+  background-color: #645ecc6d;
   border-radius: 15px;
   padding: 5px 20px;
   transition: 0.3s;
 }
 .btn:hover {
-  border: 2px solid #3ef50bd6;
-  color: #94fc1dd6;
+  border: 1px solid #3ef50bd6;
 }
 .fixed-btn {
   transition: 0.3s;
@@ -96,7 +99,7 @@ body {
 .logo:hover {
   background-color: transparent;
 }
-/******* services slider*********/
+/******************** services slider******************/
 
 .slick-slider {
   overflow: hidden;
@@ -110,6 +113,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+/***************** about section ********************/
+.about {
+  min-height: 50vh;
 }
 /**************************** navbar **********************/
 .navbar {
@@ -145,7 +152,12 @@ body {
   background-color: rgb(213, 240, 247);
   color: #000000;
 }
-
+.shadow-dark {
+  box-shadow: 5px 5px 7px #ffffff4e;
+}
+.shadow-light {
+  box-shadow: 5px 5px 7px #250a0a74;
+}
 /**************************** login **********************/
 .login {
   box-shadow: 0px 7px 15px #01042d57;

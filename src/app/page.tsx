@@ -2,7 +2,6 @@
 import { NextPage } from "next";
 import React, { useContext } from "react";
 import Navbar from "@/components/navBar";
-import Head from "next/head";
 import ChatBotButton from "@/components/ChatbotButton";
 import ServiceSlider from "@/components/ServiceSlider";
 import { Toaster } from "react-hot-toast";
@@ -17,134 +16,103 @@ import Reviews from "@/components/Review";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/footer";
 import Link from "next/link";
+import About from "@/components/about";
 
 const Home: NextPage = () => {
   const { isDarkMode } = useContext(ThemeContext);
   const update = () => console.log("done");
   return (
     <div>
-      {/* Meta Information */}
-      <Head>
-        <title>Electronic Repair Platform</title>
-        <meta
-          name="description"
-          content="We specialize in repairing electronic devices, especially screen repairs."
-        />
-        <meta
-          name="keywords"
-          content="electronic repair, screen repair, battery replacement"
-        />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      <Navbar />
+      <RepairRequestButton update={update} />
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            background: isDarkMode ? "#333" : "#fff",
+            color: isDarkMode ? "#fff" : "#000",
+            fontSize: "14px",
+          },
+        }}
+      />
+      <ChatBotButton />
+      <section
+        className={`hero ${
+          isDarkMode ? "dark text-white" : "light text-black"
+        } py-20`}
+      >
+        <div className="hero-overlay"></div>
+        <div className="container mx-auto px-4 text-center md:text-left flex flex-col md:flex-row items-center justify-between ">
+          {/* Hero Text Section (Right Column) */}
+          <div className="md:w-1/2 flex flex-col items-center text-center md:text-left z-20">
+            <h2 className="text-4xl font-bold">
+              نحن نصلح أجهزتك الإلكترونية بسرعة واحترافية
+            </h2>
+            <p className="mt-4 text-lg">
+              إصلاح الشاشات، استبدال البطاريات، والمزيد. اجعل جهازك يعمل كما لو
+              كان جديدًا مرة أخرى.
+            </p>
+            <Link
+              href="/register"
+              className={` ${
+                isDarkMode ? "text-white" : "text-black"
+              } btn mt-6`}
+            >
+              إنشاء حساب
+            </Link>
+          </div>
 
-      {/* Main Container */}
-      <div
-        className={`min-h-screen ${
-          isDarkMode ? "bg-gray-900 text-light" : "bg-gray-100 text-black"
+          {/* Slider Section (Left Column) */}
+          <div className="md:w-1/2 w-full z-20  mt-8 mr-2 md:mt-0 ">
+            <ServiceSlider />
+          </div>
+        </div>
+      </section>
+
+      <About />
+      <section className="py-20">
+        {/* Reviews Section */}
+        <Reviews />
+      </section>
+      {/* Contact Section */}
+      <section
+        id="contact"
+        className={`py-20 my-5 ${
+          isDarkMode ? "bg-gray-800 text-light" : "bg-blue-200 text-black"
         }`}
       >
-        {/********************************/}
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
-        <Navbar />
-        <RepairRequestButton update={update} />
-        <Toaster
-          position="top-right"
-          reverseOrder={false}
-          toastOptions={{
-            style: {
-              background: isDarkMode ? "#333" : "#fff",
-              color: isDarkMode ? "#fff" : "#000",
-              fontSize: "14px",
-            },
-          }}
-        />
-        <ChatBotButton />
-        <section className={`hero ${isDarkMode ? "dark" : "light"} py-20`}>
-          <div className="hero-overlay"></div>
-          <div className="container mx-auto px-4 text-center md:text-left flex flex-col md:flex-row items-center justify-between ">
-            {/* Hero Text Section (Right Column) */}
-            <div className="md:w-1/2 flex flex-col items-center text-center md:text-left z-20">
-              <h2 className="text-4xl font-bold">
-                نحن نصلح أجهزتك الإلكترونية بسرعة واحترافية
-              </h2>
-              <p className="mt-4 text-lg">
-                إصلاح الشاشات، استبدال البطاريات، والمزيد. اجعل جهازك يعمل كما
-                لو كان جديدًا مرة أخرى.
-              </p>
-              <Link
-                href="/register"
-                className={` ${
-                  isDarkMode ? "text-white" : "text-black"
-                } btn mt-6`}
-              >
-                إنشاء حساب
-              </Link>
-            </div>
-
-            {/* Slider Section (Left Column) */}
-            <div className="md:w-1/2 w-full z-20  mt-8 mr-2 md:mt-0 ">
-              <ServiceSlider />
-            </div>
-          </div>
-        </section>
-
-        {/* About Us Section */}
-        <section id="about" className="py-20">
-          <div
-            className={`container mx-auto px-4 text-center${
-              isDarkMode ? "bg-gray-900 text-light" : "bg-gray-400 text-black"
-            }`}
-          >
-            <h3 className="text-3xl font-semibold mb-8">Why Choose Us?</h3>
-            <p className="text-lg text-gray-700 max-w-2xl mx-auto">
-              We are experts in repairing electronics, offering fast, reliable,
-              and affordable services. With a skilled team and quality parts, we
-              ensure that your device is returned to you in perfect condition.
-            </p>
-          </div>
-        </section>
-        <section>
-          {/* Reviews Section */}
-          <Reviews />
-        </section>
-        {/* Contact Section */}
-        <section
-          id="contact"
-          className={`py-20 my-5 ${
-            isDarkMode ? "bg-gray-800 text-light" : "bg-blue-200 text-black"
-          }`}
+        <div
+          className="flex flex-col lg:flex-row gap-6 lg:gap-12 items-center lg:items-start justify-center lg:justify-between"
+          style={{ minHeight: "100vh" }}
         >
-          <div
-            className="flex flex-col lg:flex-row gap-6 lg:gap-12 items-center lg:items-start justify-center lg:justify-between"
-            style={{ minHeight: "100vh" }}
-          >
-            {/* مكون الفورم */}
-            <div className="w-full lg:flex-1">
-              <ContactForm />
-            </div>
-
-            {/* مكون الأسئلة الشائعة */}
-            <div className="w-full lg:flex-1">
-              <FAQ />
-            </div>
+          {/* مكون الفورم */}
+          <div className="w-full lg:flex-1">
+            <ContactForm />
           </div>
-        </section>
 
-        {/* Footer */}
-        <footer className="bg-gray-800 text-white py-6">
-          <Footer></Footer>
-        </footer>
-      </div>
+          {/* مكون الأسئلة الشائعة */}
+          <div className="w-full lg:flex-1">
+            <FAQ />
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-6">
+        <Footer></Footer>
+      </footer>
     </div>
   );
 };
