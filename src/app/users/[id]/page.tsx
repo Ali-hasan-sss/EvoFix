@@ -307,8 +307,8 @@ const UserPage = () => {
         pauseOnHover
       />
       <div
-        className={`pt-20 mt-10 w-full p-6 bg-gray-100 shadow-lg rounded-lg md:flex md:flex-col  text-right ${
-          isDarkMode ? "bg-gray-900 text-white" : "bg-gray-200 text-black"
+        className={`pt-20 mt-10 w-full profile p-6 bg-gray-100 shadow-lg rounded-lg md:flex md:flex-col  text-right ${
+          isDarkMode ? "dark-bg-1" : "light-bg-1"
         }`}
         style={{ minHeight: "100vh" }}
       >
@@ -317,27 +317,47 @@ const UserPage = () => {
         </button>
         <h1 className="text-3xl font-bold mb-6">معلومات المستخدم</h1>
 
-        <div
-          className={`grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 w-full ${
-            isDarkMode ? "bg-gray-900 text-white" : "bg-gray-200 text-black"
-          }`}
-        >
-          <p className="border border-gray-300 rounded p-3">
+        <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 w-full`}>
+          <p
+            className={`rounded p-3 ${
+              isDarkMode ? "shadow-dark" : "shadow-light"
+            }`}
+          >
             <strong>الاسم:</strong> {user.fullName}
           </p>
-          <p className="border border-gray-300 rounded p-3">
+          <p
+            className={`rounded p-3 ${
+              isDarkMode ? "shadow-dark" : "shadow-light"
+            }`}
+          >
             <strong>البريد الإلكتروني:</strong> {user.email}
           </p>
-          <p className="border border-gray-300 rounded p-3">
+          <p
+            className={`rounded p-3 ${
+              isDarkMode ? "shadow-dark" : "shadow-light"
+            }`}
+          >
             <strong>رقم الهاتف:</strong> {user.phoneNO}
           </p>
-          <p className="border border-gray-300 rounded p-3">
+          <p
+            className={`rounded p-3 ${
+              isDarkMode ? "shadow-dark" : "shadow-light"
+            }`}
+          >
             <strong>المحافظة:</strong> {user.governorate}
           </p>
-          <p className="border border-gray-300 rounded p-3">
+          <p
+            className={`rounded p-3 ${
+              isDarkMode ? "shadow-dark" : "shadow-light"
+            }`}
+          >
             <strong>العنوان:</strong> {user.address}
           </p>
-          <p className="border border-gray-300 rounded p-3">
+          <p
+            className={`rounded p-3 ${
+              isDarkMode ? "shadow-darck" : "shadow-light"
+            }`}
+          >
             <strong>الدور:</strong>
             {user.role === "TECHNICAL"
               ? "فني"
@@ -347,7 +367,11 @@ const UserPage = () => {
               ? "مسؤول"
               : "مستخدم"}
           </p>
-          <div className="border relative border-gray-300 rounded p-3">
+          <div
+            className={`rounded relative p-3 ${
+              isDarkMode ? "shadow-dark" : "shadow-light"
+            }`}
+          >
             <strong>الحالة:</strong>
             {user.isActive ? (
               <span className="absolute top-4 left-5 bg-green-500 rounded-full w-3 h-3"></span>
@@ -376,7 +400,11 @@ const UserPage = () => {
             </div>
           </div>
 
-          <div className="border relative border-gray-300 rounded p-3">
+          <div
+            className={`rounded relative p-3 ${
+              isDarkMode ? "shadow-dark" : "shadow-light"
+            }`}
+          >
             <strong>التحقق:</strong>
             {user.isVerified ? (
               <span className="absolute top-4 right-20 bg-green-500 rounded-full w-3 h-3"></span>
@@ -384,7 +412,11 @@ const UserPage = () => {
               <span className="absolute top-4 right-16 bg-red-500 rounded-full w-3 h-3"></span>
             )}
           </div>
-          <p className="border border-gray-300 rounded p-3">
+          <p
+            className={`rounded p-3 ${
+              isDarkMode ? "shadow-dark" : "shadow-light"
+            }`}
+          >
             <strong>تاريخ الإنشاء:</strong>{" "}
             {new Date(user.createdAt).toLocaleDateString("ar-EG")}
           </p>
@@ -392,10 +424,18 @@ const UserPage = () => {
           {/* معلومات إضافية للمستخدمين التقنيين */}
           {user.role === "TECHNICAL" && user.technician && (
             <>
-              <p className="border border-gray-300 rounded p-3">
+              <p
+                className={`rounded p-3 ${
+                  isDarkMode ? "shadow-dark" : "shadow-light"
+                }`}
+              >
                 <strong>التخصص:</strong> {user.technician.specialization}
               </p>
-              <p className="border border-gray-300 rounded p-3">
+              <p
+                className={`rounded p-3 ${
+                  isDarkMode ? "shadow-dark" : "shadow-light"
+                }`}
+              >
                 <strong>الخدمات:</strong> {user.technician.services}
               </p>
             </>
@@ -404,10 +444,18 @@ const UserPage = () => {
           {/* معلومات إضافية للمستخدمين السب أدمن */}
           {user.role === "SUBADMIN" && user.subadmin && (
             <>
-              <p className="border border-gray-300 rounded p-3">
+              <p
+                className={`rounded p-3 ${
+                  isDarkMode ? "shadow-dark" : "shadow-light"
+                }`}
+              >
                 <strong>القسم:</strong> {user.subadmin.department}
               </p>
-              <p className="border border-gray-300 rounded p-3">
+              <p
+                className={`rounded p-3 ${
+                  isDarkMode ? "shadow-dark" : "shadow-light"
+                }`}
+              >
                 <strong>القطاع:</strong> {user.subadmin.governorate}
               </p>
             </>

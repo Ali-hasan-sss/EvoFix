@@ -92,9 +92,7 @@ const RepairRequestButton: React.FC<requestbuttonProps> = ({ update }) => {
           value={deviceType}
           onChange={(e) => handleDeviceTypeChange(e.target.value)}
           className={`w-full p-2 border-b focus:outline-none ${
-            isDarkMode
-              ? "bg-gray-700 text-white border-gray-600"
-              : "bg-white text-gray-800 border-gray-300"
+            isDarkMode ? "input-dark" : "input-light"
           }`}
           required
         >
@@ -215,7 +213,7 @@ const RepairRequestButton: React.FC<requestbuttonProps> = ({ update }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div
             className={`p-6 rounded-lg shadow-lg w-11/12 sm:w-96 ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-black"
+              isDarkMode ? "dark-bg-2" : "light-bg-2"
             }`}
             style={{ maxHeight: "80%", overflowY: "auto" }}
           >
@@ -228,9 +226,7 @@ const RepairRequestButton: React.FC<requestbuttonProps> = ({ update }) => {
                   value={governorate}
                   onChange={(e) => setGovernorate(e.target.value)}
                   className={`w-full p-2 border-b focus:outline-none ${
-                    isDarkMode
-                      ? "bg-gray-700 text-white border-gray-600"
-                      : "bg-white text-gray-800 border-gray-300"
+                    isDarkMode ? "input-dark" : "input-light"
                   }`}
                   required
                 >
@@ -257,9 +253,7 @@ const RepairRequestButton: React.FC<requestbuttonProps> = ({ update }) => {
                   value={phoneNO}
                   onChange={(e) => setPhoneNO(e.target.value)}
                   className={`w-full p-2 border-b focus:outline-none ${
-                    isDarkMode
-                      ? "bg-gray-700 text-white border-gray-600"
-                      : "bg-white text-gray-800 border-gray-300"
+                    isDarkMode ? "input-dark" : "input-light"
                   }`}
                   required
                 />
@@ -272,9 +266,7 @@ const RepairRequestButton: React.FC<requestbuttonProps> = ({ update }) => {
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   className={`w-full p-2 border-b focus:outline-none ${
-                    isDarkMode
-                      ? "bg-gray-700 text-white border-gray-600"
-                      : "bg-white text-gray-800 border-gray-300"
+                    isDarkMode ? "input-dark" : "input-light"
                   }`}
                   required
                 />
@@ -292,9 +284,7 @@ const RepairRequestButton: React.FC<requestbuttonProps> = ({ update }) => {
                   value={deviceModel}
                   onChange={(e) => setDeviceModel(e.target.value)}
                   className={`w-full p-2 border-b focus:outline-none ${
-                    isDarkMode
-                      ? "bg-gray-700 text-white border-gray-600"
-                      : "bg-white text-gray-800 border-gray-300"
+                    isDarkMode ? "input-dark" : "input-light"
                   }`}
                   required
                 >
@@ -313,9 +303,7 @@ const RepairRequestButton: React.FC<requestbuttonProps> = ({ update }) => {
                   value={problemDescription}
                   onChange={(e) => setProblemDescription(e.target.value)}
                   className={`w-full p-2 border-b focus:outline-none ${
-                    isDarkMode
-                      ? "bg-gray-700 text-white border-gray-600"
-                      : "bg-white text-gray-800 border-gray-300"
+                    isDarkMode ? "input-dark" : "input-light"
                   }`}
                   required
                 />
@@ -327,7 +315,9 @@ const RepairRequestButton: React.FC<requestbuttonProps> = ({ update }) => {
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="w-full p-2 border-b focus:outline-none"
+                  className={`w-full p-2 border-b focus:outline-none ${
+                    isDarkMode ? "input-dark" : "input-light"
+                  }`}
                 />
                 {imagePreview && (
                   <div className="mt-2 flex items-center">

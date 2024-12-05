@@ -155,10 +155,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
   const sidebarRow = mainRow.filter((option) => option.key !== "viewHome");
 
   return (
-    <div className="flex min-h-screen mt-4 text-white">
+    <div className="flex min-h-screen  text-white">
       <div
         className={`hidden md:flex w-full p-4 flex-col flex-shrink-0 ${
-          isDarkMode ? "bg-gray-800" : "bg-gray-600"
+          isDarkMode ? "dark-bg-1" : "light-bg-1"
         }`}
         style={{ minHeight: "100vh" }}
       >
@@ -184,12 +184,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectOption }) => {
             <button
               key={option.key}
               onClick={() => handleOptionSelect(option.key)}
-              className={`flex items-center m-2 mt-3 ${
+              className={`flex items-center w-full m-2 mt-3 ${
                 activeOption === option.key
                   ? "bg-blue-600 text-white"
                   : isDarkMode
-                  ? "text-gray-300 hover:bg-blue-400 hover:text-white"
-                  : "text-white hover:bg-blue-400 hover:text-white"
+                  ? "text-white hover:bg-blue-400 hover:text-white"
+                  : "text-black hover:bg-blue-400 hover:text-white"
               } rounded p-2 transition-colors duration-200`}
             >
               {option.icon}

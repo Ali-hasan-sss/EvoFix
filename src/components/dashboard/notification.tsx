@@ -183,11 +183,7 @@ const NotificationComponent: React.FC = () => {
   }
 
   return (
-    <div
-      className={`p-4 mt-3 w-full ${
-        isDarkMode ? "bg-gray-700 text-white" : "bg-gray-400 text-black"
-      }`}
-    >
+    <div className={`p-4 mt-3 w-full `}>
       {notifications.length === 0 ? (
         <div className="text-center">لا توجد إشعارات.</div>
       ) : (
@@ -195,8 +191,8 @@ const NotificationComponent: React.FC = () => {
           {notifications.map((notification) => (
             <li
               key={notification.id}
-              className={`mb-4 p-4 border rounded-md cursor-pointer ${
-                isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-black"
+              className={`mb-4 p-4  rounded-md cursor-pointer ${
+                isDarkMode ? "dark-bg-1 shadow-dark" : "light-bg-1 shadow-light"
               }`}
               onClick={() => handleNotificationClick(notification.id)}
             >

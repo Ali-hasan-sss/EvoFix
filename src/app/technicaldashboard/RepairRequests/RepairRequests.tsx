@@ -120,7 +120,7 @@ const RepairRequests: React.FC = () => {
       {/* حاوية ثابتة شفافة للسحب للتحديث */}
       <PullToRefresh onRefresh={handleRefresh}>
         <div className="fixed flex iterm-center justify-center top-50 text-center left-0 right-0 h-15 bg-transparent z-10">
-          <FaAngleDoubleDown className="mt-4 text-xl text-yellow-500 md:hidden" />
+          <FaAngleDoubleDown className="mt-4 text-xl text-blue-500 md:hidden" />
         </div>
       </PullToRefresh>
       <div className="flex justify-start mb-2">
@@ -138,11 +138,7 @@ const RepairRequests: React.FC = () => {
         <div className="w-full"></div>
       </div>
 
-      <div
-        className={`w-full flex-grow p-2 rounded ${
-          isDarkMode ? "bg-gray-700" : "bg-gray-400"
-        }`}
-      >
+      <div className={`w-full flex-grow p-2 rounded bg-transparent`}>
         <div className="grid grid-cols-2 gap-2 mt-10 sm:grid-cols-3 lg:flex lg:justify-center mb-4">
           {tabs.map((tab) => {
             const tabCount = getTabCount(tab.key);

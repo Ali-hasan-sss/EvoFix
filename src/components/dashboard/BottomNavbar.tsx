@@ -32,14 +32,16 @@ const BottomNavbar: React.FC<BottomNavbarProps> = ({
   return (
     <div
       className={`fixed bottom-0 left-0 w-full md:hidden z-40 ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-600 text-black"
+        isDarkMode
+          ? "text-white buttom-nav-dark"
+          : " text-black buttom-nav-light"
       }`}
     >
       <div className="flex flex-col">
-        <div className="flex justify-center p-1 border-t border-yellow-500">
+        <div className="flex justify-center p-1 border-t border-blue-500">
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="text-gray-500"
+            className={`${isDarkMode ? "text-white" : " text-black"}`}
           >
             {isCollapsed ? (
               <FaChevronUp className="text-2xl" />
@@ -50,7 +52,7 @@ const BottomNavbar: React.FC<BottomNavbarProps> = ({
         </div>
 
         {/* عرض الصف الأول بدون زر الملف الشخصي */}
-        <div className="flex justify-around p-1 border-t border-yellow-500">
+        <div className="flex justify-around p-1 border-t border-blue-500 ">
           {mainRow
             .filter((option) => option.key !== "profile")
             .map((option) => (
@@ -58,7 +60,7 @@ const BottomNavbar: React.FC<BottomNavbarProps> = ({
                 key={option.key}
                 onClick={() => handleOptionSelect(option.key)}
                 className={`flex flex-col items-center flex-1 py-1 ${
-                  activeOption === option.key ? "text-yellow-500" : "text-white"
+                  activeOption === option.key ? "text-yellow-500" : ""
                 } transition-colors duration-200`}
                 aria-label={option.name}
               >
@@ -70,12 +72,12 @@ const BottomNavbar: React.FC<BottomNavbarProps> = ({
 
         {/* عرض زر الملف الشخصي وزر تسجيل الخروج عند التوسع */}
         {!isCollapsed && (
-          <div className="flex justify-around p-1 border-t border-yellow-500">
+          <div className="flex justify-around p-1 border-t border-blue-500">
             {handleProfile && (
               <button
                 onClick={handleProfile} // دالة الملف الشخصي
                 className={`flex flex-col items-center  py-1 ${
-                  activeOption === "profile" ? "text-yellow-500" : "text-white"
+                  activeOption === "profile" ? "text-yellow-500" : ""
                 } transition-colors duration-200`}
                 aria-label="الملف الشخصي"
               >

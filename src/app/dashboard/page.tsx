@@ -197,12 +197,10 @@ const Dashboard = () => {
       )}
 
       <div
-        className={`flex flex-row ${
-          isDarkMode ? "bg-gray-900 text-white" : "bg-gray-300 text-black"
-        }`}
+        className={`flex flex-row ${isDarkMode ? "dark-bg-1" : "light-bg-1"}`}
       >
         <div
-          className="sidebar mt-20 md:w-1/5 custom-sidebar-scroll"
+          className="sidebar mt-10  pt-5 md:w-1/5 custom-sidebar-scroll"
           style={{
             overflowY: "auto",
             height: "calc(100vh - 4rem)",
@@ -213,7 +211,7 @@ const Dashboard = () => {
         </div>
 
         <div
-          className={`flex-grow  mt-16 w-full pb-20 md:pb-0 custom-main-scroll`}
+          className={`flex-grow dashboard  mt-5 w-full pb-10 mp-5  md:pb-0 custom-main-scroll`}
           style={{ overflowY: "auto", maxHeight: "calc(100vh - 4rem)" }}
         >
           {renderContent()}
